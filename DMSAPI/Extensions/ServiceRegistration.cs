@@ -15,7 +15,6 @@ public static class ServiceRegistration
 {
     public static IServiceCollection AddApplicationService(this IServiceCollection services, IConfiguration configuration)
     {
-        // 1️⃣ MySQL DB
         services.AddDbContext<DMSDbContext>(options =>
             options.UseMySql(
                 configuration.GetConnectionString("DefaultConnection"),
