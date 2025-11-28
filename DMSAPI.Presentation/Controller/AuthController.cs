@@ -1,5 +1,6 @@
-﻿using DMSAPI.Entities.DTOs;
+﻿using DMSAPI.Entities.DTOs.UserDTOs;
 using DMSAPI.Services.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -30,6 +31,34 @@ namespace DMSAPI.Presentation.Controller
             catch (Exception ex)
             {
                 return BadRequest (new { message = ex.Message });
+            }
+        }
+        
+        [HttpPost("register")]
+       
+        public async Task<IActionResult> Register([FromBody] UserRegisterDTO registerDTO)
+        {
+            try
+            {
+                var result = await _service.RegisterAsync(registerDTO);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
+        {
+            try
+            {
+                var result = await _service.RefreshTokenAsync(refreshToken);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
     }

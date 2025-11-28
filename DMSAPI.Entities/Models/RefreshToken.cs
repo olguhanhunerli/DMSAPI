@@ -16,7 +16,7 @@ namespace DMSAPI.Entities.Models
         public DateTime ExpiresAt { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool Revoked { get; set; } = false;
-        public string UserAgent { get; set; }
-        public string IpAddress { get; set; }
+        public string? UserAgent { get; set; }
+        public string? IpAddress { get; set; }
     }
 }

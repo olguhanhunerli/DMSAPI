@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,9 +32,9 @@ namespace DMSAPI.Business.Repositories.GenericRepository
            await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<T>> FindAsync(Func<T, bool> predicate)
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
         {
-            return _dbSet.Where(predicate).ToList();
+            return await _dbSet.Where(predicate).ToListAsync();
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()

@@ -3,6 +3,7 @@ using DMSAPI.Entities.DTOs;
 using DMSAPI.Entities.Models;
 using DMSAPI.Services.IServices;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -19,9 +20,9 @@ namespace DMSAPI.Services
     {
         private readonly JwtSettings _jwtSettings;
 
-        public TokenService(JwtSettings jwtSettings)
+        public TokenService(IOptions<JwtSettings> jwtSettingsOptions)
         {
-            _jwtSettings = jwtSettings;
+            _jwtSettings = jwtSettingsOptions.Value;
         }
 
         public string GenerateAccessToken(User user)
