@@ -34,10 +34,13 @@ namespace DMSAPI.Services
             if (user == null)
                 throw new Exception("Invalid Credentials");
 
-            if (!user.IsActive)
+			if (user.IsDeleted == true)
+				throw new Exception("User is Deleted");
+
+			if (!user.IsActive)
                 throw new Exception("User is deactivated");
 
-            if (!VerifyPassword(loginDTO.Password, user.PasswordHash, user.PasswordSalt))
+			if (!VerifyPassword(loginDTO.Password, user.PasswordHash, user.PasswordSalt))
                 throw new Exception("Invalid Credentials");
             var accessToken = _tokenService.GenerateAccessToken(user);
             var refreshToken = _tokenService.GenerateRefreshToken();

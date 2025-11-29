@@ -42,6 +42,9 @@ public static class ServiceRegistration
         services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<ICompanyService, CompanyService>();
 
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<ICategoryServices, CategoryServices>();
+
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
         var jwt = configuration.GetSection("JwtSettings").Get<JwtSettings>();
         var key = Encoding.UTF8.GetBytes(jwt.Secret);

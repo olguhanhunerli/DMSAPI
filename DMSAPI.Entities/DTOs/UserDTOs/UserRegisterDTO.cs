@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,7 +11,7 @@ namespace DMSAPI.Entities.DTOs.UserDTOs
 {
     public class UserRegisterDTO
     {
-        [DefaultValue("Ahmet")]
+		[DefaultValue("Ahmet")]
         public string FirstName { get; set; }
 
         [DefaultValue("Yılmaz")]

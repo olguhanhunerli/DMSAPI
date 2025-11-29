@@ -56,24 +56,58 @@ namespace DMSAPI.Presentation.Controller
                 });
             }
         }
-        [HttpPut("UpdateUser")]
-        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDTO updateUserDTO)
-        {
-            try
-            {
-                var updatedUser = await _service.UpdateUserAsync(updateUserDTO);
-                return Ok(updatedUser);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new
-                {
-                    message = ex.Message,
-                    stack = ex.ToString()
-                });
-            }
-        }
-        [HttpPost("PasswordResetForAdmin")]
+        [HttpGet("GetUserById/{userId}")]
+		public async Task<IActionResult> GetUserById(int userId)
+		{
+			try
+			{
+				var user = await _service.GetUserByIdAsync(userId);
+				return Ok(user);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(new
+				{
+					message = ex.Message,
+					stack = ex.ToString()
+				});
+			}
+		}
+		[HttpGet("GetEmployeesByManagerId/{managerId}")]
+		public async Task<IActionResult> GetEmployeesByManagerId(int managerId)
+		{
+			try
+			{
+				var users = await _service.GetEmployeesByManagerIdAsync(managerId);
+				return Ok(users);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(new
+				{
+					message = ex.Message,
+					stack = ex.ToString()
+				});
+			}
+		}
+        [HttpPost("SearchUsers")]
+		public async Task<IActionResult> SearchUsers([FromBody] UserSearchDTO userSearchDTO)
+		{
+			try
+			{
+				var users = await _service.SearchUsersAsync(userSearchDTO);
+				return Ok(users);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(new
+				{
+					message = ex.Message,
+					stack = ex.ToString()
+				});
+			}
+		}
+		[HttpPost("PasswordResetForAdmin")]
         public async Task<IActionResult> PasswordReset([FromBody] PasswordResetDTO passwordResetDTO)
         {
             try
@@ -124,5 +158,41 @@ namespace DMSAPI.Presentation.Controller
                 });
             }
         }
-    }
+		
+		[HttpPut("UpdateUser")]
+		public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDTO updateUserDTO)
+		{
+			try
+			{
+				var updatedUser = await _service.UpdateUserAsync(updateUserDTO);
+				return Ok(updatedUser);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(new
+				{
+					message = ex.Message,
+					stack = ex.ToString()
+				});
+			}
+		}
+		[HttpDelete("SoftDeleteUser/{userId}")]
+		public async Task<IActionResult> SoftDeleteUser(int userId)
+		{
+			try
+			{
+				var deletedUser = await _service.SoftDeleteUser(userId);
+				return Ok(deletedUser);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(new
+				{
+					message = ex.Message,
+					stack = ex.ToString()
+				});
+			}
+		}
+		
+	}
 }

@@ -1,15 +1,10 @@
 ﻿using AutoMapper;
 using DMSAPI.Entities.DTOs;
+using DMSAPI.Entities.DTOs.CategoryDTOs;
 using DMSAPI.Entities.DTOs.CompanyDTOs;
-using DMSAPI.Entities.DTOs.PermissionDTOs;
 using DMSAPI.Entities.DTOs.RoleDTOs;
 using DMSAPI.Entities.DTOs.UserDTOs;
 using DMSAPI.Entities.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DMSAPI.Services.Mapping
 {
@@ -29,28 +24,27 @@ namespace DMSAPI.Services.Mapping
             .ForMember(dest => dest.ManagerName,
                 opt => opt.MapFrom(src =>
                     src.Manager != null ? src.Manager.FirstName : null
-                ))
-             .ForMember(dest => dest.ManagerName,
-                opt => opt.MapFrom(src =>
-                    src.Manager != null ? src.Manager.FirstName : null
                 ));
+            
 
             CreateMap<User, AuthResponseDTO>()
                 .ForMember(dest => dest.User, opt => opt.MapFrom(src => src));
 
             CreateMap<User, UserRegisterDTO>();
-
             CreateMap<Role, RoleDTO>();
             CreateMap<AddRoleDTO, Role>();
             CreateMap<UpdateRoleDTO, Role>();
-
-            CreateMap<Company, CompanyDTO>();
-            CreateMap<AddCompanyDTO, Company>();
-            CreateMap<UpdateCompanyDTO, Company>();
-
             CreateMap<UpdateUserDTO, UserDTO>();
             CreateMap<UserActiveStatusDTO, UserDTO>();
-                
-        }
+            CreateMap<UserManagerDTO, UserDTO>();
+            CreateMap<UserSearchDTO, UserDTO>();
+
+			CreateMap<Company, CompanyDTO>();
+			CreateMap<AddCompanyDTO, Company>();
+			CreateMap<UpdateCompanyDTO, Company>();
+
+            CreateMap<Category, CategoryDTO>();
+            CreateMap<CreateCategoryDTO, Category>();
+		}
     }
 }

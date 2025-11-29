@@ -7,7 +7,7 @@ using System.Text;
 namespace DMSAPI.Services
 {
     public class UserService : IUserService
-    {
+	{
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
@@ -24,14 +24,29 @@ namespace DMSAPI.Services
             var userDtos = _mapper.Map<IEnumerable<UserDTO>>(users);
             return userDtos;
         }
-        public async Task<UserDTO> GetUserByEmailAsync(string email)
+
+		public async Task<IEnumerable<UserDTO>> GetEmployeesByManagerIdAsync(int managerId)
+		{
+			var users = await _userRepository.GetEmployeesByManagerIdAsync(managerId);
+			var userDtos = _mapper.Map<IEnumerable<UserDTO>>(users);
+			return userDtos;
+		}
+
+		public async Task<UserDTO> GetUserByEmailAsync(string email)
         {
             var user = await _userRepository.GetUserByEmailAsync(email);
             var userDto = _mapper.Map<UserDTO>(user);
             return userDto;
         }
 
-        public async Task<bool> PasswordResetAsync(PasswordResetDTO dto)
+		public async Task<UserDTO> GetUserByIdAsync(int userId)
+		{
+			var user = await _userRepository.GetUserByIdsync(userId);
+			var userDto = _mapper.Map<UserDTO>(user);
+			return userDto;
+		}
+
+		public async Task<bool> PasswordResetAsync(PasswordResetDTO dto)
         {
             var user = await _userRepository.GetUserByEmailAsync(dto.Email);
             if (user == null)
@@ -66,7 +81,14 @@ namespace DMSAPI.Services
             return true;
         }
 
-        public async Task<bool> SetActiveStatusAsync(UserActiveStatusDTO userActiveStatusDTO)
+		public async Task<IEnumerable<UserDTO>> SearchUsersAsync(UserSearchDTO userSearchDTO)
+		{
+			var users = await _userRepository.SearchUsersAsync(userSearchDTO);
+			var userDtos = _mapper.Map<IEnumerable<UserDTO>>(users);
+			return userDtos;
+		}
+
+		public async Task<bool> SetActiveStatusAsync(UserActiveStatusDTO userActiveStatusDTO)
         {
             var user = await _userRepository.GetByIdAsync(userActiveStatusDTO.Id);
             if (user == null)
@@ -79,7 +101,22 @@ namespace DMSAPI.Services
             return true;
         }
 
-        public async Task<UserDTO> UpdateUserAsync(UpdateUserDTO updateUserDTO)
+		public async Task<UserDTO> SoftDeleteUser(int userId)
+		{
+			var user = await _userRepository.GetByIdAsync(userId);
+			if (user == null)
+			{
+				throw new Exception("User not found");
+			}
+            user.IsDeleted = true;
+            user.IsActive = false;
+			user.UpdatedAt = DateTime.UtcNow;
+			await _userRepository.UpdateAsync(user);
+			return _mapper.Map<UserDTO>(user);
+
+		}
+
+		public async Task<UserDTO> UpdateUserAsync(UpdateUserDTO updateUserDTO)
         {
             var user = await _userRepository.GetByIdAsync(updateUserDTO.Id);
             if (user == null)
@@ -115,14 +152,7 @@ namespace DMSAPI.Services
             var updatedUser = await _userRepository.GetUserWithRelationsAsync(updateUserDTO.Id);
             return _mapper.Map<UserDTO>(updatedUser);
         }
-        private byte[] GenerateSalt(int size = 32)
-        {
-           
-            using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
-            var salt = new byte[size];
-            rng.GetBytes(salt);
-            return salt;
-        }
+        
         private string HashPasswordHmac(string password, out string salt)
         {
             using var hmac = new System.Security.Cryptography.HMACSHA256();

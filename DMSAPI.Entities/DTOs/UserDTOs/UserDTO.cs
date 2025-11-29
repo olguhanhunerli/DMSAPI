@@ -32,6 +32,7 @@ namespace DMSAPI.Entities.DTOs.UserDTOs
         public bool? CanApprove { get; set; }
         public int? ApprovalLevel { get; set; }
         public bool? IsActive { get; set; }
+        public bool? IsDeleted { get; set; }
 
         public string? Language { get; set; }
         public string? TimeZone { get; set; }

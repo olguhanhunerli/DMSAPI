@@ -1,4 +1,5 @@
 ﻿using DMSAPI.Entities.DTOs.UserDTOs;
+using DMSAPI.Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,9 @@ namespace DMSAPI.Services.IServices
         Task<bool> PasswordResetAsync(PasswordResetDTO passwordResetDTO);
         Task<bool> PasswordUpdateAsync(PasswordUpdateDTO passwordUpdateDTO);
         Task<bool> SetActiveStatusAsync(UserActiveStatusDTO userActiveStatusDTO);
-    }
+		Task<IEnumerable<UserDTO>> GetEmployeesByManagerIdAsync(int managerId);
+        Task<UserDTO> SoftDeleteUser(int userId);
+        Task<UserDTO> GetUserByIdAsync(int userId);
+        Task<IEnumerable<UserDTO>> SearchUsersAsync(UserSearchDTO userSearchDTO);
+	}
 }

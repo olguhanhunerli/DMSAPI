@@ -1,5 +1,6 @@
 ﻿using DMSAPI.Business.Repositories.GenericRepository;
 using DMSAPI.Entities.DTOs;
+using DMSAPI.Entities.DTOs.UserDTOs;
 using DMSAPI.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -15,5 +16,8 @@ namespace DMSAPI.Business.Repositories.IRepositories
         Task<User> GetUserByEmailWithRoleAndPermissionsAsync(string email);
         Task<User> GetUserByEmailAsync(string email);
         Task<User> GetUserWithRelationsAsync(int id);
-    }
+        Task<IEnumerable<User>> GetEmployeesByManagerIdAsync(int managerId);
+		Task<User> GetUserByIdsync(int id);
+        Task<IEnumerable<User>> SearchUsersAsync(UserSearchDTO userSearchDTO);
+	}
 }

@@ -18,6 +18,7 @@ namespace DMSAPI.Business.Context
         public DbSet<User> Users { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Category> Categories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -38,7 +39,26 @@ namespace DMSAPI.Business.Context
                 .HasMany(u => u.PermissionsList)
                 .WithOne(p => p.User)
                 .HasForeignKey(p => p.UserId);
-        }
+
+            modelBuilder.Entity<Category>(entity =>
+            {
+				entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.Parent)
+                      .WithMany(e => e.Children)
+                      .HasForeignKey(e => e.ParentId)
+					  .OnDelete(DeleteBehavior.Restrict);
+				entity.HasOne(e => e.Company)
+                      .WithMany()
+                      .HasForeignKey(e => e.CompanyId)
+					  .OnDelete(DeleteBehavior.Cascade);
+                entity.HasIndex(c => c.CompanyId);
+                entity.HasIndex(c => c.ParentId);
+                entity.HasIndex(c => c.IsActive);
+
+                entity.HasIndex(c => c.Slug).IsUnique(false);
+			}
+			);
+		}
     }
 }
 

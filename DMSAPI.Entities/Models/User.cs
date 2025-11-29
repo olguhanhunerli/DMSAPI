@@ -20,6 +20,7 @@ namespace DMSAPI.Entities.Models
         public string? PasswordSalt { get; set; }
         public bool IsActive { get; set; } = true;
         public bool IsLocked { get; set; }
+        public bool? IsDeleted { get; set; }
         public int FailedLoginCount { get; set; }
         public DateTime? LastLoginAt { get; set; }
 
