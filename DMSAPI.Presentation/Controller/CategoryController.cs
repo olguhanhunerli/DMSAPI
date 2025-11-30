@@ -80,5 +80,84 @@ namespace DMSAPI.Presentation.Controller
 				return BadRequest(new { message = ex.Message });
 			}
 		}
+		[HttpDelete("SoftDelete-category")]
+		public async Task<IActionResult> SoftDeleteCategory([FromBody] CategoryDeleteDTO categoryDeleteDTO)
+		{
+			try
+			{
+				bool result = await _categoryServices.SoftDeleteCategoryAsync(categoryDeleteDTO);
+				if (result)
+				{
+					return Ok(new { message = "Category soft-deleted successfully." });
+				}
+				else
+				{
+					return BadRequest(new { message = "Failed to soft-delete category." });
+				}
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(new { message = ex.Message });
+			}
+		}
+		[HttpPut("Restore-category")]
+		public async Task<IActionResult> RestoreCategory([FromBody] CategoryRestoreDTO categoryRestoreDTO)
+		{
+			try
+			{
+				bool result = await _categoryServices.RestoreCategoryAsync(categoryRestoreDTO);
+				if (result)
+				{
+					return Ok(new { message = "Category restored successfully." });
+				}
+				else
+				{
+					return BadRequest(new { message = "Failed to restore category." });
+				}
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(new { message = ex.Message });
+			}
+		}
+		[HttpGet("GetCategoryBreadcrumb/{categoryId}")]
+		public async Task<IActionResult> GetCategoryBreadcrumb(int categoryId)
+		{
+			try
+			{
+				var breadcrumb = await _categoryServices.GetCategoryBreadcrumbAsync(categoryId);
+				return Ok(breadcrumb);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(new { message = ex.Message });
+			}
+		}
+		[HttpGet("GetCategoryBreadcrumbDetailed/{categoryId}")]
+		public async Task<IActionResult> GetCategoryBreadcrumbDetailed(int categoryId)
+		{
+			try
+			{
+				var breadcrumb = await _categoryServices.GetCategoryBreadcrumbDetailedAsync(categoryId);
+				return Ok(breadcrumb);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(new { message = ex.Message });
+			}
+		}
+		[HttpGet("GetCategorySelectList/{companyId}")]
+		public async Task<IActionResult> GetCategorySelectList(int companyId)
+		{
+			try
+			{
+				var selectList = await _categoryServices.GetCategorySelectList(companyId);
+				return Ok(selectList);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(new { message = ex.Message });
+			}
+		}
 	}
 }

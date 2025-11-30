@@ -16,6 +16,7 @@ namespace DMSAPI.Entities.DTOs.CategoryDTOs
 		public string? Description { get; set; }
 
 		public string? Slug { get; set; }
+		public string? Code { get; set; }
 
 		public int? ParentId { get; set; }
 
@@ -26,6 +27,7 @@ namespace DMSAPI.Entities.DTOs.CategoryDTOs
 		public int SortOrder { get; set; }
 
 		public bool IsActive { get; set; }
+		public bool? IsDeleted { get; set; }
 
 		public DateTime? CreatedAt { get; set; }
 

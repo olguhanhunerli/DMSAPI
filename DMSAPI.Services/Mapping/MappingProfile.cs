@@ -2,6 +2,7 @@
 using DMSAPI.Entities.DTOs;
 using DMSAPI.Entities.DTOs.CategoryDTOs;
 using DMSAPI.Entities.DTOs.CompanyDTOs;
+using DMSAPI.Entities.DTOs.DocumentDTOs;
 using DMSAPI.Entities.DTOs.RoleDTOs;
 using DMSAPI.Entities.DTOs.UserDTOs;
 using DMSAPI.Entities.Models;
@@ -45,6 +46,16 @@ namespace DMSAPI.Services.Mapping
 
             CreateMap<Category, CategoryDTO>();
             CreateMap<CreateCategoryDTO, Category>();
+
+			CreateMap<Document, DocumentDTO>()
+	        .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.Name))
+	        .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
+	        .ForMember(dest => dest.CreatedByName, opt => opt.MapFrom(src => src.CreatedByUser.FirstName))
+	        .ForMember(dest => dest.UpdatedByName, opt => opt.MapFrom(src => src.UpdatedByUser.FirstName))
+	        .ForMember(dest => dest.ApproverName, opt => opt.MapFrom(src => src.ApproverUser.FirstName))
+	        .ForMember(dest => dest.ApprovedByName, opt => opt.MapFrom(src => src.ApprovedByUser.FirstName))
+	        .ForMember(dest => dest.RejectedByName, opt => opt.MapFrom(src => src.RejectedByUser.FirstName))
+	        .ForMember(dest => dest.DeletedByName, opt => opt.MapFrom(src => src.DeletedByUser.FirstName));
 		}
     }
 }

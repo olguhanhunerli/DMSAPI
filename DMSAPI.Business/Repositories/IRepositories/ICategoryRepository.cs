@@ -14,5 +14,8 @@ namespace DMSAPI.Business.Repositories.IRepositories
 		Task<IEnumerable<Category>> GetChildrenAsync(int parentId);
 		Task<Category> GetCategoryWithChildrenAsync(int categoryId);
 		Task<bool> ExistsAsync(string name, int companyId, int? parentId);
+		Task SoftDeleteAsync(int categoryId, int? uploadedBy);
+		Task RestoreCategoryAsync(int categoryId, int? uploadedBy);
+		Task<int> GetNextSortOrder(int companyId, int? parentId);
 	}
 }

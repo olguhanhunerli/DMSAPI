@@ -35,7 +35,7 @@ namespace DMSAPI.Business.Repositories
 		{
 			return _dbSet
 				.Include(c => c.Children.Where(child => !child.IsDeleted))
-				.ThenInclude(child => child.Children)
+				 .ThenInclude(child => child.Children.Where(gc => !gc.IsDeleted))
 				.Include(c => c.Parent)
 				.Include(c => c.Company)
 				.FirstOrDefaultAsync(c => c.Id == categoryId && !c.IsDeleted);
@@ -47,6 +47,41 @@ namespace DMSAPI.Business.Repositories
 				.Where(c => c.ParentId == parentId && !c.IsDeleted)
 				.OrderBy(c => c.SortOrder)
 				.ToListAsync();
+		}
+
+		public async Task<int> GetNextSortOrder(int companyId, int? parentId)
+		{
+			return await _dbSet
+				.Where(c => c.CompanyId == companyId && c.ParentId == parentId && !c.IsDeleted)
+				.CountAsync() + 1;
+		}
+
+		public async Task RestoreCategoryAsync(int categoryId, int? uploadedBy)
+		{
+			var category = await _dbSet.FirstOrDefaultAsync(c => c.Id == categoryId);
+			if (category == null)
+			{
+				throw new Exception("Category not found.");
+			}
+			category.IsDeleted = false;
+			category.UpdatedAt = DateTime.UtcNow;
+			category.UpdatedBy = uploadedBy;
+			_dbSet.Update(category);
+			await _context.SaveChangesAsync();
+		}
+
+		public async Task SoftDeleteAsync(int categoryId, int? uploadedBy)
+		{
+			var category = await _dbSet.FirstOrDefaultAsync(c => c.Id == categoryId);
+			if(category == null)
+			{
+				throw new Exception("Category not found.");
+			}
+			category.IsDeleted = true;
+			category.UpdatedAt = DateTime.UtcNow;
+			category.UpdatedBy = uploadedBy;
+			_dbSet.Update(category);
+			await _context.SaveChangesAsync();
 		}
 	}
 }

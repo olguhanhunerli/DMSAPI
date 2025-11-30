@@ -9,6 +9,7 @@ namespace DMSAPI.Entities.DTOs.CompanyDTOs
     public class UpdateCompanyDTO
     {
         public string Name { get; set; }
+        public string CompanyCode { get; set; }
         
     }
 }

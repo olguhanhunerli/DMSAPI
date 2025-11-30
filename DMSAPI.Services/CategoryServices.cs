@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DMSAPI.Business.Repositories.IRepositories;
+using DMSAPI.Entities.DTOs;
 using DMSAPI.Entities.DTOs.CategoryDTOs;
 using DMSAPI.Entities.Models;
 using DMSAPI.Services.IServices;
@@ -44,6 +45,7 @@ namespace DMSAPI.Services
 				Name = categoryDto.Name,
 				Description = categoryDto.Description,
 				Slug = slug,
+				Code = categoryDto.Code,
 				ParentId = categoryDto.ParentId,
 				CompanyId = categoryDto.CompanyId,
 				SortOrder = (int)categoryDto.SortOrder,
@@ -58,6 +60,7 @@ namespace DMSAPI.Services
 		public async Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync()
 		{
 			var categories = await _categoryRepository.GetAllAsync();
+			categories = categories.Where(c => !c.IsDeleted);
 			return _mapper.Map<IEnumerable<CategoryDTO>>(categories);
 		}
 
@@ -150,10 +153,84 @@ namespace DMSAPI.Services
 			}
 			return resultTree;
 		}
+		public async Task<bool> RestoreCategoryAsync(CategoryRestoreDTO categoryRestoreDTO)
+		{
+			await _categoryRepository.RestoreCategoryAsync(categoryRestoreDTO.Id, categoryRestoreDTO.UploadedBy);
+			return true;
+
+		}
+		public async Task<bool> SoftDeleteCategoryAsync(CategoryDeleteDTO categoryDeleteDTO)
+		{
+			await _categoryRepository.SoftDeleteAsync(categoryDeleteDTO.Id, categoryDeleteDTO.UploadedBy);
+			return true;
+
+		}
+		public async Task<List<string>> GetCategoryBreadcrumbAsync(int categoryId)
+		{
+			var category = await _categoryRepository.GetByIdAsync(categoryId);
+			if (category == null)
+			{
+				throw new Exception("Category not found.");
+			}
+			List<string> breadcrumb = new List<string>();
+			while (category != null)
+			{
+				breadcrumb.Insert(0, category.Name);
+				if (category.ParentId == null) break;
+				category = await _categoryRepository.GetByIdAsync(category.ParentId.Value);
+			}
+			return breadcrumb;
+		}
+		public async Task<CategoryBreadcrumbDTO> GetCategoryBreadcrumbDetailedAsync(int categoryId)
+		{
+			var list = new List<Category>();
+
+			var category = await _categoryRepository.GetByIdAsync(categoryId);
+			if (category == null)
+			{
+				throw new Exception("Category not found.");
+			}
+			list.Add(category);
+			while (category.ParentId.HasValue)
+			{
+				category = await _categoryRepository.GetByIdAsync(category.ParentId.Value);
+				if (category == null) break;
+				list.Add(category);
+			}
+			list.Reverse();
+			return new CategoryBreadcrumbDTO
+			{
+				BreadcrumbList = list.Select(c => new BreadCrumbItemDTO
+				{
+					Id = c.Id,
+					Name = c.Name,
+				}).ToList(),
+				FullPath = string.Join(" / ", list.Select(c => c.Name))
+			};
+
+		}
+		public async Task<IEnumerable<CategorySelectListDTO>> GetCategorySelectList(int companyId)
+		{
+			var categories = await _categoryRepository.GetCategoriesByCompanyId(companyId);
+			var list = new List<CategorySelectListDTO>();
+			foreach (var category in categories)
+			{
+				var breadcrumb = await GetCategoryBreadcrumbAsync(category.Id);
+				string displayName = string.Join(" / ", breadcrumb);
+				list.Add(new CategorySelectListDTO
+				{
+					Id = category.Id,
+					DisplayName = displayName
+				});
+				
+			}
+			return list.OrderBy(c => c.DisplayName);
+		}
 		private string GenerateSlug(string name)
 		{
 			return name.ToLower().Replace(" ", "-");
-		}	
+		}
+		
 		private CategoryTreeDTO BuildTree(Category category, IEnumerable<Category> allCategories)
 		{
 			var node = new CategoryTreeDTO
@@ -167,12 +244,16 @@ namespace DMSAPI.Services
 				Children = new List<CategoryTreeDTO>()
 			};
 
-			var children = allCategories.Where(c => c.ParentId == category.Id).ToList();
+			var children = allCategories
+				.Where(c => c.ParentId == category.Id && !c.IsDeleted)
+				.OrderBy(c => c.SortOrder)
+				.ToList();
 			node.Children = children.Any()
 				? children.Select(child => BuildTree(child, allCategories)).ToList()
 				: new List<CategoryTreeDTO>();
 			return node;
 		}
+		
 		private void AddNodeWithParents(CategoryDTO category, IEnumerable<CategoryDTO> allCategories, List<CategoryDTO> resultTree)
 		{
 			if (category.ParentId == null)
@@ -214,5 +295,6 @@ namespace DMSAPI.Services
 			AddNodeWithParents(parent, allCategories, resultTree);
 		}
 
+	
 	}
 }

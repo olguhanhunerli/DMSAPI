@@ -11,6 +11,7 @@ namespace DMSAPI.Entities.DTOs.CategoryDTOs
 		public string Name { get; set; }
 		public string? Description { get; set; }
 		public int? ParentId { get; set; }
+		public string? Code { get; set; }
 		public int CompanyId { get; set; }
 		public int? SortOrder { get; set; }
 	}
