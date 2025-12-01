@@ -51,12 +51,9 @@ namespace DMSAPI.Services
 
         public RefreshTokenDTO GenerateRefreshToken()
         {
-            var rawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-
             return new RefreshTokenDTO
             {
-                RawToken = rawToken,
-                ExpiresAt = DateTime.UtcNow.AddDays(30)
+                RawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64))
             };
 
         }
@@ -65,7 +62,7 @@ namespace DMSAPI.Services
         {
             using var sha256 = SHA256.Create();
             var bytes = Encoding.UTF8.GetBytes(token);
-            var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(token));
+            var hash = sha256.ComputeHash(bytes);
             return Convert.ToBase64String(hash);
         }
     }

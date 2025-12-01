@@ -25,6 +25,5 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
 
 		public IFormFile File { get; set; }
 
-		public int CreatedBy { get; set; }
 	}
 }

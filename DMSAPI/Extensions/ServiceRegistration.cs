@@ -10,6 +10,7 @@ using DMSAPI.Services.IServices;
 using DMSAPI.Services.Mapping;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 using System.Text;
@@ -58,25 +59,31 @@ public static class ServiceRegistration
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         })
-        .AddJwtBearer(options =>
-        {
-            options.RequireHttpsMetadata = true;
-            options.SaveToken = true;
+                 .AddJwtBearer(options =>
+                 {
+                     options.RequireHttpsMetadata = true;
+                     options.SaveToken = true;
 
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
+                     options.MapInboundClaims = false; // 🔥 claim mapping kapatılıyor
 
-                ValidIssuer = jwt.Issuer,
-                ValidAudience = jwt.Audience,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
+                     options.TokenValidationParameters = new TokenValidationParameters
+                     {
+                         ValidateIssuer = true,
+                         ValidateAudience = true,
+                         ValidateLifetime = true,
+                         ValidateIssuerSigningKey = true,
 
-                ClockSkew = TimeSpan.Zero
-            };
-        });
+                         ValidIssuer = jwt.Issuer,
+                         ValidAudience = jwt.Audience,
+                         IssuerSigningKey = new SymmetricSecurityKey(key),
+
+                         ClockSkew = TimeSpan.Zero,
+
+                         NameClaimType = JwtRegisteredClaimNames.Sub,
+                         RoleClaimType = "role"
+                     };
+                 });
+
 
         return services;
     }

@@ -1,10 +1,13 @@
 ﻿using DMSAPI.Entities.DTOs.DocumentDTOs;
 using DMSAPI.Services.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,8 +26,8 @@ namespace DMSAPI.Presentation.Controller
 		[HttpPost("CreateDocument")]
 		public async Task<IActionResult> CreateDocument([FromForm] DocumentCreateDTO createDocumentDTO)
 		{
-			createDocumentDTO.CreatedBy = GetUserId();
-			var documentId = await _documentService.CreateDocumentAsync(createDocumentDTO);
+			var userId = GetUserId();
+			var documentId = await _documentService.CreateDocumentAsync(createDocumentDTO, userId);
 			return Ok(documentId);
 		}
 		[HttpGet("GetAllDocuments")]
@@ -33,12 +36,18 @@ namespace DMSAPI.Presentation.Controller
 			var documents = await _documentService.GetAllDocumentsAsync();
 			return Ok(documents);
 		}
-	
-	private int GetUserId()
-		{
-			var userId = User.FindFirst("Sub")?.Value;
+        [Authorize]
+        [HttpGet("debug")]
+        public IActionResult Debug()
+        {
+            return Ok(User.Claims.Select(x => new { x.Type, x.Value }));
+        }
 
-			if (userId == null)
+        private int GetUserId()
+		{
+            var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+
+            if (userId == null)
 				throw new Exception("User ID not found in token");
 
 			return int.Parse(userId);
