@@ -22,19 +22,23 @@ namespace DMSAPI.Services
             _mapper = mapper;
         }
 
-        public async Task CreateCompanyAsync(AddCompanyDTO companyCreateDTO)
+        public async Task CreateCompanyAsync(AddCompanyDTO companyCreateDTO, int userIdFromToken)
         {
-          var companyEntity = _mapper.Map<Company>(companyCreateDTO);
-          await _companyRepository.AddAsync(companyEntity);
+            var companyEntity = _mapper.Map<Company>(companyCreateDTO);
+            companyEntity.CreatedAt = DateTime.UtcNow;
+            companyEntity.CreatedBy= userIdFromToken;
+            await _companyRepository.AddAsync(companyEntity);
         }
 
-        public Task DeleteCompanyAsync(int companyId)
+        public Task DeleteCompanyAsync(int companyId, int userIdFromToken)
         {
             var companyEntity = _companyRepository.GetByIdAsync(companyId);
             if (companyEntity == null)
             {
                 throw new Exception("Company not found");
             }
+            companyEntity.Result.UpdatedAt = DateTime.UtcNow;
+            companyEntity.Result.UploadedBy = userIdFromToken;
             return _companyRepository.DeleteAsync(companyEntity.Result);
         }
 
@@ -56,14 +60,17 @@ namespace DMSAPI.Services
 
         }
 
-        public async Task UpdateCompanyAsync(int companyId, UpdateCompanyDTO companyUpdateDTO)
+        public async Task UpdateCompanyAsync(int companyId, UpdateCompanyDTO companyUpdateDTO, int userIdFromToken)
         {
             var existingCompany =await _companyRepository.GetByIdAsync(companyId);
             if (existingCompany == null)
             {
                 throw new Exception("Company not found");
             }
+            
             _mapper.Map(companyUpdateDTO, existingCompany);
+            existingCompany.UploadedBy = userIdFromToken;
+            existingCompany.UpdatedAt = DateTime.UtcNow;
             _companyRepository.UpdateAsync(existingCompany);
         }
     }

@@ -3,6 +3,7 @@ using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,32 +39,44 @@ namespace DMSAPI.Presentation.Controller
         [HttpPost("CreateCompany")]
         public async Task<IActionResult> CreateCompany([FromBody] AddCompanyDTO companyDTO)
         {
+            var user = GetUserId();
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            await _companyService.CreateCompanyAsync(companyDTO);
+            await _companyService.CreateCompanyAsync(companyDTO, user);
             return Ok(companyDTO);
         }
         [HttpPut("UpdateCompany/{id}")]
         public async Task<IActionResult> UpdateCompany(int id, [FromBody] UpdateCompanyDTO companyDTO)
         {
+            var user = GetUserId();
             var existingCompany = await _companyService.GetCompanyByIdAsync(id);
             if (existingCompany == null)
             {
                 return NotFound();
             }
-            await _companyService.UpdateCompanyAsync(id, companyDTO);
+            await _companyService.UpdateCompanyAsync(id, companyDTO, user);
             return NoContent();
         }
         [HttpDelete("DeleteCompany/{id}")]
         public async Task<IActionResult> DeleteCompany(int id)
         {
+            var user = GetUserId();
             var existingCompany = await _companyService.GetCompanyByIdAsync(id);
             if (existingCompany == null)
             {
                 return NotFound();
             }
-            await _companyService.DeleteCompanyAsync(id);
+            await _companyService.DeleteCompanyAsync(id, user);
             return NoContent();
+        }
+        private int GetUserId()
+        {
+            var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+
+            if (userId == null)
+                throw new Exception("User ID not found in token");
+
+            return int.Parse(userId);
         }
     }
 }

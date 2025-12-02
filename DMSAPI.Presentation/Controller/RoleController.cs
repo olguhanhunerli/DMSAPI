@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,36 +36,48 @@ namespace DMSAPI.Presentation.Controller
             }
             return Ok(role);
         }
-        [HttpPost("AddRole")]
-        public async Task<IActionResult> AddRole([FromBody] AddRoleDTO roleDTO)
+        [HttpPost("CreateRole")]
+        public async Task<IActionResult> CreateRole([FromBody] AddRoleDTO roleDTO)
         {
+            var user = GetUserId();
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            await _roleService.AddAsync(roleDTO);
+            await _roleService.AddAsync(roleDTO,user);
             return Ok(roleDTO);
         }
         [HttpPut("UpdateRole/{id}")]
         public async Task<IActionResult> UpdateRole(int id, [FromBody] UpdateRoleDTO roleDTO)
         {
+            var user = GetUserId();
             var existingRole = await _roleService.GetByIdAsync(id);
             if (existingRole == null)
             {
                 return NotFound();
             }
-            await _roleService.UpdateAsync(id, roleDTO);
+            await _roleService.UpdateAsync(id, roleDTO,user);
             return NoContent();
         }
         [HttpDelete("DeleteRole/{id}")]
         public async Task<IActionResult> DeleteRole(int id)
         {
+            var user = GetUserId();
             var existingRole = await _roleService.GetByIdAsync(id);
             if (existingRole == null)
             {
                 return NotFound();
             }
-            await _roleService.DeleteAsync(id);
+            await _roleService.DeleteAsync(id, user);
             return Ok("Silme İşlemi Başarılı");
+        }
+        private int GetUserId()
+        {
+            var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+
+            if (userId == null)
+                throw new Exception("User ID not found in token");
+
+            return int.Parse(userId);
         }
     }
 }

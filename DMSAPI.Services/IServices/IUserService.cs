@@ -12,7 +12,7 @@ namespace DMSAPI.Services.IServices
     {
         Task<IEnumerable<UserDTO>> GetAllUserAsync();
         Task<UserDTO> GetUserByEmailAsync(string email);
-        Task<UserDTO> UpdateUserAsync(UpdateUserDTO updateUserDTO);
+        Task<UserDTO> UpdateUserAsync(UpdateUserDTO updateUserDTO, int userIdFromToken);
         Task<bool> PasswordResetAsync(PasswordResetDTO passwordResetDTO);
         Task<bool> PasswordUpdateAsync(PasswordUpdateDTO passwordUpdateDTO);
         Task<bool> SetActiveStatusAsync(UserActiveStatusDTO userActiveStatusDTO);

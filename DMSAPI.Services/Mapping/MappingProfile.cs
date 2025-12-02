@@ -2,6 +2,7 @@
 using DMSAPI.Entities.DTOs;
 using DMSAPI.Entities.DTOs.CategoryDTOs;
 using DMSAPI.Entities.DTOs.CompanyDTOs;
+using DMSAPI.Entities.DTOs.DepartmentDTOs;
 using DMSAPI.Entities.DTOs.DocumentDTOs;
 using DMSAPI.Entities.DTOs.RoleDTOs;
 using DMSAPI.Entities.DTOs.UserDTOs;
@@ -26,8 +27,10 @@ namespace DMSAPI.Services.Mapping
                 opt => opt.MapFrom(src =>
                     src.Manager != null ? src.Manager.FirstName : null
                 ));
-            
 
+            CreateMap<User, UserMiniDTO>()
+            .ForMember(dest => dest.FullName,
+                opt => opt.MapFrom(src => src.FirstName + " " + src.LastName));
             CreateMap<User, AuthResponseDTO>()
                 .ForMember(dest => dest.User, opt => opt.MapFrom(src => src));
 
@@ -56,6 +59,16 @@ namespace DMSAPI.Services.Mapping
 	        .ForMember(dest => dest.ApprovedByName, opt => opt.MapFrom(src => src.ApprovedByUser.FirstName))
 	        .ForMember(dest => dest.RejectedByName, opt => opt.MapFrom(src => src.RejectedByUser.FirstName))
 	        .ForMember(dest => dest.DeletedByName, opt => opt.MapFrom(src => src.DeletedByUser.FirstName));
-		}
+
+            CreateMap<Department, DepartmentDTO>()
+    .       ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.Name));
+
+            CreateMap<Department, DepartmentDetailDTO>()
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.Name));
+
+            CreateMap<CreateDepartmentDTO, Department>();
+            CreateMap<UpdateDepartmentDTO, Department>();
+
+        }
     }
 }

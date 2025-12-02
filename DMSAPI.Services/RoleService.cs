@@ -34,25 +34,27 @@ namespace DMSAPI.Services
             var role = await _roleRepository.GetByIdAsync(id);
             return _mapper.Map<RoleDTO>(role);
         }
-        public async Task AddAsync(AddRoleDTO roleDTO)
+        public async Task AddAsync(AddRoleDTO roleDTO, int userIdFromToken)
         {
             var role = _mapper.Map<Role>(roleDTO);
+            role.CreatedBy = userIdFromToken;
             await _roleRepository.AddAsync(role);
         }
-        public async Task UpdateAsync(int id, UpdateRoleDTO roleDTO)
+        public async Task UpdateAsync(int id, UpdateRoleDTO roleDTO, int userIdFromToken)
         {
             var existingRole = await _roleRepository.GetByIdAsync(id);
                 if (existingRole != null)
-           
+            existingRole.UploadedBy = userIdFromToken;
             _mapper.Map(roleDTO, existingRole);
             await _roleRepository.UpdateAsync(existingRole);
             
         }
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, int userIdFromToken)
         {
             var role = await _roleRepository.GetByIdAsync(id);
             if (role != null)
             {
+                role.UploadedBy = userIdFromToken;
                 await _roleRepository.DeleteAsync(role);
             }
         }

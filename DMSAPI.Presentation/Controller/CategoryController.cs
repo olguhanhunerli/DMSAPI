@@ -3,6 +3,7 @@ using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -72,7 +73,8 @@ namespace DMSAPI.Presentation.Controller
 		{
 			try
 			{
-				var updatedCategory = await _categoryServices.UpdateCategoryByIdAsync(categoryDto);
+                var userIdFromToken = GetUserId();
+                var updatedCategory = await _categoryServices.UpdateCategoryByIdAsync(categoryDto,userIdFromToken);
 				return Ok(updatedCategory);
 			}
 			catch (Exception ex)
@@ -85,7 +87,8 @@ namespace DMSAPI.Presentation.Controller
 		{
 			try
 			{
-				bool result = await _categoryServices.SoftDeleteCategoryAsync(categoryDeleteDTO);
+                var userIdFromToken = GetUserId();
+                bool result = await _categoryServices.SoftDeleteCategoryAsync(categoryDeleteDTO);
 				if (result)
 				{
 					return Ok(new { message = "Category soft-deleted successfully." });
@@ -105,7 +108,8 @@ namespace DMSAPI.Presentation.Controller
 		{
 			try
 			{
-				bool result = await _categoryServices.RestoreCategoryAsync(categoryRestoreDTO);
+                var userIdFromToken = GetUserId();
+                bool result = await _categoryServices.RestoreCategoryAsync(categoryRestoreDTO);
 				if (result)
 				{
 					return Ok(new { message = "Category restored successfully." });
@@ -151,7 +155,7 @@ namespace DMSAPI.Presentation.Controller
 		{
 			try
 			{
-				var selectList = await _categoryServices.GetCategorySelectList(companyId);
+                var selectList = await _categoryServices.GetCategorySelectList(companyId);
 				return Ok(selectList);
 			}
 			catch (Exception ex)
@@ -159,5 +163,14 @@ namespace DMSAPI.Presentation.Controller
 				return BadRequest(new { message = ex.Message });
 			}
 		}
-	}
+        private int GetUserId()
+        {
+            var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+
+            if (userId == null)
+                throw new Exception("User ID not found in token");
+
+            return int.Parse(userId);
+        }
+    }
 }

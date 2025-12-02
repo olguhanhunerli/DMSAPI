@@ -2,6 +2,7 @@
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +41,8 @@ namespace DMSAPI.Presentation.Controller
         {
             try
             {
-                var result = await _service.RegisterAsync(registerDTO);
+                var userId = GetUserId();
+                var result = await _service.RegisterAsync(registerDTO, userId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -60,6 +62,15 @@ namespace DMSAPI.Presentation.Controller
             {
                 return BadRequest(new { message = ex.Message });
             }
+        }
+        private int GetUserId()
+        {
+            var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+
+            if (userId == null)
+                throw new Exception("User ID not found in token");
+
+            return int.Parse(userId);
         }
     }
 }

@@ -11,8 +11,8 @@ namespace DMSAPI.Services.IServices
     {
         Task<IEnumerable<RoleDTO>> GetAllRoleAsync();
         Task<RoleDTO>? GetByIdAsync(int id);
-        Task AddAsync(AddRoleDTO roleDTO);
-        Task UpdateAsync(int id, UpdateRoleDTO roleDTO);
-        Task DeleteAsync(int id);
+        Task AddAsync(AddRoleDTO roleDTO, int userIdFromToken);
+        Task UpdateAsync(int id, UpdateRoleDTO roleDTO, int userIdFromToken);
+        Task DeleteAsync(int id, int userIdFromToken);
     }
 }

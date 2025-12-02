@@ -44,6 +44,8 @@ namespace DMSAPI.Services
                 throw new Exception("Invalid Credentials");
             var accessToken = _tokenService.GenerateAccessToken(user);
             var refreshToken = _tokenService.GenerateRefreshToken();
+            user.LastLoginAt = DateTime.UtcNow;
+            await _userRepository.UpdateAsync(user);
 
             await _refreshToken.AddAsync(new RefreshToken
             {
@@ -51,6 +53,7 @@ namespace DMSAPI.Services
                 TokenHash = _tokenService.HashToken(refreshToken.RawToken),
                 ExpiresAt = DateTime.UtcNow.AddDays(7),
             });
+            
 
             return new AuthResponseDTO
             {
@@ -85,7 +88,7 @@ namespace DMSAPI.Services
 
         }
 
-        public async Task<AuthResponseDTO> RegisterAsync(UserRegisterDTO registerDTO)
+        public async Task<AuthResponseDTO> RegisterAsync(UserRegisterDTO registerDTO, int userIdFromToken)
         {
             var existing = await _userRepository.GetUserByEmailAsync(registerDTO.Email);
             if (existing != null)
@@ -94,7 +97,8 @@ namespace DMSAPI.Services
             using var hmac = new System.Security.Cryptography.HMACSHA256();
             var salt = hmac.Key;
             var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDTO.Password));
-
+            var users = await _userRepository.GetByIdAsync(userIdFromToken)
+                ?? throw new Exception("User not found");
             var user = new User
             {
                 FirstName = registerDTO.FirstName,
@@ -117,6 +121,8 @@ namespace DMSAPI.Services
                 PasswordHash = Convert.ToBase64String(hash),
                 PasswordSalt = Convert.ToBase64String(salt),
                 CreatedAt = DateTime.UtcNow,
+                CreatedBy = userIdFromToken
+                
             };
 
             await _userRepository.AddAsync(user);

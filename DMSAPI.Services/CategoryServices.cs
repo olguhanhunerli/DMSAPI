@@ -15,15 +15,17 @@ namespace DMSAPI.Services
 	public class CategoryServices : ICategoryServices
 	{
 		private readonly ICategoryRepository _categoryRepository;
-		private readonly IMapper _mapper;
+		private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
 
-		public CategoryServices(ICategoryRepository categoryRepository, IMapper mapper)
-		{
-			_categoryRepository = categoryRepository;
-			_mapper = mapper;
-		}
+        public CategoryServices(ICategoryRepository categoryRepository, IMapper mapper, IUserRepository userRepository)
+        {
+            _categoryRepository = categoryRepository;
+            _mapper = mapper;
+            _userRepository = userRepository;
+        }
 
-		public async Task<CategoryDTO> CreateCategoryAsync(CreateCategoryDTO categoryDto)
+        public async Task<CategoryDTO> CreateCategoryAsync(CreateCategoryDTO categoryDto)
 		{
 			bool exists = await _categoryRepository.ExistsAsync(categoryDto.Name, categoryDto.CompanyId, categoryDto.ParentId);
 			if (exists)
@@ -84,9 +86,10 @@ namespace DMSAPI.Services
 			return roots.Select(c => BuildTree(c, categories)).ToList();
 		}
 
-		public async Task<CategoryDTO> UpdateCategoryByIdAsync(UpdateCategoryDTO categoryDto)
+		public async Task<CategoryDTO> UpdateCategoryByIdAsync(UpdateCategoryDTO categoryDto, int userIdFromToken)
 		{
-			var category = await _categoryRepository.GetByIdAsync(categoryDto.Id);
+			var user = await _userRepository.GetByIdAsync(userIdFromToken);
+            var category = await _categoryRepository.GetByIdAsync(categoryDto.Id);
 			if (category == null)
 			{
 				throw new Exception("Category not found.");
@@ -134,8 +137,8 @@ namespace DMSAPI.Services
 				category.IsActive = categoryDto.IsActive.Value;
 			}
 			category.UpdatedAt = DateTime.UtcNow;
-
-			await _categoryRepository.UpdateAsync(category);
+			category.UpdatedBy = user.Id;
+            await _categoryRepository.UpdateAsync(category);
 			return _mapper.Map<CategoryDTO>(category);
 		}
 		public async Task<IEnumerable<CategoryDTO>> SearchCategoryTreeAsync(string keyword, int companyId)

@@ -95,7 +95,13 @@ namespace DMSAPI.Business.Context
 						.WithMany()
 						.HasForeignKey(d => d.DeletedBy)
 						.OnDelete(DeleteBehavior.Restrict);
-		}
+            modelBuilder.Entity<Department>()
+						.HasOne(d => d.Manager)
+						.WithMany()
+						.HasForeignKey(d => d.ManagerId)
+						.OnDelete(DeleteBehavior.SetNull);
+        }
+
 	}
 }
 

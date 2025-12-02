@@ -11,8 +11,8 @@ namespace DMSAPI.Services.IServices
     {
         Task<IEnumerable<CompanyDTO>> GetAllCompaniesAsync();
         Task<CompanyDTO> GetCompanyByIdAsync(int companyId);
-        Task CreateCompanyAsync(AddCompanyDTO companyCreateDTO);
-        Task UpdateCompanyAsync(int companyId, UpdateCompanyDTO companyUpdateDTO);
-        Task DeleteCompanyAsync(int companyId);
+        Task CreateCompanyAsync(AddCompanyDTO companyCreateDTO, int userIdFromToken);
+        Task UpdateCompanyAsync(int companyId, UpdateCompanyDTO companyUpdateDTO, int userIdFromToken);
+        Task DeleteCompanyAsync(int companyId, int userIdFromToken);
     }
 }

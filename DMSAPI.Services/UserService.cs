@@ -116,7 +116,7 @@ namespace DMSAPI.Services
 
 		}
 
-		public async Task<UserDTO> UpdateUserAsync(UpdateUserDTO updateUserDTO)
+		public async Task<UserDTO> UpdateUserAsync(UpdateUserDTO updateUserDTO, int userIdFromToken)
         {
             var user = await _userRepository.GetByIdAsync(updateUserDTO.Id);
             if (user == null)
@@ -148,6 +148,8 @@ namespace DMSAPI.Services
             if (updateUserDTO.IsLocked.HasValue) user.IsLocked = updateUserDTO.IsLocked.Value;
             if (updateUserDTO.Language != null) user.Language = updateUserDTO.Language;
             if (updateUserDTO.TimeZone != null) user.TimeZone = updateUserDTO.TimeZone;
+            user.UpdatedAt = DateTime.UtcNow;
+            user.UpdatedBy = userIdFromToken;
             await _userRepository.UpdateAsync(user);
             var updatedUser = await _userRepository.GetUserWithRelationsAsync(updateUserDTO.Id);
             return _mapper.Map<UserDTO>(updatedUser);

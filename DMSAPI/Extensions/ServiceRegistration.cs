@@ -49,8 +49,11 @@ public static class ServiceRegistration
         services.AddScoped<IDocumentRepository, DocumentRepository>();
 		services.AddScoped<IDocumentService, DocumentService>();
 
+        services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+        services.AddScoped<IDepartmentService, DepartmentService>();
 
-		services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+
+        services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
         var jwt = configuration.GetSection("JwtSettings").Get<JwtSettings>();
         var key = Encoding.UTF8.GetBytes(jwt.Secret);
 
