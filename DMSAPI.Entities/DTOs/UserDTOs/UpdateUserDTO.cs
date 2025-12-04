@@ -38,8 +38,8 @@ namespace DMSAPI.Entities.DTOs.UserDTOs
         [DefaultValue(1007)]
         public int? ManagerId { get; set; }
 
-        [DefaultValue("Senior Developer")]
-        public string? Position { get; set; }
+        [DefaultValue(1)]
+        public int? PositionId { get; set; }
 
         [DefaultValue(true)]
         public bool? CanApprove { get; set; }

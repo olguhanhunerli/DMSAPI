@@ -23,6 +23,7 @@ namespace DMSAPI.Business.Repositories
                 .Include(u => u.Company)
                 .Include(u => u.Department)
                 .Include(u => u.Manager)
+                .Include(u => u.Position)
                 .ToListAsync();
         }
 
@@ -53,6 +54,7 @@ namespace DMSAPI.Business.Repositories
                 .Include(u => u.Company)
                 .Include(u => u.Department)
                 .Include(u => u.Manager)
+                .Include(u  => u.Position)
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
@@ -63,6 +65,7 @@ namespace DMSAPI.Business.Repositories
                 .Include(u => u.Company)
                 .Include(u => u.Department)
                 .Include(u => u.Manager)
+                .Include(u => u.Position)
                 .FirstOrDefaultAsync(u => u.Id == id);
 		}
 

@@ -19,8 +19,9 @@ namespace DMSAPI.Business.Context
 		public DbSet<Permission> Permissions { get; set; }
 		public DbSet<RefreshToken> RefreshTokens { get; set; }
 		public DbSet<Category> Categories { get; set; }
+        public DbSet<Position> Positions { get; set; }
+        public DbSet<Document> Documents { get; set; }
 
-		public DbSet<Document> Documents { get; set; }
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			base.OnModelCreating(modelBuilder);
@@ -40,8 +41,11 @@ namespace DMSAPI.Business.Context
 				.HasMany(u => u.PermissionsList)
 				.WithOne(p => p.User)
 				.HasForeignKey(p => p.UserId);
-
-			modelBuilder.Entity<Category>(entity =>
+            modelBuilder.Entity<User>()
+				.HasOne(u => u.Position)
+				.WithMany(p => p.Users)
+				.HasForeignKey(u => u.PositionId);
+            modelBuilder.Entity<Category>(entity =>
 			{
 				entity.HasKey(e => e.Id);
 				entity.HasOne(e => e.Parent)

@@ -108,7 +108,7 @@ namespace DMSAPI.Services
                 UserName = registerDTO.UserName,
                 RoleId = registerDTO.RoleId,
                 DepartmentId = registerDTO.DepartmentId,
-                Position = registerDTO.Position,
+                PositionId = registerDTO.PositionId,
                 CompanyId = registerDTO.CompanyId,
                 IsActive = true,
                 CanApprove = registerDTO.CanApprove,

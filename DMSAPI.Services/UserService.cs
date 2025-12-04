@@ -141,7 +141,8 @@ namespace DMSAPI.Services
             if (updateUserDTO.DepartmentId.HasValue) user.DepartmentId = updateUserDTO.DepartmentId.Value;
             if (updateUserDTO.CompanyId.HasValue) user.CompanyId = updateUserDTO.CompanyId.Value;
             if (updateUserDTO.ManagerId.HasValue) user.ManagerId = updateUserDTO.ManagerId.Value;
-            if (updateUserDTO.Position != null) user.Position = updateUserDTO.Position;
+            if (updateUserDTO.PositionId.HasValue)
+                user.PositionId = updateUserDTO.PositionId.Value;
             if (updateUserDTO.CanApprove.HasValue) user.CanApprove = updateUserDTO.CanApprove.Value;
             if (updateUserDTO.ApprovalLevel.HasValue) user.ApprovalLevel = updateUserDTO.ApprovalLevel.Value;
             if (updateUserDTO.IsActive.HasValue) user.IsActive = updateUserDTO.IsActive.Value;

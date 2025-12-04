@@ -28,7 +28,8 @@ namespace DMSAPI.Entities.Models
         public Role? Role { get; set; }
         public int? DepartmentId { get; set; }
         public Department? Department { get; set; }
-        public string? Position { get; set; }
+        public int? PositionId { get; set; }
+        public Position? Position { get; set; }
         public string? Permissions { get; set; }
 
         public bool? CanApprove { get; set; }

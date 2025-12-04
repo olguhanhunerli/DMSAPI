@@ -4,6 +4,7 @@ using DMSAPI.Entities.DTOs.CategoryDTOs;
 using DMSAPI.Entities.DTOs.CompanyDTOs;
 using DMSAPI.Entities.DTOs.DepartmentDTOs;
 using DMSAPI.Entities.DTOs.DocumentDTOs;
+using DMSAPI.Entities.DTOs.PositionDTOs;
 using DMSAPI.Entities.DTOs.RoleDTOs;
 using DMSAPI.Entities.DTOs.UserDTOs;
 using DMSAPI.Entities.Models;
@@ -19,6 +20,7 @@ namespace DMSAPI.Services.Mapping
             .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Name))
             .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.CompanyId))
             .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.Name))
+
             .ForMember(dest => dest.DepartmentName,
                 opt => opt.MapFrom(src =>
                     src.Department != null ? src.Department.Name : null
@@ -38,7 +40,8 @@ namespace DMSAPI.Services.Mapping
             CreateMap<Role, RoleDTO>();
             CreateMap<AddRoleDTO, Role>();
             CreateMap<UpdateRoleDTO, Role>();
-            CreateMap<UpdateUserDTO, UserDTO>();
+            CreateMap<UpdateUserDTO, User>()
+            .ForMember(dest => dest.Position, opt => opt.Ignore());
             CreateMap<UserActiveStatusDTO, UserDTO>();
             CreateMap<UserManagerDTO, UserDTO>();
             CreateMap<UserSearchDTO, UserDTO>();
@@ -68,6 +71,8 @@ namespace DMSAPI.Services.Mapping
 
             CreateMap<CreateDepartmentDTO, Department>();
             CreateMap<UpdateDepartmentDTO, Department>();
+
+            CreateMap<Position, PositionDTO>();
 
         }
     }
