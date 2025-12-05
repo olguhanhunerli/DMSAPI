@@ -18,7 +18,7 @@ namespace DMSAPI.Presentation.Controller
         {
             _positionService = positionService;
         }
-        [HttpGet]
+        [HttpGet("GetAllPosition")]
         public async Task<IActionResult> GetAllPosition()
         {
             var position = await _positionService.GetAllPositionsAsync();

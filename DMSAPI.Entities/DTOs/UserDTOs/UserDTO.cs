@@ -20,7 +20,7 @@ namespace DMSAPI.Entities.DTOs.UserDTOs
         public int RoleId { get; set; }
         public string? RoleName { get; set; }
         public string? RoleDescription { get; set; }
-
+        public int? DepartmentId { get; set; }
         public string? DepartmentName { get; set; }
 
         public int CompanyId { get; set; }
