@@ -18,6 +18,6 @@ namespace DMSAPI.Business.Repositories.IRepositories
         Task<User> GetUserWithRelationsAsync(int id);
         Task<IEnumerable<User>> GetEmployeesByManagerIdAsync(int managerId);
 		Task<User> GetUserByIdsync(int id);
-        Task<IEnumerable<User>> SearchUsersAsync(UserSearchDTO userSearchDTO);
-	}
+        Task<(IEnumerable<User> Users, int TotalCount)> SearchUsersAsync(UserSearchDTO dto);
+    }
 }

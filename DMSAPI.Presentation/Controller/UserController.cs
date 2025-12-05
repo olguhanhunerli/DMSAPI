@@ -92,23 +92,23 @@ namespace DMSAPI.Presentation.Controller
 			}
 		}
         [HttpPost("SearchUsers")]
-		public async Task<IActionResult> SearchUsers([FromBody] UserSearchDTO userSearchDTO)
-		{
-			try
-			{
-				var users = await _service.SearchUsersAsync(userSearchDTO);
-				return Ok(users);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(new
-				{
-					message = ex.Message,
-					stack = ex.ToString()
-				});
-			}
-		}
-		[HttpPost("PasswordResetForAdmin")]
+        public async Task<IActionResult> SearchUsers([FromBody] UserSearchDTO dto)
+        {
+            try
+            {
+                var result = await _service.SearchUsersAsync(dto);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message,
+                    stack = ex.ToString()
+                });
+            }
+        }
+        [HttpPost("PasswordResetForAdmin")]
         public async Task<IActionResult> PasswordReset([FromBody] PasswordResetDTO passwordResetDTO)
         {
             try

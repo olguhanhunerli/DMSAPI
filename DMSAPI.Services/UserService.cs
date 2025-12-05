@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DMSAPI.Business.Repositories.IRepositories;
+using DMSAPI.Entities.DTOs.Common;
 using DMSAPI.Entities.DTOs.UserDTOs;
 using DMSAPI.Services.IServices;
 using System.Text;
@@ -81,14 +82,22 @@ namespace DMSAPI.Services
             return true;
         }
 
-		public async Task<IEnumerable<UserDTO>> SearchUsersAsync(UserSearchDTO userSearchDTO)
-		{
-			var users = await _userRepository.SearchUsersAsync(userSearchDTO);
-			var userDtos = _mapper.Map<IEnumerable<UserDTO>>(users);
-			return userDtos;
-		}
+        public async Task<PagedResultDTO<UserDTO>> SearchUsersAsync(UserSearchDTO dto)
+        {
+            var (users, totalCount) = await _userRepository.SearchUsersAsync(dto);
 
-		public async Task<bool> SetActiveStatusAsync(UserActiveStatusDTO userActiveStatusDTO)
+            var userDtos = _mapper.Map<List<UserDTO>>(users);
+
+            return new PagedResultDTO<UserDTO>
+            {
+                Items = userDtos,
+                TotalCount = totalCount,
+                Page = dto.Page,
+                PageSize = dto.PageSize
+            };
+        }
+
+        public async Task<bool> SetActiveStatusAsync(UserActiveStatusDTO userActiveStatusDTO)
         {
             var user = await _userRepository.GetByIdAsync(userActiveStatusDTO.Id);
             if (user == null)

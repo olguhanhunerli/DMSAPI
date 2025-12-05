@@ -1,4 +1,5 @@
-﻿using DMSAPI.Entities.DTOs.UserDTOs;
+﻿using DMSAPI.Entities.DTOs.Common;
+using DMSAPI.Entities.DTOs.UserDTOs;
 using DMSAPI.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,6 @@ namespace DMSAPI.Services.IServices
 		Task<IEnumerable<UserDTO>> GetEmployeesByManagerIdAsync(int managerId);
         Task<UserDTO> SoftDeleteUser(int userId);
         Task<UserDTO> GetUserByIdAsync(int userId);
-        Task<IEnumerable<UserDTO>> SearchUsersAsync(UserSearchDTO userSearchDTO);
-	}
+        Task<PagedResultDTO<UserDTO>> SearchUsersAsync(UserSearchDTO dto);
+    }
 }

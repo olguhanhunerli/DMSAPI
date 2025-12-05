@@ -19,6 +19,7 @@ namespace DMSAPI.Business.Repositories
         public async Task<IEnumerable<User>> GetAllUserAsync()
         {
             return await _dbSet
+                .Where(u => u.IsDeleted == false ||u.IsDeleted == null)
                 .Include(u => u.Role)
                 .Include(u => u.Company)
                 .Include(u => u.Department)
@@ -79,38 +80,47 @@ namespace DMSAPI.Business.Repositories
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
-		public async Task<IEnumerable<User>> SearchUsersAsync(UserSearchDTO userSearchDTO)
-		{
-			var query = _dbSet
+        public async Task<(IEnumerable<User> Users, int TotalCount)> SearchUsersAsync(UserSearchDTO dto)
+        {
+            var query = _dbSet
+                .Where(u => u.IsDeleted == false || u.IsDeleted == null)
                 .Include(u => u.Role)
-				.Include(u => u.Company)
-				.Include(u => u.Department)
-				.Include(u => u.Manager)
-				.AsQueryable();
-            if(!string.IsNullOrEmpty(userSearchDTO.Keyword))
+                .Include(u => u.Company)
+                .Include(u => u.Department)
+                .Include(u => u.Manager)
+                .Include(u => u.Position)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(dto.Keyword))
             {
-                query = query.Where(u => u.FirstName.Contains(userSearchDTO.Keyword) ||
-                                         u.LastName.Contains(userSearchDTO.Keyword) ||
-                                         u.Email.Contains(userSearchDTO.Keyword) ||
-                                         u.UserName.Contains(userSearchDTO.Keyword));
-			}
-            if (userSearchDTO.RoleId.HasValue)
-			{
-				query = query.Where(u => u.RoleId == userSearchDTO.RoleId.Value);
-			}
-			if (userSearchDTO.CompanyId.HasValue)
-			{
-				query = query.Where(u => u.CompanyId == userSearchDTO.CompanyId.Value);
-			}
-			if (userSearchDTO.DepartmentId.HasValue)
-			{
-				query = query.Where(u => u.DepartmentId == userSearchDTO.DepartmentId.Value);
-			}
-			if (userSearchDTO.IsActive.HasValue)
-			{
-				query = query.Where(u => u.IsActive == userSearchDTO.IsActive.Value);
-			}
-            return await query.ToListAsync();
-		}
-	}
+                query = query.Where(u =>
+                    u.FirstName.Contains(dto.Keyword) ||
+                    u.LastName.Contains(dto.Keyword) ||
+                    u.Email.Contains(dto.Keyword) ||
+                    u.UserName.Contains(dto.Keyword));
+            }
+
+            if (dto.RoleId.HasValue)
+                query = query.Where(u => u.RoleId == dto.RoleId);
+
+            if (dto.CompanyId.HasValue)
+                query = query.Where(u => u.CompanyId == dto.CompanyId);
+
+            if (dto.DepartmentId.HasValue)
+                query = query.Where(u => u.DepartmentId == dto.DepartmentId);
+
+            if (dto.IsActive.HasValue)
+                query = query.Where(u => u.IsActive == dto.IsActive.Value);
+
+            var totalCount = await query.CountAsync();
+
+            var users = await query
+                .OrderByDescending(x => x.Id)
+                .Skip((dto.Page - 1) * dto.PageSize)
+                .Take(dto.PageSize)
+                .ToListAsync();
+
+            return (users, totalCount);
+        }
+    }
 }

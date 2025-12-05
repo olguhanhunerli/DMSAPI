@@ -49,6 +49,8 @@ namespace DMSAPI.Entities.DTOs.UserDTOs
 
         [DefaultValue(true)]
         public bool? CanApprove { get; set; }
+        [DefaultValue(false)]
+        public bool IsDeleted { get; set; }
 
         [DefaultValue(3)]
         public int? ApprovalLevel { get; set; }
