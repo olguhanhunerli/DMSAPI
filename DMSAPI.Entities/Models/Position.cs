@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DMSAPI.Entities.Owned;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Entities.Models
 {
-    public class Position
-    {
+    public class Position : ICompanyOwned
+	{
         public int Id { get; set; }
 
         public string Name { get; set; } = null!;
@@ -19,11 +20,13 @@ namespace DMSAPI.Entities.Models
 
         public bool IsActive { get; set; } = true;
 
-        public DateTime CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
         public int? CreatedBy { get; set; }
+        public User? CreatedByUser { get; set; }
+        public DateTime? UploadedAt { get; set; } = DateTime.UtcNow;
+        public int? UploadedBy { get; set; }
+		public User? UploadedByUser { get; set; }
 
-       
-
-        public ICollection<User> Users { get; set; } = new List<User>();
+		public ICollection<User> Users { get; set; } = new List<User>();
     }
 }

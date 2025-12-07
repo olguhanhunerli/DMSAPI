@@ -4,11 +4,6 @@ using DMSAPI.Entities.DTOs;
 using DMSAPI.Entities.DTOs.CategoryDTOs;
 using DMSAPI.Entities.Models;
 using DMSAPI.Services.IServices;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DMSAPI.Services
 {
@@ -16,45 +11,29 @@ namespace DMSAPI.Services
 	{
 		private readonly ICategoryRepository _categoryRepository;
 		private readonly IUserRepository _userRepository;
-        private readonly IMapper _mapper;
+		private readonly IMapper _mapper;
 
-        public CategoryServices(ICategoryRepository categoryRepository, IMapper mapper, IUserRepository userRepository)
-        {
-            _categoryRepository = categoryRepository;
-            _mapper = mapper;
-            _userRepository = userRepository;
-        }
-
-        public async Task<CategoryDTO> CreateCategoryAsync(CreateCategoryDTO categoryDto)
+		public CategoryServices(
+			ICategoryRepository categoryRepository,
+			IMapper mapper,
+			IUserRepository userRepository)
 		{
-			bool exists = await _categoryRepository.ExistsAsync(categoryDto.Name, categoryDto.CompanyId, categoryDto.ParentId);
-			if (exists)
-			{
-				throw new Exception("A category with the same name already exists in this company and parent category.");
-			}
-			if(categoryDto.ParentId.HasValue)
-			{
-				var parentCategory = await _categoryRepository.GetByIdAsync(categoryDto.ParentId.Value);
-				if (parentCategory == null)
-				{
-					throw new Exception("Parent category not found.");
-				}
-			}
-			string slug = GenerateSlug(categoryDto.Name);
+			_categoryRepository = categoryRepository;
+			_mapper = mapper;
+			_userRepository = userRepository;
+		}
 
-			var category = new Category
-			{
-				Name = categoryDto.Name,
-				Description = categoryDto.Description,
-				Slug = slug,
-				Code = categoryDto.Code,
-				ParentId = categoryDto.ParentId,
-				CompanyId = categoryDto.CompanyId,
-				SortOrder = (int)categoryDto.SortOrder,
-				CreatedAt = DateTime.UtcNow,
-				IsActive = true,
-				IsDeleted = false
-			};
+		public async Task<CategoryDTO> CreateCategoryAsync(CreateCategoryDTO dto)
+		{
+			bool exists = await _categoryRepository.ExistsAsync(dto.Name, dto.ParentId, dto.CompanyId);
+			if (exists)
+				throw new Exception("Category already exists");
+
+			var category = _mapper.Map<Category>(dto);
+			category.CreatedAt = DateTime.UtcNow;
+			category.IsActive = true;
+			category.IsDeleted = false;
+
 			await _categoryRepository.AddAsync(category);
 			return _mapper.Map<CategoryDTO>(category);
 		}
@@ -62,242 +41,125 @@ namespace DMSAPI.Services
 		public async Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync()
 		{
 			var categories = await _categoryRepository.GetAllAsync();
-			categories = categories.Where(c => !c.IsDeleted);
-			return _mapper.Map<IEnumerable<CategoryDTO>>(categories);
-		}
-
-		public async Task<IEnumerable<CategoryDTO>> GetCategoriesByCompanyIdAsync(int companyId)
-		{
-			var categories = await _categoryRepository.GetCategoriesByCompanyId(companyId);
-			return _mapper.Map<IEnumerable<CategoryDTO>>(categories);
+			return _mapper.Map<IEnumerable<CategoryDTO>>(categories.Where(x => !x.IsDeleted));
 		}
 
 		public async Task<CategoryDTO> GetCategoryByIdAsync(int id)
 		{
-			var category = await _categoryRepository.GetCategoryWithChildrenAsync(id);
+			var category = await _categoryRepository.GetCategoryWithChildrenAsync(id)
+				?? throw new Exception("Category not found");
+
 			return _mapper.Map<CategoryDTO>(category);
 		}
 
 		public async Task<IEnumerable<CategoryTreeDTO>> GetCategoryTreeAsync(int companyId)
 		{
-			var categories = await _categoryRepository.GetCategoriesByCompanyId(companyId);
+			var categories = await _categoryRepository.GetAllAsync();
 
-			var roots = categories.Where(c => c.ParentId == null);
-			return roots.Select(c => BuildTree(c, categories)).ToList();
+			var companyCategories = categories
+				.Where(c => c.CompanyId == companyId && !c.IsDeleted)
+				.ToList();
+
+			var roots = companyCategories.Where(c => c.ParentId == null);
+
+			return roots.Select(c => BuildTree(c, companyCategories)).ToList();
 		}
 
-		public async Task<CategoryDTO> UpdateCategoryByIdAsync(UpdateCategoryDTO categoryDto, int userIdFromToken)
-		{
-			var user = await _userRepository.GetByIdAsync(userIdFromToken);
-            var category = await _categoryRepository.GetByIdAsync(categoryDto.Id);
-			if (category == null)
-			{
-				throw new Exception("Category not found.");
-			}
-			if (!string.IsNullOrEmpty(category.Name))
-			{
-				bool exists = (await _categoryRepository.FindAsync(
-						c => c.Id != categoryDto.Id &&
-							 c.Name == categoryDto.Name &&
-							 c.ParentId == (categoryDto.ParentId ?? category.ParentId) &&
-							 !c.IsDeleted
-					)).Any();
-				if (exists)
-				{
-					throw new Exception("A category with the same name already exists in this company and parent category.");
-				}
-			}
-			if (categoryDto.ParentId.HasValue)
-			{
-				var parentCategory = await _categoryRepository.GetByIdAsync(categoryDto.ParentId.Value);
-				if (parentCategory == null)
-				{
-					throw new Exception("Parent category not found.");
-				}
-			}
-			if (categoryDto.Name != null)
-			{
-				category.Name = categoryDto.Name;
-				category.Slug = GenerateSlug(categoryDto.Name);
-			}
-			if (categoryDto.Description != null)
-			{
-				category.Description = categoryDto.Description;
-			}
-			if (categoryDto.ParentId.HasValue)
-			{
-				category.ParentId = categoryDto.ParentId;
-			}
-			if (categoryDto.SortOrder.HasValue)
-			{
-				category.SortOrder = categoryDto.SortOrder.Value;
-			}
-			if (categoryDto.IsActive.HasValue)
-			{
-				category.IsActive = categoryDto.IsActive.Value;
-			}
-			category.UpdatedAt = DateTime.UtcNow;
-			category.UpdatedBy = user.Id;
-            await _categoryRepository.UpdateAsync(category);
-			return _mapper.Map<CategoryDTO>(category);
-		}
 		public async Task<IEnumerable<CategoryDTO>> SearchCategoryTreeAsync(string keyword, int companyId)
 		{
-			var categories = await _categoryRepository.GetCategoriesByCompanyId(companyId);
-			var dtoList = _mapper.Map<IEnumerable<CategoryDTO>>(categories);
+			var categories = await _categoryRepository.GetAllAsync();
 
-			var matched = dtoList
-				.Where(c => c.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase))
-				.ToList();
-			var resultTree = new List<CategoryDTO>();
-			foreach (var category in matched)
-			{
-				AddNodeWithParents(category, dtoList, resultTree);
-			}
-			return resultTree;
+			var filtered = categories
+				.Where(x =>
+					x.CompanyId == companyId &&
+					!x.IsDeleted &&
+					x.Name.Contains(keyword)
+				);
+
+			return _mapper.Map<IEnumerable<CategoryDTO>>(filtered);
 		}
-		public async Task<bool> RestoreCategoryAsync(CategoryRestoreDTO categoryRestoreDTO)
+
+		public async Task<CategoryDTO> UpdateCategoryByIdAsync(UpdateCategoryDTO dto, int userId)
 		{
-			await _categoryRepository.RestoreCategoryAsync(categoryRestoreDTO.Id, categoryRestoreDTO.UploadedBy);
-			return true;
+			var category = await _categoryRepository.GetByIdAsync(dto.Id)
+				?? throw new Exception("Category not found");
 
+			_mapper.Map(dto, category);
+
+			category.UpdatedAt = DateTime.UtcNow;
+			category.UpdatedBy = userId;
+
+			await _categoryRepository.UpdateAsync(category);
+			return _mapper.Map<CategoryDTO>(category);
 		}
-		public async Task<bool> SoftDeleteCategoryAsync(CategoryDeleteDTO categoryDeleteDTO)
+
+		public async Task<bool> SoftDeleteCategoryAsync(CategoryDeleteDTO dto)
 		{
-			await _categoryRepository.SoftDeleteAsync(categoryDeleteDTO.Id, categoryDeleteDTO.UploadedBy);
+			await _categoryRepository.SoftDeleteAsync(dto.Id, dto.UploadedBy);
 			return true;
-
 		}
+
+		public async Task<bool> RestoreCategoryAsync(CategoryRestoreDTO dto)
+		{
+			await _categoryRepository.RestoreCategoryAsync(dto.Id, dto.UploadedBy);
+			return true;
+		}
+
 		public async Task<List<string>> GetCategoryBreadcrumbAsync(int categoryId)
 		{
+			var list = new List<string>();
 			var category = await _categoryRepository.GetByIdAsync(categoryId);
-			if (category == null)
-			{
-				throw new Exception("Category not found.");
-			}
-			List<string> breadcrumb = new List<string>();
+
 			while (category != null)
 			{
-				breadcrumb.Insert(0, category.Name);
-				if (category.ParentId == null) break;
+				list.Insert(0, category.Name);
+				if (!category.ParentId.HasValue) break;
 				category = await _categoryRepository.GetByIdAsync(category.ParentId.Value);
 			}
-			return breadcrumb;
+
+			return list;
 		}
+
 		public async Task<CategoryBreadcrumbDTO> GetCategoryBreadcrumbDetailedAsync(int categoryId)
 		{
-			var list = new List<Category>();
+			var breadcrumb = await GetCategoryBreadcrumbAsync(categoryId);
 
-			var category = await _categoryRepository.GetByIdAsync(categoryId);
-			if (category == null)
-			{
-				throw new Exception("Category not found.");
-			}
-			list.Add(category);
-			while (category.ParentId.HasValue)
-			{
-				category = await _categoryRepository.GetByIdAsync(category.ParentId.Value);
-				if (category == null) break;
-				list.Add(category);
-			}
-			list.Reverse();
 			return new CategoryBreadcrumbDTO
 			{
-				BreadcrumbList = list.Select(c => new BreadCrumbItemDTO
+				FullPath = string.Join(" / ", breadcrumb),
+				BreadcrumbList = breadcrumb.Select((x, i) => new BreadCrumbItemDTO
 				{
-					Id = c.Id,
-					Name = c.Name,
-				}).ToList(),
-				FullPath = string.Join(" / ", list.Select(c => c.Name))
+					Id = i,
+					Name = x
+				}).ToList()
 			};
+		}
 
-		}
-		public async Task<IEnumerable<CategorySelectListDTO>> GetCategorySelectList(int companyId)
+		public async Task<IEnumerable<CategorySelectListDTO>> GetCategorySelectListAsync()
 		{
-			var categories = await _categoryRepository.GetCategoriesByCompanyId(companyId);
-			var list = new List<CategorySelectListDTO>();
-			foreach (var category in categories)
-			{
-				var breadcrumb = await GetCategoryBreadcrumbAsync(category.Id);
-				string displayName = string.Join(" / ", breadcrumb);
-				list.Add(new CategorySelectListDTO
+			var categories = await _categoryRepository.GetAllAsync();
+
+			return categories
+				.Where(x => !x.IsDeleted)
+				.Select(x => new CategorySelectListDTO
 				{
-					Id = category.Id,
-					DisplayName = displayName
+					Id = x.Id,
+					DisplayName = x.Name
 				});
-				
-			}
-			return list.OrderBy(c => c.DisplayName);
 		}
-		private string GenerateSlug(string name)
+
+		private CategoryTreeDTO BuildTree(Category category, IEnumerable<Category> all)
 		{
-			return name.ToLower().Replace(" ", "-");
-		}
-		
-		private CategoryTreeDTO BuildTree(Category category, IEnumerable<Category> allCategories)
-		{
-			var node = new CategoryTreeDTO
+			return new CategoryTreeDTO
 			{
 				Id = category.Id,
 				Name = category.Name,
-				Description = category.Description,
 				ParentId = category.ParentId,
-				CompanyId = category.CompanyId,
-				SortOrder = category.SortOrder,
-				Children = new List<CategoryTreeDTO>()
+				Children = all
+					.Where(x => x.ParentId == category.Id && !x.IsDeleted)
+					.Select(x => BuildTree(x, all))
+					.ToList()
 			};
-
-			var children = allCategories
-				.Where(c => c.ParentId == category.Id && !c.IsDeleted)
-				.OrderBy(c => c.SortOrder)
-				.ToList();
-			node.Children = children.Any()
-				? children.Select(child => BuildTree(child, allCategories)).ToList()
-				: new List<CategoryTreeDTO>();
-			return node;
 		}
-		
-		private void AddNodeWithParents(CategoryDTO category, IEnumerable<CategoryDTO> allCategories, List<CategoryDTO> resultTree)
-		{
-			if (category.ParentId == null)
-			{
-				if (!resultTree.Any(c => c.Id == category.Id))
-				{
-					resultTree.Add(category);
-				}
-				return;
-			}
-			var parent = allCategories.FirstOrDefault(c => c.Id == category.ParentId);
-			if (parent == null)
-			{
-				return;
-			}
-			var existingParent = resultTree.FirstOrDefault(c => c.Id == parent.Id);
-			if(existingParent == null)
-			{
-				existingParent = new CategoryDTO
-				{
-					Id = parent.Id,
-					Name = parent.Name,
-					Description = parent.Description,
-					ParentId = parent.ParentId,
-					CompanyId = parent.CompanyId,
-					SortOrder = parent.SortOrder,
-					Children = new List<CategoryDTO>()
-				};
-				resultTree.Add(existingParent);
-			}
-			if (!existingParent.Children.Any(c => c.Id == category.Id))
-			{
-				if(category.Children == null)
-				{
-					category.Children = new List<CategoryDTO>();
-				}
-				existingParent.Children.Add(category);
-			}
-			AddNodeWithParents(parent, allCategories, resultTree);
-		}
-
-	
 	}
 }

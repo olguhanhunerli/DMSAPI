@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DMSAPI.Entities.Owned;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 namespace DMSAPI.Entities.Models
 {
     public class Company
-    {
+	{
         public int Id { get; set; }
         [Required] public string Name { get; set; }
         public string? CompanyCode { get; set; }

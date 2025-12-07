@@ -11,69 +11,138 @@ using DMSAPI.Entities.Models;
 
 namespace DMSAPI.Services.Mapping
 {
-    public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
-            CreateMap<User, UserDTO>()
-            .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.RoleId))
-            .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Name))
-            .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.CompanyId))
-            .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.Name))
+	public class MappingProfile : Profile
+	{
+		public MappingProfile()
+		{
 
-            .ForMember(dest => dest.DepartmentName,
-                opt => opt.MapFrom(src =>
-                    src.Department != null ? src.Department.Name : null
-                ))
-            .ForMember(dest => dest.ManagerName,
-                opt => opt.MapFrom(src =>
-                    src.Manager != null ? src.Manager.FirstName : null
-                ));
+			CreateMap<User, UserDTO>()
+				.ForMember(d => d.RoleName,
+					o => o.MapFrom(s => s.Role != null ? s.Role.Name : null))
+				.ForMember(d => d.CompanyName,
+					o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
+				.ForMember(d => d.DepartmentName,
+					o => o.MapFrom(s => s.Department != null ? s.Department.Name : null))
+				.ForMember(d => d.ManagerName,
+					o => o.MapFrom(s => s.Manager != null
+						? s.Manager.FirstName + " " + s.Manager.LastName
+						: null));
 
-            CreateMap<User, UserMiniDTO>()
-            .ForMember(dest => dest.FullName,
-                opt => opt.MapFrom(src => src.FirstName + " " + src.LastName));
-            CreateMap<User, AuthResponseDTO>()
-                .ForMember(dest => dest.User, opt => opt.MapFrom(src => src));
+			CreateMap<User, UserMiniDTO>()
+				.ForMember(d => d.FullName,
+					o => o.MapFrom(s => s.FirstName + " " + s.LastName));
 
-            CreateMap<User, UserRegisterDTO>();
-            CreateMap<Role, RoleDTO>();
-            CreateMap<AddRoleDTO, Role>();
-            CreateMap<UpdateRoleDTO, Role>();
-            CreateMap<UpdateUserDTO, User>()
-            .ForMember(dest => dest.Position, opt => opt.Ignore());
-            CreateMap<UserActiveStatusDTO, UserDTO>();
-            CreateMap<UserManagerDTO, UserDTO>();
-            CreateMap<UserSearchDTO, UserDTO>();
+			CreateMap<User, AuthResponseDTO>()
+				.ForMember(d => d.User, o => o.MapFrom(s => s));
+
+			CreateMap<UpdateUserDTO, User>()
+				.ForMember(d => d.Position, o => o.Ignore());
+
+
+			CreateMap<Role, RoleDTO>()
+				.ForMember(d => d.CreatedByUser,
+					o => o.MapFrom(s =>
+						s.CreatedByUser != null
+							? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
+							: null))
+				.ForMember(d => d.UploadedByUser,
+					o => o.MapFrom(s =>
+						s.UploadedByUser != null
+							? s.UploadedByUser.FirstName + " " + s.UploadedByUser.LastName
+							: null));
+
+			CreateMap<AddRoleDTO, Role>();
+			CreateMap<UpdateRoleDTO, Role>();
+
 
 			CreateMap<Company, CompanyDTO>();
 			CreateMap<AddCompanyDTO, Company>();
 			CreateMap<UpdateCompanyDTO, Company>();
 
-            CreateMap<Category, CategoryDTO>();
-            CreateMap<CreateCategoryDTO, Category>();
+
+			CreateMap<Category, CategoryDTO>();
+			CreateMap<CreateCategoryDTO, Category>();
+
 
 			CreateMap<Document, DocumentDTO>()
-	        .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.Name))
-	        .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
-	        .ForMember(dest => dest.CreatedByName, opt => opt.MapFrom(src => src.CreatedByUser.FirstName))
-	        .ForMember(dest => dest.UpdatedByName, opt => opt.MapFrom(src => src.UpdatedByUser.FirstName))
-	        .ForMember(dest => dest.ApproverName, opt => opt.MapFrom(src => src.ApproverUser.FirstName))
-	        .ForMember(dest => dest.ApprovedByName, opt => opt.MapFrom(src => src.ApprovedByUser.FirstName))
-	        .ForMember(dest => dest.RejectedByName, opt => opt.MapFrom(src => src.RejectedByUser.FirstName))
-	        .ForMember(dest => dest.DeletedByName, opt => opt.MapFrom(src => src.DeletedByUser.FirstName));
+				.ForMember(d => d.CompanyName,
+					o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
+				.ForMember(d => d.CategoryName,
+					o => o.MapFrom(s => s.Category != null ? s.Category.Name : null))
 
-            CreateMap<Department, DepartmentDTO>()
-    .       ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.Name));
+				.ForMember(d => d.CreatedByName,
+					o => o.MapFrom(s => s.CreatedByUser != null
+						? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
+						: null))
 
-            CreateMap<Department, DepartmentDetailDTO>()
-                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.Name));
+				.ForMember(d => d.UpdatedByName,
+					o => o.MapFrom(s => s.UpdatedByUser != null
+						? s.UpdatedByUser.FirstName + " " + s.UpdatedByUser.LastName
+						: null))
 
-            CreateMap<CreateDepartmentDTO, Department>();
-            CreateMap<UpdateDepartmentDTO, Department>();
+				.ForMember(d => d.ApproverName,
+					o => o.MapFrom(s => s.ApproverUser != null
+						? s.ApproverUser.FirstName + " " + s.ApproverUser.LastName
+						: null))
 
-            CreateMap<Position, PositionDTO>();
+				.ForMember(d => d.ApprovedByName,
+					o => o.MapFrom(s => s.ApprovedByUser != null
+						? s.ApprovedByUser.FirstName + " " + s.ApprovedByUser.LastName
+						: null))
 
-        }
-    }
+				.ForMember(d => d.RejectedByName,
+					o => o.MapFrom(s => s.RejectedByUser != null
+						? s.RejectedByUser.FirstName + " " + s.RejectedByUser.LastName
+						: null))
+
+				.ForMember(d => d.DeletedByName,
+					o => o.MapFrom(s => s.DeletedByUser != null
+						? s.DeletedByUser.FirstName + " " + s.DeletedByUser.LastName
+						: null));
+
+
+			CreateMap<Department, DepartmentDTO>()
+				.ForMember(d => d.CompanyName,
+					o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
+
+				.ForMember(d => d.ManagerName,
+					o => o.MapFrom(s => s.Manager != null
+						? s.Manager.FirstName + " " + s.Manager.LastName
+						: null))
+
+				.ForMember(d => d.CreatedByName,
+					o => o.MapFrom(s => s.CreatedByUser != null
+						? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
+						: null))
+
+				.ForMember(d => d.UploadedByName,
+					o => o.MapFrom(s => s.UploadedByUser != null
+						? s.UploadedByUser.FirstName + " " + s.UploadedByUser.LastName
+						: null));
+
+			CreateMap<Department, DepartmentDetailDTO>()
+				.ForMember(d => d.CompanyName,
+					o => o.MapFrom(s => s.Company != null ? s.Company.Name : null));
+
+			CreateMap<CreateDepartmentDTO, Department>();
+			CreateMap<UpdateDepartmentDTO, Department>();
+
+
+			CreateMap<Position, PositionDTO>()
+				.ForMember(d => d.CompanyName,
+					o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
+
+				.ForMember(d => d.CreatedByName,
+					o => o.MapFrom(s => s.CreatedByUser != null
+						? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
+						: null))
+
+				.ForMember(d => d.UploadedByName,
+					o => o.MapFrom(s => s.UploadedByUser != null
+						? s.UploadedByUser.FirstName + " " + s.UploadedByUser.LastName
+						: null));
+			CreateMap<CreatePositionDTO, Position>();
+			CreateMap<UpdatePositionDTO, Position>();
+		}
+	}
 }

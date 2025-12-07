@@ -19,8 +19,8 @@ namespace DMSAPI.Business.Context
 		public DbSet<Permission> Permissions { get; set; }
 		public DbSet<RefreshToken> RefreshTokens { get; set; }
 		public DbSet<Category> Categories { get; set; }
-        public DbSet<Position> Positions { get; set; }
-        public DbSet<Document> Documents { get; set; }
+		public DbSet<Position> Positions { get; set; }
+		public DbSet<Document> Documents { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -41,11 +41,11 @@ namespace DMSAPI.Business.Context
 				.HasMany(u => u.PermissionsList)
 				.WithOne(p => p.User)
 				.HasForeignKey(p => p.UserId);
-            modelBuilder.Entity<User>()
+			modelBuilder.Entity<User>()
 				.HasOne(u => u.Position)
 				.WithMany(p => p.Users)
 				.HasForeignKey(u => u.PositionId);
-            modelBuilder.Entity<Category>(entity =>
+			modelBuilder.Entity<Category>(entity =>
 			{
 				entity.HasKey(e => e.Id);
 				entity.HasOne(e => e.Parent)
@@ -99,12 +99,45 @@ namespace DMSAPI.Business.Context
 						.WithMany()
 						.HasForeignKey(d => d.DeletedBy)
 						.OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<Department>()
+			modelBuilder.Entity<Department>()
 						.HasOne(d => d.Manager)
 						.WithMany()
 						.HasForeignKey(d => d.ManagerId)
 						.OnDelete(DeleteBehavior.SetNull);
-        }
+			modelBuilder.Entity<Department>()
+						.HasOne(d => d.CreatedByUser)
+						.WithMany()
+						.HasForeignKey(d => d.CreatedBy)
+						.OnDelete(DeleteBehavior.Restrict);
+
+			modelBuilder.Entity<Department>()
+						.HasOne(d => d.UploadedByUser)
+						.WithMany()
+						.HasForeignKey(d => d.UploadedBy)
+						.OnDelete(DeleteBehavior.Restrict);
+			modelBuilder.Entity<Role>()
+						.HasOne(d => d.CreatedByUser)
+						.WithMany()
+						.HasForeignKey(d => d.CreatedBy)
+						.OnDelete(DeleteBehavior.Restrict);
+
+			modelBuilder.Entity<Role>()
+						.HasOne(d => d.UploadedByUser)
+						.WithMany()
+						.HasForeignKey(d => d.UploadedBy)
+						.OnDelete(DeleteBehavior.Restrict);
+			modelBuilder.Entity<Position>()
+						.HasOne(p => p.CreatedByUser)
+						.WithMany()
+					    .HasForeignKey(p => p.CreatedBy)
+					    .OnDelete(DeleteBehavior.Restrict);
+
+			modelBuilder.Entity<Position>()
+						.HasOne(p => p.UploadedByUser)
+						.WithMany()
+						.HasForeignKey(p => p.UploadedBy)
+						.OnDelete(DeleteBehavior.Restrict);
+		}
 
 	}
 }

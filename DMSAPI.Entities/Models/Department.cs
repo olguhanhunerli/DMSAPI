@@ -1,37 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DMSAPI.Entities.Models;
+using DMSAPI.Entities.Owned;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
 
-namespace DMSAPI.Entities.Models
+public class Department : ICompanyOwned
 {
-    public class Department
-    {
-        public int Id { get; set; }
+	public int Id { get; set; }
 
-        [Required]
-        public string Name { get; set; }
+	[Required]
+	public string Name { get; set; }
 
-        public string? DepartmentCode { get; set; }
-        public string? Description { get; set; }
-        public string? Notes { get; set; }
-        public bool? IsActive { get; set; } = true;
-        public int? SortOrder { get; set; }
+	public string? DepartmentCode { get; set; }
+	public string? Description { get; set; }
+	public string? Notes { get; set; }
 
-        public int? ManagerId { get; set; }
-        public User Manager { get; set; }  
+	public bool? IsActive { get; set; } = true;
+	public int? SortOrder { get; set; }
 
-        public int? CompanyId { get; set; }
-        public Company Company { get; set; }
+	public int? ManagerId { get; set; }
+	public User? Manager { get; set; }  
 
-        public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public int? CreatedBy { get; set; }
-        public int? UploadedBy { get; set; }
-        public bool IsDeleted { get; set; }
+	public int CompanyId { get; set; }
+	public Company Company { get; set; }
 
-        public ICollection<User> Users { get; set; } = new List<User>();
-    }
+	public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+	public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
+
+	public int? CreatedBy { get; set; }
+	public User? CreatedByUser { get; set; }
+
+	public int? UploadedBy { get; set; }
+	public User? UploadedByUser { get; set; } 
+
+	public bool IsDeleted { get; set; }
+
+	public ICollection<User> Users { get; set; } = new List<User>();
 }

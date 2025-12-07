@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DMSAPI.Entities.Owned;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,13 +7,14 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Entities.Models
 {
-    public class Permission
-    {
+    public class Permission : ICompanyOwned
+	{
         public int Id { get; set; }
         public int UserId { get; set; }
         public User User { get; set; }
 
         public int? FolderId { get; set; }
+        public int CompanyId { get; set; }
         public int? DocumentId { get; set; }
         public bool CanView { get; set; }
         public bool CanUpload { get; set; }

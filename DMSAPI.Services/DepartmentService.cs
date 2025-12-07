@@ -3,109 +3,74 @@ using DMSAPI.Business.Repositories.IRepositories;
 using DMSAPI.Entities.DTOs.DepartmentDTOs;
 using DMSAPI.Entities.Models;
 using DMSAPI.Services.IServices;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DMSAPI.Services
 {
-    public class DepartmentService : IDepartmentService
-    {
-        private readonly IDepartmentRepository _departmentRepository;
-        private readonly IUserRepository _userRepository;
-        private readonly IMapper _mapper;
-        public DepartmentService(IDepartmentRepository departmentRepository, IMapper mapper, IUserRepository userRepository)
-        {
-            _departmentRepository = departmentRepository;
-            _mapper = mapper;
-            _userRepository = userRepository;
-        }
-        public async Task<DepartmentDetailDTO> CreateDepartmentAsync(CreateDepartmentDTO dto, int userId)
-        {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null)
-                throw new Exception("User not found");
-            bool exists = await _departmentRepository.IsNameExistAsync(dto.Name, dto.CompanyId);
-            if (exists)
-                throw new Exception("Department name already exists in this company.");
+	public class DepartmentService : IDepartmentService
+	{
+		private readonly IDepartmentRepository _departmentRepository;
+		private readonly IUserRepository _userRepository;
+		private readonly IMapper _mapper;
 
-            bool codeExists = await _departmentRepository.IsCodeExistAsync(dto.DepartmentCode, dto.CompanyId);
-            if (codeExists)
-                throw new Exception("Department code already exists in this company.");
+		public DepartmentService(
+			IDepartmentRepository departmentRepository,
+			IMapper mapper,
+			IUserRepository userRepository)
+		{
+			_departmentRepository = departmentRepository;
+			_mapper = mapper;
+			_userRepository = userRepository;
+		}
 
-            var entity = _mapper.Map<Department>(dto);
+		public async Task<DepartmentDetailDTO> CreateDepartmentAsync(CreateDepartmentDTO dto, int userId)
+		{
+			var entity = _mapper.Map<Department>(dto);
 
-            entity.DepartmentCode = dto.DepartmentCode;
+			entity.CreatedBy = userId;
+			entity.CreatedAt = DateTime.UtcNow;
+			entity.IsActive = true;
+			entity.IsDeleted = false;
 
-            entity.CreatedBy = userId;
-            entity.UploadedBy = userId;
-            entity.CreatedAt = DateTime.UtcNow;
-            entity.UpdatedAt = null;
+			await _departmentRepository.AddAsync(entity);
 
-            entity.IsActive = true;
-            entity.IsDeleted = false;
+			var created = await _departmentRepository.GetDepartmentDetailAsync(entity.Id);
+			return _mapper.Map<DepartmentDetailDTO>(created);
+		}
 
-            await _departmentRepository.AddAsync(entity);
+		public async Task DeleteDepartmentAsync(int id, int userId)
+		{
+			var department = await _departmentRepository.GetByIdAsync(id);
+			department.UploadedBy = userId;
+		    await _departmentRepository.DeleteAsync(department);
+		}
 
-            var createdDept = await _departmentRepository.GetDepartmentDetailAsync(entity.Id);
+		public async Task<IEnumerable<DepartmentDTO>> GetAllDepartmentsAsync()
+		{
+			var list = await _departmentRepository.GetAllDepartmentsAsync();
+			return _mapper.Map<IEnumerable<DepartmentDTO>>(list);
+		}
 
-            return _mapper.Map<DepartmentDetailDTO>(createdDept);
-        }
+		public async Task<DepartmentDetailDTO> GetDepartmentByIdAsync(int id)
+		{
+			var department = await _departmentRepository.GetDepartmentDetailAsync(id)
+				?? throw new Exception("Department not found");
 
-        public async Task<IEnumerable<DepartmentDTO>> GetAllDepartmentsAsync()
-        {
-            var departments = await _departmentRepository.GetAllDepartmentsAsync();
-            return _mapper.Map<IEnumerable<DepartmentDTO>>(departments);
-        }
+			return _mapper.Map<DepartmentDetailDTO>(department);
+		}
 
-        public async Task<IEnumerable<DepartmentDTO>> GetDepartmentsByCompanyIdAsync(int companyId)
-        {
-            var departments = await _departmentRepository.GetDepartmentsByCompanyAsync(companyId);
-            return _mapper.Map<IEnumerable<DepartmentDTO>>(departments);
-        }
+		public async Task<DepartmentDetailDTO> UpdateDepartmentAsync(UpdateDepartmentDTO dto, int userId)
+		{
+			var department = await _departmentRepository.GetByIdAsync(dto.Id)
+				?? throw new Exception("Department not found");
 
-        public async Task<DepartmentDetailDTO> GetDepartmentByIdAsync(int id)
-        {
-            var department = await _departmentRepository.GetDepartmentDetailAsync(id);
+			_mapper.Map(dto, department);
+			department.UploadedBy = userId;
+			department.UpdatedAt = DateTime.UtcNow;
 
-            if (department == null)
-                throw new Exception("Department not found.");
+			await _departmentRepository.UpdateAsync(department);
 
-            return _mapper.Map<DepartmentDetailDTO>(department);
-        }
-
-        public async Task<DepartmentDetailDTO> UpdateDepartmentAsync(UpdateDepartmentDTO dto, int userId)
-        {
-            var existing = await _departmentRepository.GetByIdAsync(dto.Id);
-
-            if (existing == null)
-                throw new Exception("Department not found.");
-
-            if (existing.Name != dto.Name)
-            {
-                bool exists = await _departmentRepository.IsNameExistAsync(dto.Name, dto.CompanyId);
-                if (exists)
-                    throw new Exception("Department name already exists in this company.");
-            }
-
-            if (existing.DepartmentCode != dto.DepartmentCode)
-            {
-                bool codeExists = await _departmentRepository.IsCodeExistAsync(dto.DepartmentCode, dto.CompanyId);
-                if (codeExists)
-                    throw new Exception("Department code already exists in this company.");
-            }
-
-            _mapper.Map(dto, existing);
-
-            existing.UploadedBy = userId;
-            existing.UpdatedAt = DateTime.UtcNow;
-
-            await _departmentRepository.UpdateAsync(existing);
-            var updated = await _departmentRepository.GetDepartmentDetailAsync(existing.Id);
-
-            return _mapper.Map<DepartmentDetailDTO>(updated);
-        }
-    }
+			var updated = await _departmentRepository.GetDepartmentDetailAsync(department.Id);
+			return _mapper.Map<DepartmentDetailDTO>(updated);
+		}
+	}
 }

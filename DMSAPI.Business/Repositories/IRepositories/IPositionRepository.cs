@@ -1,14 +1,12 @@
 ﻿using DMSAPI.Business.Repositories.GenericRepository;
+using DMSAPI.Entities.DTOs.PositionDTOs;
 using DMSAPI.Entities.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DMSAPI.Business.Repositories.IRepositories
 {
-    public interface IPositionRepository: IGenericRepository<Position>
-    {
-    }
+	public interface IPositionRepository : IGenericRepository<Position>
+	{
+		Task<IEnumerable<Position>> GetAllPositionsAsync();
+		Task<Position?> GetPositionByIdAsync(int id);
+	}
 }

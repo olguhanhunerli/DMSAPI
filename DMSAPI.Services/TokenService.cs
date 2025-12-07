@@ -1,72 +1,72 @@
-﻿using AutoMapper;
-using DMSAPI.Entities.DTOs;
+﻿using DMSAPI.Entities.DTOs;
 using DMSAPI.Entities.Models;
 using DMSAPI.Services.IServices;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace DMSAPI.Services
 {
-    public class TokenService : ITokenService
-    {
-        private readonly JwtSettings _jwtSettings;
+	public class TokenService : ITokenService
+	{
+		private readonly JwtSettings _jwtSettings;
 
-        public TokenService(IOptions<JwtSettings> jwtSettingsOptions)
-        {
-            _jwtSettings = jwtSettingsOptions.Value;
-        }
+		public TokenService(IOptions<JwtSettings> options)
+		{
+			_jwtSettings = options.Value;
+		}
 
-        public string GenerateAccessToken(User user)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("role", user.Role?.Name ?? ""),
-                new Claim("userName", user.UserName ?? ""),
-                new Claim("positionId", user.PositionId?.ToString() ?? ""),
-                new Claim("positionName", user.Position?.Name ?? ""),
-            };
-            
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+		public string GenerateAccessToken(User user)
+		{
+			var claims = new List<Claim>
+			{
+				new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+				new Claim(JwtRegisteredClaimNames.Email, user.Email),
+				new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+				new Claim("role", user.Role?.Name ?? string.Empty),
+				new Claim("userName", user.UserName ?? string.Empty),
+				new Claim("companyId", user.CompanyId.ToString())
+			};
 
-            var token = new System.IdentityModel.Tokens.Jwt.JwtSecurityToken(
-                issuer: _jwtSettings.Issuer,
-                audience: _jwtSettings.Audience,
-                claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiresMinutes),
-                signingCredentials: creds
-            );
+			if (user.PositionId.HasValue)
+			{
+				claims.Add(new Claim("positionId", user.PositionId.Value.ToString()));
+				claims.Add(new Claim("positionName", user.Position?.Name ?? string.Empty));
+			}
 
-            return new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler().WriteToken(token);
-        }
+			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
+			var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        public RefreshTokenDTO GenerateRefreshToken()
-        {
-            return new RefreshTokenDTO
-            {
-                RawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64))
-            };
+			var token = new JwtSecurityToken(
+				issuer: _jwtSettings.Issuer,
+				audience: _jwtSettings.Audience,
+				claims: claims,
+				expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiresMinutes),
+				signingCredentials: creds
+			);
 
-        }
+			return new JwtSecurityTokenHandler().WriteToken(token);
+		}
 
-        public string HashToken(string token)
-        {
-            using var sha256 = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(token);
-            var hash = sha256.ComputeHash(bytes);
-            return Convert.ToBase64String(hash);
-        }
-    }
+		public RefreshTokenDTO GenerateRefreshToken()
+		{
+			return new RefreshTokenDTO
+			{
+				RawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64))
+			};
+		}
+
+		public string HashToken(string token)
+		{
+			using var sha = SHA256.Create();
+			var bytes = Encoding.UTF8.GetBytes(token);
+			var hash = sha.ComputeHash(bytes);
+			return Convert.ToBase64String(hash);
+		}
+	}
 }

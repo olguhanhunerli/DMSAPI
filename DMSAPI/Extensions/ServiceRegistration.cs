@@ -1,94 +1,89 @@
-﻿using AutoMapper;
-using DMSAPI.Business.Context;
-using DMSAPI.Business.Repositories;
+﻿using DMSAPI.Business.Context;
 using DMSAPI.Business.Repositories.GenericRepository;
 using DMSAPI.Business.Repositories.IRepositories;
+using DMSAPI.Business.Repositories;
 using DMSAPI.Entities.Models;
-using DMSAPI.Services;
-
 using DMSAPI.Services.IServices;
 using DMSAPI.Services.Mapping;
+using DMSAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-
 using System.Text;
-
-
+using Microsoft.IdentityModel.JsonWebTokens;
 
 public static class ServiceRegistration
 {
-    public static IServiceCollection AddApplicationService(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddDbContext<DMSDbContext>(options =>
-            options.UseMySql(
-                configuration.GetConnectionString("DefaultConnection"),
-                new MySqlServerVersion(new Version(8, 0, 32))
-            )
-        );
-        services.AddAutoMapper(typeof(MappingProfile).Assembly);
+	public static IServiceCollection AddApplicationService(
+		this IServiceCollection services,
+		IConfiguration configuration)
+	{
+		services.AddDbContext<DMSDbContext>(options =>
+			options.UseMySql(
+				configuration.GetConnectionString("DefaultConnection"),
+				new MySqlServerVersion(new Version(8, 0, 32))
+			)
+		);
 
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+		services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
-        services.AddScoped<IAuthService, AuthService>();
-        services.AddSingleton<ITokenService, TokenService>();
+		services.AddHttpContextAccessor();
 
-        services.AddScoped<IUserService, UserService>();
+		services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
-        services.AddScoped<IRoleRepository, RoleRepository>();
-        services.AddScoped<IRoleService, RoleService>();
+		services.AddScoped<IUserRepository, UserRepository>();
+		services.AddScoped<IRoleRepository, RoleRepository>();
+		services.AddScoped<ICompanyRepository, CompanyRepository>();
+		services.AddScoped<ICategoryRepository, CategoryRepository>();
+		services.AddScoped<IDocumentRepository, DocumentRepository>();
+		services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+		services.AddScoped<IPositionRepository, PositionRepository>();
 
-        services.AddScoped<ICompanyRepository, CompanyRepository>();
-        services.AddScoped<ICompanyService, CompanyService>();
-
-        services.AddScoped<ICategoryRepository, CategoryRepository>();
-        services.AddScoped<ICategoryServices, CategoryServices>();
-
-        services.AddScoped<IDocumentRepository, DocumentRepository>();
+		services.AddScoped<IAuthService, AuthService>();
+		services.AddScoped<IUserService, UserService>();
+		services.AddScoped<IRoleService, RoleService>();
+		services.AddScoped<ICompanyService, CompanyService>();
+		services.AddScoped<ICategoryServices, CategoryServices>();
 		services.AddScoped<IDocumentService, DocumentService>();
+		services.AddScoped<IDepartmentService, DepartmentService>();
+		services.AddScoped<IPositionService, PositionService>();
 
-        services.AddScoped<IDepartmentRepository, DepartmentRepository>();
-        services.AddScoped<IDepartmentService, DepartmentService>();
+		services.AddSingleton<ITokenService, TokenService>();
 
-        services.AddScoped<IPositionRepository, PositionRepository>();
-        services.AddScoped<IPositionService, PositionService>();
-        services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
-        var jwt = configuration.GetSection("JwtSettings").Get<JwtSettings>();
-        var key = Encoding.UTF8.GetBytes(jwt.Secret);
+		services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+		var jwt = configuration.GetSection("JwtSettings").Get<JwtSettings>();
+		var key = Encoding.UTF8.GetBytes(jwt.Secret);
 
-        services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-                 .AddJwtBearer(options =>
-                 {
-                     options.RequireHttpsMetadata = true;
-                     options.SaveToken = true;
+		services.AddAuthentication(options =>
+		{
+			options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+			options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+		})
+		.AddJwtBearer(options =>
+		{
+			options.RequireHttpsMetadata = true;
+			options.SaveToken = true;
 
-                     options.MapInboundClaims = false; // 🔥 claim mapping kapatılıyor
+			options.MapInboundClaims = false;
 
-                     options.TokenValidationParameters = new TokenValidationParameters
-                     {
-                         ValidateIssuer = true,
-                         ValidateAudience = true,
-                         ValidateLifetime = true,
-                         ValidateIssuerSigningKey = true,
+			options.TokenValidationParameters = new TokenValidationParameters
+			{
+				ValidateIssuer = true,
+				ValidateAudience = true,
+				ValidateLifetime = true,
+				ValidateIssuerSigningKey = true,
 
-                         ValidIssuer = jwt.Issuer,
-                         ValidAudience = jwt.Audience,
-                         IssuerSigningKey = new SymmetricSecurityKey(key),
+				ValidIssuer = jwt.Issuer,
+				ValidAudience = jwt.Audience,
+				IssuerSigningKey = new SymmetricSecurityKey(key),
 
-                         ClockSkew = TimeSpan.Zero,
+				ClockSkew = TimeSpan.Zero,
 
-                         NameClaimType = JwtRegisteredClaimNames.Sub,
-                         RoleClaimType = "role"
-                     };
-                 });
+				NameClaimType = JwtRegisteredClaimNames.Sub,
+				RoleClaimType = "role"
+			};
+		});
 
-
-        return services;
-    }
+		return services;
+	}
 }

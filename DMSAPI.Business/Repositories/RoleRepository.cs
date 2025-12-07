@@ -2,19 +2,26 @@
 using DMSAPI.Business.Repositories.GenericRepository;
 using DMSAPI.Business.Repositories.IRepositories;
 using DMSAPI.Entities.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DMSAPI.Business.Repositories
 {
-    public class RoleRepository : GenericRepository<Role>, IRoleRepository
-    {
-        public RoleRepository(DMSDbContext context) : base(context) { }
-        public async Task<IEnumerable<Role>> GetAllRolesAsync() => await GetAllAsync();
-      
-    }
+	public class RoleRepository : GenericRepository<Role>, IRoleRepository
+	{
+		public RoleRepository(DMSDbContext context, IHttpContextAccessor accessor)
+			: base(context, accessor)
+		{
+		}
+
+		public async Task<IEnumerable<Role>> GetAllRolesAsync()
+		{
+			return await _dbSet
+				.Include(r => r.CreatedByUser)
+				.Include(r => r.UploadedByUser)
+				.ToListAsync();
+		}
+	}
 }

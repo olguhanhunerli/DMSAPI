@@ -22,5 +22,9 @@ namespace DMSAPI.Entities.DTOs.PositionDTOs
 
         public DateTime CreatedAt { get; set; }
         public int? CreatedBy { get; set; }
-    }
+        public string? CreatedByName { get; set; }
+		public DateTime UploadedAt { get; set; }
+		public int? UploadedBy { get; set; }
+		public string? UploadedByName { get; set; }
+	}
 }

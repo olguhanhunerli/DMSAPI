@@ -2,35 +2,42 @@
 using DMSAPI.Business.Repositories.GenericRepository;
 using DMSAPI.Business.Repositories.IRepositories;
 using DMSAPI.Entities.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DMSAPI.Business.Repositories
 {
 	public class DocumentRepository : GenericRepository<Document>, IDocumentRepository
 	{
-		public DocumentRepository(DMSDbContext context) : base(context)
+		public DocumentRepository(DMSDbContext context, IHttpContextAccessor accessor)
+			: base(context, accessor)
 		{
 		}
 
 		public async Task<bool> DocumentCodeExistingAsync(string documentCode)
 		{
-			return await _dbSet.AnyAsync(d => d.DocumentCode == documentCode);
+			return await _dbSet.AnyAsync(d =>
+			d.DocumentCode == documentCode &&
+			d.CompanyId == CompanyId     
+		);
 		}
 
 		public async Task<int> GetNextDocumentNumberAsync(int companyId, int categoryId)
 		{
-			var lastDoc = await _context.Documents
-			   .Where(d => d.CompanyId == companyId && d.CategoryId == categoryId)
-			   .OrderByDescending(d => d.Id)
-			   .Select(d => d.DocumentCode)
-			   .FirstOrDefaultAsync();
+			var lastDocCode = await _dbSet
+				.Where(d => d.CompanyId == companyId && d.CategoryId == categoryId && !d.IsDeleted)
+				.OrderByDescending(d => d.Id)
+				.Select(d => d.DocumentCode)
+				.FirstOrDefaultAsync();
 
-			if (string.IsNullOrEmpty(lastDoc))
+			if (string.IsNullOrEmpty(lastDocCode))
 				return 1;
 
-			var parts = lastDoc.Split('-');
-			var numberPart = parts.Last();     
+			var parts = lastDocCode.Split('-');
+			var numberPart = parts.Last();
 
 			if (int.TryParse(numberPart, out int number))
 				return number + 1;
@@ -40,39 +47,31 @@ namespace DMSAPI.Business.Repositories
 
 		public async Task<bool> ValidateDocumentCodeAsync(string documentCode, int companyId, int categoryId)
 		{
-			var parts = documentCode.Split('-', 2);
-			if (parts.Length < 2)
-			{
-				return await Task.FromResult(false); 
-			}
+			var parts = documentCode.Split('-', 3);
+			if (parts.Length != 3)
+				return false;
 
-			var codeParts = parts[0].Split('-');
-			if(codeParts.Length < 3)
-			{
-				return await Task.FromResult(false); 
-			}
-			string companyCode = codeParts[0];
-			string categoryCode = codeParts[1];
-			string uniqueIdentifier = codeParts[2];
+			var companyCode = parts[0];
+			var categoryCode = parts[1];
+			var numberPart = parts[2];
 
 			var company = await _context.Companies.FirstOrDefaultAsync(c => c.Id == companyId);
-			if (company == null || company.CompanyCode != companyCode)
-			{
+			if (company == null || !string.Equals(company.CompanyCode, companyCode, StringComparison.OrdinalIgnoreCase))
 				return false;
-			}
+
 			var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == categoryId);
-			if (category == null || category.Code != categoryCode)
-			{
+			if (category == null || !string.Equals(category.Code, categoryCode, StringComparison.OrdinalIgnoreCase))
 				return false;
-			}
-			if (!int.TryParse(uniqueIdentifier, out int uniqueIdentifierNumber))
-			{
+
+			if (!int.TryParse(numberPart, out int uniqueNumber))
 				return false;
-			}
-			int existingCount = await _context.Documents
-				.CountAsync(d => d.CategoryId == categoryId && !d.IsDeleted);
-			if (uniqueIdentifierNumber != existingCount + 1)
+
+			var existingCount = await _dbSet
+				.CountAsync(d => d.CompanyId == companyId && d.CategoryId == categoryId && !d.IsDeleted);
+
+			if (uniqueNumber != existingCount + 1)
 				return false;
+
 			return true;
 		}
 	}
