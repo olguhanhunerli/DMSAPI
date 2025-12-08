@@ -36,23 +36,48 @@ namespace DMSAPI.Business.Repositories
 
 		public async Task<Category?> GetCategoryWithChildrenAsync(int categoryId)
 		{
-            return await _dbSet
-			.Where(c => c.Id == categoryId && !c.IsDeleted)
+			return await _dbSet
+				.Where(c => c.Id == categoryId && !c.IsDeleted)
 
-			.Include(c => c.Parent)
-			.Include(c => c.CreatedByUser)
-			.Include(c => c.UpdatedByUser)
+				.Include(c => c.Parent)
+				.Include(c => c.Company)
+				.Include(c => c.CreatedByUser)
+				.Include(c => c.UpdatedByUser)
 
-			.Include(c => c.Children
-				.Where(child => !child.IsDeleted)
-				.OrderBy(child => child.SortOrder))   
+				.Include(c => c.Children
+					.Where(child => !child.IsDeleted)
+					.OrderBy(child => child.SortOrder))
 
-			.ThenInclude(child => child.Children
-				.Where(gc => !gc.IsDeleted)
-				.OrderBy(gc => gc.SortOrder))        
+					.ThenInclude(child => child.CreatedByUser)
 
-			.FirstOrDefaultAsync();
-        }
+				.Include(c => c.Children
+					.Where(child => !child.IsDeleted)
+					.OrderBy(child => child.SortOrder))
+
+					.ThenInclude(child => child.UpdatedByUser)
+
+				.Include(c => c.Children
+					.Where(child => !child.IsDeleted)
+					.OrderBy(child => child.SortOrder))
+
+					.ThenInclude(child => child.Children
+						.Where(gc => !gc.IsDeleted)
+						.OrderBy(gc => gc.SortOrder))
+
+						.ThenInclude(gc => gc.CreatedByUser)
+
+				.Include(c => c.Children
+					.Where(child => !child.IsDeleted)
+					.OrderBy(child => child.SortOrder))
+
+					.ThenInclude(child => child.Children
+						.Where(gc => !gc.IsDeleted)
+						.OrderBy(gc => gc.SortOrder))
+
+						.ThenInclude(gc => gc.UpdatedByUser)
+
+				.FirstOrDefaultAsync();
+		}
 
 		public async Task<IEnumerable<Category>> GetChildrenAsync(int parentId)
 		{
