@@ -60,8 +60,20 @@ namespace DMSAPI.Services.Mapping
 			CreateMap<UpdateCompanyDTO, Company>();
 
 
-			CreateMap<Category, CategoryDTO>();
-			CreateMap<CreateCategoryDTO, Category>();
+			CreateMap<Category, CategoryDTO>()
+                .ForMember(d => d.CreatedByName,
+                    o => o.MapFrom(s => s.CreatedByUser != null
+                        ? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
+                        : null))
+
+                .ForMember(d => d.UpdatedByName,
+                    o => o.MapFrom(s => s.UpdatedByUser != null
+                        ? s.UpdatedByUser.FirstName + " " + s.UpdatedByUser.LastName
+                        : null))
+                .ForMember(d => d.CompanyName,
+                    o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
+;
+            CreateMap<CreateCategoryDTO, Category>();
 
 
 			CreateMap<Document, DocumentDTO>()

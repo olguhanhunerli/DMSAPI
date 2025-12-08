@@ -2,6 +2,7 @@
 using DMSAPI.Business.Repositories.IRepositories;
 using DMSAPI.Entities.DTOs;
 using DMSAPI.Entities.DTOs.CategoryDTOs;
+using DMSAPI.Entities.DTOs.Common;
 using DMSAPI.Entities.Models;
 using DMSAPI.Services.IServices;
 
@@ -40,7 +41,7 @@ namespace DMSAPI.Services
 
 		public async Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync()
 		{
-			var categories = await _categoryRepository.GetAllAsync();
+			var categories = await _categoryRepository.GetCategoriesAsync();
 			return _mapper.Map<IEnumerable<CategoryDTO>>(categories.Where(x => !x.IsDeleted));
 		}
 
@@ -93,9 +94,9 @@ namespace DMSAPI.Services
 			return _mapper.Map<CategoryDTO>(category);
 		}
 
-		public async Task<bool> SoftDeleteCategoryAsync(CategoryDeleteDTO dto)
+		public async Task<bool> SoftDeleteCategoryAsync(CategoryDeleteDTO dto, int userIdFromToken)
 		{
-			await _categoryRepository.SoftDeleteAsync(dto.Id, dto.UploadedBy);
+			await _categoryRepository.SoftDeleteAsync(dto.Id, userIdFromToken);
 			return true;
 		}
 
@@ -161,5 +162,18 @@ namespace DMSAPI.Services
 					.ToList()
 			};
 		}
-	}
+
+        public async Task<PagedResultDTO<CategoryDTO>> GetPagedAsync(int page, int pageSize)
+        {
+            var pagedEntities = await _categoryRepository.GetPagedAsync(page, pageSize);
+
+            return new PagedResultDTO<CategoryDTO>
+            {
+                TotalCount = pagedEntities.TotalCount,
+                Page = pagedEntities.Page,
+                PageSize = pagedEntities.PageSize,
+                Items = _mapper.Map<List<CategoryDTO>>(pagedEntities.Items)
+            };
+        }
+    }
 }

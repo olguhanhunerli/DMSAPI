@@ -1,4 +1,5 @@
 ﻿using DMSAPI.Business.Repositories.GenericRepository;
+using DMSAPI.Entities.DTOs.Common;
 using DMSAPI.Entities.Models;
 
 namespace DMSAPI.Business.Repositories.IRepositories
@@ -14,5 +15,6 @@ namespace DMSAPI.Business.Repositories.IRepositories
 
 		Task SoftDeleteAsync(int categoryId, int? uploadedBy);
 		Task RestoreCategoryAsync(int categoryId, int? uploadedBy);
-	}
+        Task<PagedResultDTO<Category>> GetPagedAsync(int page, int pageSize);
+    }
 }

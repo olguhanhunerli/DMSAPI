@@ -9,5 +9,6 @@ namespace DMSAPI.Services.IServices
 		Task<PositionDTO> GetPositionByIdAsync(int id);
 		Task AddPositionAsync(CreatePositionDTO positionDTO, int userIdFromToken);
 		Task<PositionDTO> UpdatePositionAsync(UpdatePositionDTO positionDTO, int userIdFromToken);
+		Task DeletePositionAsync(int id, int userId);
 	}
 }

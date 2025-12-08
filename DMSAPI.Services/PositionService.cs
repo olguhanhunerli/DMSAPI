@@ -19,19 +19,26 @@ namespace DMSAPI.Services
 			_mapper = mapper;
 		}
 
-		public async Task AddAsync(CreatePositionDTO positionDTO, int userId)
-		{
-			var position = _mapper.Map<Position>(positionDTO);
-			position.CreatedBy = userId;
-			await _positionRepository.AddAsync(position);
-		}
+		
 
-		public Task AddPositionAsync(CreatePositionDTO positionDTO, int userIdFromToken)
+		public async Task AddPositionAsync(CreatePositionDTO positionDTO, int userIdFromToken)
 		{
-			throw new NotImplementedException();
-		}
+            var position = _mapper.Map<Position>(positionDTO);
 
-		public async Task<IEnumerable<PositionDTO>> GetAllPositionsAsync()
+            position.CreatedBy = userIdFromToken;
+            position.CreatedAt = DateTime.UtcNow;
+
+            await _positionRepository.AddAsync(position);
+        }
+
+        public async Task DeletePositionAsync(int id, int userId)
+        {
+			var position = await _positionRepository.GetByIdAsync(id);
+			position.UploadedBy = userId;
+			await _positionRepository.DeleteAsync(position);
+        }
+
+        public async Task<IEnumerable<PositionDTO>> GetAllPositionsAsync()
 		{
 			var list = await _positionRepository.GetAllPositionsAsync();
 			return _mapper.Map<IEnumerable<PositionDTO>>(list);
@@ -57,5 +64,6 @@ namespace DMSAPI.Services
 			var updated = await _positionRepository.GetByIdAsync(positionDTO.Id);
 			return _mapper.Map<PositionDTO>(updated);
 		}
+		
 	}
 }

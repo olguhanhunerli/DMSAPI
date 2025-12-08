@@ -27,7 +27,18 @@ public class CategoryController : BaseApiController
 	public async Task<IActionResult> GetTree()
 		=> Ok(await _service.GetCategoryTreeAsync(CompanyId));
 
-	[HttpPost("search")]
+    [HttpGet("breadcrumb/{id}")]
+    public async Task<IActionResult> Breadcrumb(int id)
+        => Ok(await _service.GetCategoryBreadcrumbDetailedAsync(id));
+    [HttpGet("get-paged")]
+    public async Task<IActionResult> GetPaged(
+    int page = 1,
+    int pageSize = 10)
+    {
+        var result = await _service.GetPagedAsync(page, pageSize);
+        return Ok(result);
+    }
+    [HttpPost("search")]
 	public async Task<IActionResult> Search(CategorySearchDTO dto)
 		=> Ok(await _service.SearchCategoryTreeAsync(dto.Keyword, CompanyId));
 
@@ -43,14 +54,11 @@ public class CategoryController : BaseApiController
 		=> Ok(await _service.UpdateCategoryByIdAsync(dto, UserId));
 
 	[HttpDelete("delete")]
-	public async Task<IActionResult> SoftDelete(CategoryDeleteDTO dto)
-		=> Ok(await _service.SoftDeleteCategoryAsync(dto));
+	public async Task<IActionResult> SoftDelete([FromBody] CategoryDeleteDTO dto)
+		=> Ok(await _service.SoftDeleteCategoryAsync(dto, UserId));
 
 	[HttpPut("restore")]
 	public async Task<IActionResult> Restore(CategoryRestoreDTO dto)
 		=> Ok(await _service.RestoreCategoryAsync(dto));
 
-	[HttpGet("breadcrumb/{id}")]
-	public async Task<IActionResult> Breadcrumb(int id)
-		=> Ok(await _service.GetCategoryBreadcrumbDetailedAsync(id));
 }

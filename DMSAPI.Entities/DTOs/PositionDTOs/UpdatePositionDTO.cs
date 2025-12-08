@@ -15,7 +15,6 @@ namespace DMSAPI.Entities.DTOs.PositionDTOs
 
 		public string? Description { get; set; }
 		public string? Notes { get; set; }
-		public int? SortOrder { get; set; }
 		public bool? IsActive { get; set; }
 	}
 }

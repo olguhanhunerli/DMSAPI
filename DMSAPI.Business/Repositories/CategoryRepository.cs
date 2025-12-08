@@ -1,6 +1,7 @@
 ﻿using DMSAPI.Business.Context;
 using DMSAPI.Business.Repositories.GenericRepository;
 using DMSAPI.Business.Repositories.IRepositories;
+using DMSAPI.Entities.DTOs.Common;
 using DMSAPI.Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -24,22 +25,41 @@ namespace DMSAPI.Business.Repositories
 
 		public async Task<IEnumerable<Category>> GetCategoriesAsync()
 		{
-			return await GetAllAsync();
-		}
+			return await _dbSet
+                .Include(x => x.Parent)
+				.Include(x => x.CreatedByUser)
+				.Include(x => x.UpdatedByUser)
+				.Include(x => x.Company)
+				.OrderBy(x => x.SortOrder)
+				.ToListAsync();
+        }
 
-		public Task<Category?> GetCategoryWithChildrenAsync(int categoryId)
+		public async Task<Category?> GetCategoryWithChildrenAsync(int categoryId)
 		{
-			return _dbSet
-				.Include(c => c.Children.Where(child => !child.IsDeleted))
-				.ThenInclude(child => child.Children.Where(gc => !gc.IsDeleted))
-				.Include(c => c.Parent)
-				.FirstOrDefaultAsync(c => c.Id == categoryId && !c.IsDeleted);
-		}
+            return await _dbSet
+			.Where(c => c.Id == categoryId && !c.IsDeleted)
+
+			.Include(c => c.Parent)
+			.Include(c => c.CreatedByUser)
+			.Include(c => c.UpdatedByUser)
+
+			.Include(c => c.Children
+				.Where(child => !child.IsDeleted)
+				.OrderBy(child => child.SortOrder))   
+
+			.ThenInclude(child => child.Children
+				.Where(gc => !gc.IsDeleted)
+				.OrderBy(gc => gc.SortOrder))        
+
+			.FirstOrDefaultAsync();
+        }
 
 		public async Task<IEnumerable<Category>> GetChildrenAsync(int parentId)
 		{
 			return await _dbSet
 				.Where(c => c.ParentId == parentId && !c.IsDeleted)
+				.Include(c => c.UpdatedByUser)
+				.Include(c => c.CreatedByUser)
 				.OrderBy(c => c.SortOrder)
 				.ToListAsync();
 		}
@@ -51,7 +71,36 @@ namespace DMSAPI.Business.Repositories
 				.CountAsync() + 1;
 		}
 
-		public async Task RestoreCategoryAsync(int categoryId, int? uploadedBy)
+        public async Task<PagedResultDTO<Category>> GetPagedAsync(int page, int pageSize)
+        {
+            if (page <= 0) page = 1;
+            if (pageSize <= 0) pageSize = 10;
+
+            var baseQuery = _dbSet
+                .Where(x => !x.IsDeleted) 
+                .Include(x => x.Parent)
+                .Include(x => x.CreatedByUser)
+                .Include(x => x.UpdatedByUser)
+                .Include(x => x.Company)
+                .OrderBy(x => x.SortOrder);
+
+            var totalCount = await baseQuery.CountAsync();
+
+            var items = await baseQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResultDTO<Category>
+            {
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                Items = items
+            };
+        }
+
+        public async Task RestoreCategoryAsync(int categoryId, int? uploadedBy)
 		{
 			var category = await _dbSet.FirstOrDefaultAsync(c => c.Id == categoryId);
 			if (category == null)

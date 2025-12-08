@@ -64,7 +64,18 @@ namespace DMSAPI.Business.Context
 			}
 
 			);
-			modelBuilder.Entity<Document>()
+            modelBuilder.Entity<Category>()
+					.HasOne(x => x.CreatedByUser)
+					.WithMany()
+					.HasForeignKey(x => x.CreatedBy)
+					.OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Category>()
+					.HasOne(x => x.UpdatedByUser)
+					.WithMany()
+					.HasForeignKey(x => x.UpdatedBy)
+					.OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Document>()
 						.HasOne(d => d.CreatedByUser)
 						.WithMany()
 						.HasForeignKey(d => d.CreatedBy)

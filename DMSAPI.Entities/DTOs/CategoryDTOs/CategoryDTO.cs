@@ -23,6 +23,7 @@ namespace DMSAPI.Entities.DTOs.CategoryDTOs
 		public string? ParentName { get; set; }
 
 		public int CompanyId { get; set; }
+		public string CompanyName { get; set; }
 
 		public int SortOrder { get; set; }
 
@@ -34,8 +35,10 @@ namespace DMSAPI.Entities.DTOs.CategoryDTOs
 		public DateTime? UpdatedAt { get; set; }
 
 		public int? CreatedBy { get; set; }
+		public string? CreatedByName { get; set; }
 
 		public int? UpdatedBy { get; set; }
+		public string? UpdatedByName { get; set; }
 		public List<CategoryDTO> Children { get; set; }
 	}
 }

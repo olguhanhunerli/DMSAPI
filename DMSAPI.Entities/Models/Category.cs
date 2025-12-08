@@ -29,6 +29,9 @@ namespace DMSAPI.Entities.Models
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 		public DateTime? UpdatedAt { get; set; }
 		public int? CreatedBy { get; set; }
+		public User CreatedByUser { get; set; }
 		public int? UpdatedBy { get; set; }
-	}
+        public User UpdatedByUser { get; set; }
+
+    }
 }

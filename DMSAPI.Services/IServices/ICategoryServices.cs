@@ -1,4 +1,5 @@
 ﻿using DMSAPI.Entities.DTOs.CategoryDTOs;
+using DMSAPI.Entities.DTOs.Common;
 
 namespace DMSAPI.Services.IServices
 {
@@ -16,7 +17,7 @@ namespace DMSAPI.Services.IServices
 
 		Task<IEnumerable<CategoryDTO>> SearchCategoryTreeAsync(string keyword, int companyId);
 
-		Task<bool> SoftDeleteCategoryAsync(CategoryDeleteDTO categoryDeleteDTO);
+		Task<bool> SoftDeleteCategoryAsync(CategoryDeleteDTO categoryDeleteDTO, int userIdFromToken);
 
 		Task<bool> RestoreCategoryAsync(CategoryRestoreDTO categoryRestoreDTO);
 
@@ -25,5 +26,6 @@ namespace DMSAPI.Services.IServices
 		Task<CategoryBreadcrumbDTO> GetCategoryBreadcrumbDetailedAsync(int categoryId);
 
 		Task<IEnumerable<CategorySelectListDTO>> GetCategorySelectListAsync();
-	}
+        Task<PagedResultDTO<CategoryDTO>> GetPagedAsync(int page, int pageSize);
+    }
 }

@@ -9,6 +9,6 @@ namespace DMSAPI.Entities.DTOs.CategoryDTOs
     public class CategoryDeleteDTO
     {
 		public int Id { get; set; }
-		public int? UploadedBy { get; set; }
+		public int UploadedBy { get; set; }
 	}
 }

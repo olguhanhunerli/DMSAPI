@@ -29,10 +29,17 @@ public class PositionController : BaseApiController
 		await _service.AddPositionAsync(dto, UserId);
 		return Ok();
 	}
-	[HttpPut]
+	[HttpPut("update")]
 	public async Task<IActionResult> Update(UpdatePositionDTO dto)
 	{
 		var response = await _service.UpdatePositionAsync(dto, UserId);
 		return Ok(response);
 	}
+    [Authorize(Roles = "GLOBAL ADMIN,SUPER ADMIN")]
+    [HttpDelete("delete/{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _service.DeletePositionAsync(id, UserId);
+        return Ok();
+    }
 }
