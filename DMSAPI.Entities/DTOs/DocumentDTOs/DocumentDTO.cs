@@ -66,5 +66,9 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
 		public DateTime? UpdatedAt { get; set; }
 		public int? UpdatedBy { get; set; }
 		public string UpdatedByName { get; set; }
-	}
+        public List<DocumentAttachmentDTO> Attachments { get; set; }
+        public List<DocumentVersionDTO> Versions { get; set; }
+        public List<DocumentApprovalHistoryDTO> ApprovalHistories { get; set; }
+        public List<DocumentAccessLogDTO> AccessLogs { get; set; }
+    }
 }

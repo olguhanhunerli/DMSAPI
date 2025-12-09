@@ -1,4 +1,6 @@
-﻿using DMSAPI.Entities.DTOs.RoleDTOs;
+﻿using DMSAPI.Entities.DTOs.Common;
+using DMSAPI.Entities.DTOs.DepartmentDTOs;
+using DMSAPI.Entities.DTOs.RoleDTOs;
 
 namespace DMSAPI.Services.IServices
 {
@@ -23,5 +25,6 @@ namespace DMSAPI.Services.IServices
 			int id,
 			int userIdFromToken
 		);
-	}
+        Task<PagedResultDTO<RoleDTO>> GetPagedAsync(int page, int pageSize);
+    }
 }

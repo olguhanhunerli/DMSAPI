@@ -46,7 +46,7 @@ public class CategoryController : BaseApiController
 	public async Task<IActionResult> Create(CreateCategoryDTO dto)
 	{
 		dto.CompanyId = CompanyId;
-		return Ok(await _service.CreateCategoryAsync(dto));
+		return Ok(await _service.CreateCategoryAsync(dto, UserId));
 	}
 
 	[HttpPut("update")]
@@ -59,6 +59,6 @@ public class CategoryController : BaseApiController
 
 	[HttpPut("restore")]
 	public async Task<IActionResult> Restore(CategoryRestoreDTO dto)
-		=> Ok(await _service.RestoreCategoryAsync(dto));
+		=> Ok(await _service.RestoreCategoryAsync(dto, UserId));
 
 }

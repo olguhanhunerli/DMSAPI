@@ -1,4 +1,5 @@
-﻿using DMSAPI.Entities.DTOs.DepartmentDTOs;
+﻿using DMSAPI.Entities.DTOs.Common;
+using DMSAPI.Entities.DTOs.DepartmentDTOs;
 using DMSAPI.Entities.DTOs.PositionDTOs;
 
 namespace DMSAPI.Services.IServices
@@ -10,5 +11,6 @@ namespace DMSAPI.Services.IServices
 		Task AddPositionAsync(CreatePositionDTO positionDTO, int userIdFromToken);
 		Task<PositionDTO> UpdatePositionAsync(UpdatePositionDTO positionDTO, int userIdFromToken);
 		Task DeletePositionAsync(int id, int userId);
-	}
+        Task<PagedResultDTO<PositionDTO>> GetPagedAsync(int page, int pageSize);
+    }
 }

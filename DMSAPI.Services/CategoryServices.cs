@@ -24,7 +24,7 @@ namespace DMSAPI.Services
 			_userRepository = userRepository;
 		}
 
-		public async Task<CategoryDTO> CreateCategoryAsync(CreateCategoryDTO dto)
+		public async Task<CategoryDTO> CreateCategoryAsync(CreateCategoryDTO dto, int userId)
 		{
 			bool exists = await _categoryRepository.ExistsAsync(dto.Name, dto.ParentId, dto.CompanyId);
 			if (exists)
@@ -34,6 +34,7 @@ namespace DMSAPI.Services
 			category.CreatedAt = DateTime.UtcNow;
 			category.IsActive = true;
 			category.IsDeleted = false;
+			category.CreatedBy = userId;
 
 			await _categoryRepository.AddAsync(category);
 			return _mapper.Map<CategoryDTO>(category);
@@ -100,9 +101,9 @@ namespace DMSAPI.Services
 			return true;
 		}
 
-		public async Task<bool> RestoreCategoryAsync(CategoryRestoreDTO dto)
+		public async Task<bool> RestoreCategoryAsync(CategoryRestoreDTO dto, int userId)
 		{
-			await _categoryRepository.RestoreCategoryAsync(dto.Id, dto.UploadedBy);
+			await _categoryRepository.RestoreCategoryAsync(dto.Id, userId);
 			return true;
 		}
 

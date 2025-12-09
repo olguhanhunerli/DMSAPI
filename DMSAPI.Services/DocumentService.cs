@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
+using DMSAPI.Business.Repositories;
 using DMSAPI.Business.Repositories.IRepositories;
+using DMSAPI.Entities.DTOs.Common;
+using DMSAPI.Entities.DTOs.DepartmentDTOs;
 using DMSAPI.Entities.DTOs.DocumentDTOs;
 using DMSAPI.Entities.Models;
 using DMSAPI.Services.IServices;
@@ -56,5 +59,18 @@ namespace DMSAPI.Services
 			var docs = await _documentRepository.GetAllAsync();
 			return _mapper.Map<IEnumerable<DocumentDTO>>(docs);
 		}
-	}
+
+        public async Task<PagedResultDTO<DocumentDTO>> GetPageAsync(int page, int pageSize)
+        {
+            var pagedEntities = await _documentRepository.GetPageAsync(page, pageSize);
+
+            return new PagedResultDTO<DocumentDTO>
+            {
+                TotalCount = pagedEntities.TotalCount,
+                Page = pagedEntities.Page,
+                PageSize = pagedEntities.PageSize,
+                Items = _mapper.Map<List<DocumentDTO>>(pagedEntities.Items)
+            };
+        }
+    }
 }

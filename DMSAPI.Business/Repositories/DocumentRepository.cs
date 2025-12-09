@@ -1,6 +1,7 @@
 ﻿using DMSAPI.Business.Context;
 using DMSAPI.Business.Repositories.GenericRepository;
 using DMSAPI.Business.Repositories.IRepositories;
+using DMSAPI.Entities.DTOs.Common;
 using DMSAPI.Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -45,7 +46,37 @@ namespace DMSAPI.Business.Repositories
 			return 1;
 		}
 
-		public async Task<bool> ValidateDocumentCodeAsync(string documentCode, int companyId, int categoryId)
+        public async Task<PagedResultDTO<Document>> GetPageAsync(int page, int pageSize)
+        {
+            if (page <= 0) page = 1;
+            if (pageSize <= 0) pageSize = 10;
+
+            var baseQuery = _dbSet
+                .AsNoTracking()
+                .Where(x => !x.IsDeleted && x.CompanyId == CompanyId)
+                .Include(x => x.Company)
+                .Include(x => x.Category)
+                .Include(x => x.CreatedByUser)
+                .Include(x => x.UpdatedByUser)
+                .OrderByDescending(x => x.CreatedAt);
+
+            var totalCount = await baseQuery.CountAsync();
+
+            var items = await baseQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResultDTO<Document>
+            {
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                Items = items
+            };
+        }
+
+        public async Task<bool> ValidateDocumentCodeAsync(string documentCode, int companyId, int categoryId)
 		{
 			var parts = documentCode.Split('-', 3);
 			if (parts.Length != 3)

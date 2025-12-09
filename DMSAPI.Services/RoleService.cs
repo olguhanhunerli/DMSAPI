@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
+using DMSAPI.Business.Repositories;
 using DMSAPI.Business.Repositories.IRepositories;
+using DMSAPI.Entities.DTOs.Common;
+using DMSAPI.Entities.DTOs.DepartmentDTOs;
 using DMSAPI.Entities.DTOs.RoleDTOs;
 using DMSAPI.Entities.Models;
 using DMSAPI.Services.IServices;
@@ -51,5 +54,18 @@ namespace DMSAPI.Services
 			role.UploadedBy = userId;
 			await _roleRepository.DeleteAsync(role);
 		}
-	}
+
+        public async Task<PagedResultDTO<RoleDTO>> GetPagedAsync(int page, int pageSize)
+        {
+            var pagedEntities = await _roleRepository.GetPagedAsync(page, pageSize);
+
+            return new PagedResultDTO<RoleDTO>
+            {
+                TotalCount = pagedEntities.TotalCount,
+                Page = pagedEntities.Page,
+                PageSize = pagedEntities.PageSize,
+                Items = _mapper.Map<List<RoleDTO>>(pagedEntities.Items)
+            };
+        }
+    }
 }

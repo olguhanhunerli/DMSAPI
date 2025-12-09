@@ -1,4 +1,5 @@
-﻿using DMSAPI.Entities.DTOs.DocumentDTOs;
+﻿using DMSAPI.Entities.DTOs.Common;
+using DMSAPI.Entities.DTOs.DocumentDTOs;
 
 namespace DMSAPI.Services.IServices
 {
@@ -10,5 +11,6 @@ namespace DMSAPI.Services.IServices
 		);
 
 		Task<IEnumerable<DocumentDTO>> GetAllDocumentsAsync();
-	}
+        Task<PagedResultDTO<DocumentDTO>> GetPageAsync(int page, int pageSize);
+    }
 }

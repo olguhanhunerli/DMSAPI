@@ -1,6 +1,7 @@
 ﻿using DMSAPI.Business.Context;
 using DMSAPI.Business.Repositories.GenericRepository;
 using DMSAPI.Business.Repositories.IRepositories;
+using DMSAPI.Entities.DTOs.Common;
 using DMSAPI.Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -20,11 +21,11 @@ namespace DMSAPI.Business.Repositories
 		public async Task<IEnumerable<Department>> GetAllDepartmentsAsync()
 		{
 			IQueryable<Department> query = _dbSet
-				.Where(d => !d.IsDeleted)
+                .Where(d => !d.IsDeleted && d.CompanyId == CompanyId)
 				.Include(d => d.Company)
 				.Include(d => d.Manager)
 				.Include(d => d.UploadedByUser)
-				.Include(d => d.CreatedByUser);
+                .Include(d => d.CreatedByUser);
 
 			if (!IsGlobalAdmin && CompanyId.HasValue)
 			{
@@ -83,6 +84,32 @@ namespace DMSAPI.Business.Repositories
 			);
 		}
 
-	
-	}
+        public async Task<PagedResultDTO<Department>> GetPagedAsync(int page, int pageSize)
+        {
+            if (page <= 0) page = 1;
+            if (pageSize <= 0) pageSize = 10;
+
+            var baseQuery = _dbSet
+                .Where(x => !x.IsDeleted && x.CompanyId == CompanyId)
+                .Include(x => x.CreatedByUser)
+                .Include(x => x.UploadedByUser)
+                .Include(x => x.Company)
+                .OrderBy(x => x.SortOrder);
+
+            var totalCount = await baseQuery.CountAsync();
+
+            var items = await baseQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResultDTO<Department>
+            {
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                Items = items
+            };
+        }
+    }
 }

@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
+using DMSAPI.Business.Repositories;
 using DMSAPI.Business.Repositories.IRepositories;
+using DMSAPI.Entities.DTOs.CategoryDTOs;
+using DMSAPI.Entities.DTOs.Common;
 using DMSAPI.Entities.DTOs.DepartmentDTOs;
 using DMSAPI.Entities.Models;
 using DMSAPI.Services.IServices;
@@ -58,7 +61,20 @@ namespace DMSAPI.Services
 			return _mapper.Map<DepartmentDetailDTO>(department);
 		}
 
-		public async Task<DepartmentDetailDTO> UpdateDepartmentAsync(UpdateDepartmentDTO dto, int userId)
+        public async Task<PagedResultDTO<DepartmentDTO>> GetPagedAsync(int page, int pageSize)
+        {
+            var pagedEntities = await _departmentRepository.GetPagedAsync(page, pageSize);
+
+            return new PagedResultDTO<DepartmentDTO>
+            {
+                TotalCount = pagedEntities.TotalCount,
+                Page = pagedEntities.Page,
+                PageSize = pagedEntities.PageSize,
+                Items = _mapper.Map<List<DepartmentDTO>>(pagedEntities.Items)
+            };
+        }
+
+        public async Task<DepartmentDetailDTO> UpdateDepartmentAsync(UpdateDepartmentDTO dto, int userId)
 		{
 			var department = await _departmentRepository.GetByIdAsync(dto.Id)
 				?? throw new Exception("Department not found");

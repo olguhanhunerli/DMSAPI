@@ -22,6 +22,14 @@ public class DocumentController : BaseApiController
 	[HttpGet("get-all")]
 	public async Task<IActionResult> GetAll()
 		=> Ok(await _service.GetAllDocumentsAsync());
+    [HttpGet("get-paged")]
+    public async Task<IActionResult> GetPaged(
+   int page = 1,
+   int pageSize = 10)
+    {
+        var result = await _service.GetPageAsync(page, pageSize);
+        return Ok(result);
+    }
 
-	
+
 }

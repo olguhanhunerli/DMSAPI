@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DMSAPI.Business.Repositories;
 using DMSAPI.Business.Repositories.IRepositories;
+using DMSAPI.Entities.DTOs.Common;
 using DMSAPI.Entities.DTOs.DepartmentDTOs;
 using DMSAPI.Entities.DTOs.PositionDTOs;
 using DMSAPI.Entities.Models;
@@ -44,7 +45,20 @@ namespace DMSAPI.Services
 			return _mapper.Map<IEnumerable<PositionDTO>>(list);
 		}
 
-		public async Task<PositionDTO> GetPositionByIdAsync(int id)
+        public async Task<PagedResultDTO<PositionDTO>> GetPagedAsync(int page, int pageSize)
+        {
+            var pagedEntities = await _positionRepository.GetPagedAsync(page, pageSize);
+
+            return new PagedResultDTO<PositionDTO>
+            {
+                TotalCount = pagedEntities.TotalCount,
+                Page = pagedEntities.Page,
+                PageSize = pagedEntities.PageSize,
+                Items = _mapper.Map<List<PositionDTO>>(pagedEntities.Items)
+            };
+        }
+
+        public async Task<PositionDTO> GetPositionByIdAsync(int id)
 		{
 			var position = await _positionRepository.GetPositionByIdAsync(id)
 				?? throw new Exception("Position not found");

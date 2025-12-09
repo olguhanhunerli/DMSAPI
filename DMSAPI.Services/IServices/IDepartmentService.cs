@@ -1,4 +1,6 @@
-﻿using DMSAPI.Entities.DTOs.DepartmentDTOs;
+﻿using DMSAPI.Entities.DTOs.CategoryDTOs;
+using DMSAPI.Entities.DTOs.Common;
+using DMSAPI.Entities.DTOs.DepartmentDTOs;
 
 namespace DMSAPI.Services.IServices
 {
@@ -18,5 +20,6 @@ namespace DMSAPI.Services.IServices
 			int userIdFromToken
 		);
 		Task DeleteDepartmentAsync(int id, int userId);
-	}
+        Task<PagedResultDTO<DepartmentDTO>> GetPagedAsync(int page, int pageSize);
+    }
 }

@@ -22,8 +22,15 @@ public class DepartmentController : BaseApiController
 	[HttpGet("get-by-id/{id}")]
 	public async Task<IActionResult> GetById(int id)
 		=> Ok(await _service.GetDepartmentByIdAsync(id));
-
-	[HttpPost("create")]
+    [HttpGet("get-paged")]
+    public async Task<IActionResult> GetPaged(
+    int page = 1,
+    int pageSize = 10)
+    {
+        var result = await _service.GetPagedAsync(page, pageSize);
+        return Ok(result);
+    }
+    [HttpPost("create")]
 	public async Task<IActionResult> Create(CreateDepartmentDTO dto)
 		=> Ok(await _service.CreateDepartmentAsync(dto, UserId));
 
@@ -37,4 +44,5 @@ public class DepartmentController : BaseApiController
 		await _service.DeleteDepartmentAsync(id, UserId);
 		return Ok();
 	}
+
 }

@@ -22,7 +22,15 @@ public class PositionController : BaseApiController
 	[HttpGet("get-by-id/{id}")]
 	public async Task<IActionResult> GetById(int id)
 		=> Ok(await _service.GetPositionByIdAsync(id));
-	[Authorize(Roles = "GLOBAL ADMIN,SUPER ADMIN")]
+    [HttpGet("get-paged")]
+    public async Task<IActionResult> GetPaged(
+    int page = 1,
+    int pageSize = 10)
+    {
+        var result = await _service.GetPagedAsync(page, pageSize);
+        return Ok(result);
+    }
+    [Authorize(Roles = "GLOBAL ADMIN,SUPER ADMIN")]
 	[HttpPost("create")]
 	public async Task<IActionResult> Create(CreatePositionDTO dto)
 	{

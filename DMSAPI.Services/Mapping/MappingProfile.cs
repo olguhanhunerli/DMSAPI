@@ -74,6 +74,7 @@ namespace DMSAPI.Services.Mapping
                     o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
 ;
             CreateMap<CreateCategoryDTO, Category>();
+            CreateMap<UpdateCategoryDTO, Category>();
 
 
 			CreateMap<Document, DocumentDTO>()

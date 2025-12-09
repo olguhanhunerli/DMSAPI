@@ -7,7 +7,7 @@ namespace DMSAPI.Services.IServices
 	{
 		Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync();
 
-		Task<CategoryDTO> CreateCategoryAsync(CreateCategoryDTO categoryDto);
+		Task<CategoryDTO> CreateCategoryAsync(CreateCategoryDTO categoryDto, int userIdFromToken);
 
 		Task<CategoryDTO> GetCategoryByIdAsync(int id);
 
@@ -19,7 +19,7 @@ namespace DMSAPI.Services.IServices
 
 		Task<bool> SoftDeleteCategoryAsync(CategoryDeleteDTO categoryDeleteDTO, int userIdFromToken);
 
-		Task<bool> RestoreCategoryAsync(CategoryRestoreDTO categoryRestoreDTO);
+		Task<bool> RestoreCategoryAsync(CategoryRestoreDTO categoryRestoreDTO, int userIdFromToken);
 
 		Task<List<string>> GetCategoryBreadcrumbAsync(int categoryId);
 

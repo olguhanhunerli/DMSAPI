@@ -102,7 +102,7 @@ namespace DMSAPI.Business.Repositories
             if (pageSize <= 0) pageSize = 10;
 
             var baseQuery = _dbSet
-                .Where(x => !x.IsDeleted) 
+                .Where(x => !x.IsDeleted && x.CompanyId == CompanyId) 
                 .Include(x => x.Parent)
                 .Include(x => x.CreatedByUser)
                 .Include(x => x.UpdatedByUser)
