@@ -38,6 +38,21 @@ namespace DMSAPI.Business.Repositories
 				.ToListAsync();
 		}
 
+		public async Task<List<User>> GetApproverAsync(int companyId)
+		{
+			return await _dbSet
+				   .Include(u => u.Department)
+				   .Include(u => u.Position)
+				   .Where(x =>
+						x.CanApprove == true &&
+						x.IsActive == true &&
+						(x.IsDeleted == false || x.IsDeleted == null) &&
+						x.CompanyId == companyId
+					)
+				   .ToListAsync();
+
+		}
+
 		public async Task<IEnumerable<User>> GetEmployeesByManagerIdAsync(int managerId)
 		{
 			var query = _dbSet

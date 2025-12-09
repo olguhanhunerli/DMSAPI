@@ -30,7 +30,9 @@ public class UserController : BaseApiController
 	[HttpGet("get-by-manager/{managerId}")]
 	public async Task<IActionResult> GetEmployees(int managerId)
 		=> Ok(await _service.GetEmployeesByManagerIdAsync(managerId));
-
+	[HttpGet("approvers")]
+	public async Task<IActionResult> GetApprovers() 
+		=>Ok(await _service.GetApproversAsync(CompanyId));
 	[HttpPost("search")]
 	public async Task<IActionResult> Search(UserSearchDTO dto)
 		=> Ok(await _service.SearchUsersAsync(dto));

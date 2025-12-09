@@ -45,7 +45,6 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
 
 		public int? ApprovedBy { get; set; }
 		public string ApprovedByName { get; set; }
-		public DateTime? ApprovedAt { get; set; }
 
 		public int? RejectedBy { get; set; }
 		public string RejectedByName { get; set; }

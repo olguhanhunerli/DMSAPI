@@ -52,10 +52,6 @@ namespace DMSAPI.Entities.DTOs.UserDTOs
         [DefaultValue(false)]
         public bool IsDeleted { get; set; }
 
-        [DefaultValue(3)]
-        public int? ApprovalLevel { get; set; }
-
-
         [DefaultValue("tr")]
         public string Language { get; set; }
 

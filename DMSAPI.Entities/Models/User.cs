@@ -35,7 +35,6 @@ public class User : ICompanyOwned
 	public string? Permissions { get; set; }
 
 	public bool? CanApprove { get; set; }
-	public int? ApprovalLevel { get; set; }
 	public string? SignatureImageUrl { get; set; }
 
 	public int CompanyId { get; set; }

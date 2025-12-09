@@ -31,7 +31,6 @@ namespace DMSAPI.Entities.DTOs.UserDTOs
         public int? PositionId { get; set; }
         public string? PositionName { get; set; }
         public bool? CanApprove { get; set; }
-        public int? ApprovalLevel { get; set; }
         public bool? IsActive { get; set; }
         public bool? IsDeleted { get; set; }
 

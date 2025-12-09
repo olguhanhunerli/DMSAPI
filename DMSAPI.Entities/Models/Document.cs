@@ -47,7 +47,6 @@ namespace DMSAPI.Entities.Models
         public int? ApprovedByUserId { get; set; }
         [ForeignKey(nameof(ApprovedByUserId))]
         public User? ApprovedByUser { get; set; }
-        public DateTime? ApprovedAt { get; set; }
 
         public int? RejectedByUserId { get; set; }
         [ForeignKey(nameof(RejectedByUserId))]

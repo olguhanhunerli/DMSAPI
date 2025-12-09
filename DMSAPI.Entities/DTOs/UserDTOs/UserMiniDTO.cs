@@ -10,5 +10,7 @@ namespace DMSAPI.Entities.DTOs.UserDTOs
     {
         public int Id { get; set; }
         public string FullName { get; set; }
+        public string? DepartmentName { get; set; }
+        public string? PositionName { get; set; }
     }
 }

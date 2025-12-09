@@ -115,7 +115,6 @@ namespace DMSAPI.Services
 				CompanyId = dto.CompanyId,
 
 				CanApprove = dto.CanApprove,
-				ApprovalLevel = dto.ApprovalLevel,
 
 				Language = dto.Language,
 				TimeZone = dto.TimeZone,

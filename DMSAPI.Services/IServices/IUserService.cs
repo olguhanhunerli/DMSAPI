@@ -15,7 +15,7 @@ namespace DMSAPI.Services.IServices
 			UpdateUserDTO updateUserDTO,
 			int userIdFromToken
 		);
-
+		Task<List<UserMiniDTO>> GetApproversAsync(int companyId);
 		Task<bool> PasswordResetAsync(PasswordResetDTO passwordResetDTO);
 
 		Task<bool> PasswordUpdateAsync(PasswordUpdateDTO passwordUpdateDTO);

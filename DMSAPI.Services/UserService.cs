@@ -111,7 +111,17 @@ namespace DMSAPI.Services
 				PageSize = dto.PageSize
 			};
 		}
-
+		public async Task<List<UserMiniDTO>> GetApproversAsync(int companyId)
+		{
+			var users = await _userRepository.GetApproverAsync(companyId);
+			return users.Select(x => new UserMiniDTO
+			{
+				Id = x.Id,
+				DepartmentName = x.Department?.Name,
+				FullName = x.FirstName + " " + x.LastName,
+				PositionName = x.Position?.Name
+			}).ToList();
+		}
 		private string Hash(string password, out string salt)
 		{
 			using var hmac = new System.Security.Cryptography.HMACSHA256();
@@ -124,5 +134,7 @@ namespace DMSAPI.Services
 			using var hmac = new System.Security.Cryptography.HMACSHA256(Convert.FromBase64String(salt));
 			return Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(input))) == hash;
 		}
+
+		
 	}
 }
