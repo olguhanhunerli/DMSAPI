@@ -124,18 +124,18 @@ namespace DMSAPI.Services
 
 		public async Task<CategoryBreadcrumbDTO> GetCategoryBreadcrumbDetailedAsync(int categoryId)
 		{
-			var breadcrumb = await GetCategoryBreadcrumbAsync(categoryId);
+            var breadcrumb = await GetCategoryBreadcrumbAsync(categoryId);
 
-			return new CategoryBreadcrumbDTO
-			{
-				FullPath = string.Join(" / ", breadcrumb),
-				BreadcrumbList = breadcrumb.Select((x, i) => new BreadCrumbItemDTO
-				{
-					Id = i,
-					Name = x
-				}).ToList()
-			};
-		}
+            return new CategoryBreadcrumbDTO
+            {
+                FullPath = string.Join(" / ", breadcrumb),
+                BreadcrumbList = breadcrumb.Select((x, i) => new BreadCrumbItemDTO
+                {
+                    Id = i,
+                    Name = x
+                }).ToList()
+            };
+        }
 
 		public async Task<IEnumerable<CategorySelectListDTO>> GetCategorySelectListAsync()
 		{

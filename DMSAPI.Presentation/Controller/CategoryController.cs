@@ -27,9 +27,6 @@ public class CategoryController : BaseApiController
 	public async Task<IActionResult> GetTree()
 		=> Ok(await _service.GetCategoryTreeAsync(CompanyId));
 
-    [HttpGet("breadcrumb/{id}")]
-    public async Task<IActionResult> Breadcrumb(int id)
-        => Ok(await _service.GetCategoryBreadcrumbDetailedAsync(id));
     [HttpGet("get-paged")]
     public async Task<IActionResult> GetPaged(
     int page = 1,

@@ -38,6 +38,12 @@ public class DocumentController : BaseApiController
 
         return Ok(result);
     }
+	[HttpGet("create-preview")]
+	public async Task<IActionResult> CreatePreview(int categoryId)
+	{
+		var result = await _service.GetCreatePreviewAsync(categoryId, UserId);
+		return Ok(result);
+	}
 
 
 }
