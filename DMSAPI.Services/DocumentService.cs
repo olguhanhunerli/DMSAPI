@@ -46,7 +46,7 @@ namespace DMSAPI.Services
 
 			var document = _mapper.Map<Document>(dto);
 			document.DocumentCode = code;
-			document.CreatedBy = userId;
+			document.CreatedByUserId = userId;
 			document.CreatedAt = DateTime.UtcNow;
 
 			await _documentRepository.AddAsync(document);
@@ -60,16 +60,17 @@ namespace DMSAPI.Services
 			return _mapper.Map<IEnumerable<DocumentDTO>>(docs);
 		}
 
-        public async Task<PagedResultDTO<DocumentDTO>> GetPageAsync(int page, int pageSize)
+        public async Task<PagedResultDTO<DocumentDTO>> GetPageAsync(int page, int pageSize, int userId, int roleId, int departmentId)
         {
-            var pagedEntities = await _documentRepository.GetPageAsync(page, pageSize);
+            var result = await _documentRepository
+							.GetPagedAuthorizedAsync(page, pageSize, userId, roleId, departmentId);
 
             return new PagedResultDTO<DocumentDTO>
             {
-                TotalCount = pagedEntities.TotalCount,
-                Page = pagedEntities.Page,
-                PageSize = pagedEntities.PageSize,
-                Items = _mapper.Map<List<DocumentDTO>>(pagedEntities.Items)
+                TotalCount = result.TotalCount,
+                Page = result.Page,
+                PageSize = result.PageSize,
+                Items = _mapper.Map<List<DocumentDTO>>(result.Items)
             };
         }
     }

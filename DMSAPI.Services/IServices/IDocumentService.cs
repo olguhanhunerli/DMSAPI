@@ -11,6 +11,6 @@ namespace DMSAPI.Services.IServices
 		);
 
 		Task<IEnumerable<DocumentDTO>> GetAllDocumentsAsync();
-        Task<PagedResultDTO<DocumentDTO>> GetPageAsync(int page, int pageSize);
+        Task<PagedResultDTO<DocumentDTO>> GetPageAsync(int page, int pageSize, int userId, int roleId, int departmentId);
     }
 }

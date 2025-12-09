@@ -48,7 +48,19 @@ public static class ServiceRegistration
 		services.AddScoped<IDepartmentService, DepartmentService>();
 		services.AddScoped<IPositionService, PositionService>();
 
-		services.AddSingleton<ITokenService, TokenService>();
+        services.AddScoped<IDocumentAttachmentRepository, DocumentAttachmentRepository>();
+        services.AddScoped<IDocumentAttachmentService, DocumentAttachmentService>();
+
+        services.AddScoped<IDocumentVersionRepository, DocumentVersionRepository>();
+        services.AddScoped<IDocumentVersionService, DocumentVersionService>();
+
+        services.AddScoped<IDocumentApprovalHistoryRepository, DocumentApprovalHistoryRepository>();
+        services.AddScoped<IDocumentApprovalHistoryService, DocumentApprovalHistoryService>();
+
+        services.AddScoped<IDocumentAccessLogRepository, DocumentAccessLogRepository>();
+        services.AddScoped<IDocumentAccessLogService, DocumentAccessLogService>();
+
+        services.AddSingleton<ITokenService, TokenService>();
 
 		services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 		var jwt = configuration.GetSection("JwtSettings").Get<JwtSettings>();

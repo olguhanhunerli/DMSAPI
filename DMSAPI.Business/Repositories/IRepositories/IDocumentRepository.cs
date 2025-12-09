@@ -9,6 +9,6 @@ namespace DMSAPI.Business.Repositories.IRepositories
 		Task<int> GetNextDocumentNumberAsync(int companyId, int categoryId);
 		Task<bool> DocumentCodeExistingAsync(string documentCode);
 		Task<bool> ValidateDocumentCodeAsync(string documentCode, int companyId, int categoryId);
-		Task<PagedResultDTO<Document>> GetPageAsync(int page, int pageSize);
+		Task<PagedResultDTO<Document>> GetPagedAuthorizedAsync(int page,int pageSize,int userId,int roleId,int departmentId);
 	}
 }

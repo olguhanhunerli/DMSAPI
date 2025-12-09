@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Entities.DTOs.DocumentDTOs
 {
-    public class DocumentAccessLogDTO
-    {
-        public int Id { get; set; }
+	public class DocumentAccessLogDTO
+	{
+		public int Id { get; set; }
 		public int DocumentId { get; set; }
 
 		public int UserId { get; set; }
@@ -19,7 +19,10 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
 		public DateTime AccessAt { get; set; }
 		public string IpAddress { get; set; }
 
-		public string AccessTypeDisplayName { get; set; }  
-		public string AccessTimeText { get; set; 
-    }
+		public string AccessTypeDisplayName { get; set; }
+		public string AccessTimeText
+		{
+			get; set;
+		}
+	}
 }

@@ -25,13 +25,18 @@ namespace DMSAPI.Services
 		{
 			var claims = new List<Claim>
 			{
-				new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
 				new Claim(JwtRegisteredClaimNames.Email, user.Email),
 				new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-				new Claim("role", user.Role?.Name ?? string.Empty),
+
+				new Claim("userId", user.Id.ToString()),
 				new Claim("userName", user.UserName ?? string.Empty),
-				new Claim("companyId", user.CompanyId.ToString())
-			};
+
+				new Claim("role", user.Role?.Name ?? string.Empty),   
+				new Claim("roleId", user.RoleId.ToString()),          
+				new Claim("departmentId", user.DepartmentId.ToString()), 
+				new Claim("companyId", user.CompanyId.ToString()),
+            };
 
 			if (user.PositionId.HasValue)
 			{

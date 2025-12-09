@@ -1,5 +1,7 @@
 ﻿using DMSAPI.Entities.DTOs.DocumentDTOs;
+using DMSAPI.Entities.Models;
 using DMSAPI.Presentation.Controller;
+using DMSAPI.Services;
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +29,13 @@ public class DocumentController : BaseApiController
    int page = 1,
    int pageSize = 10)
     {
-        var result = await _service.GetPageAsync(page, pageSize);
+        var userId = UserId;             
+        var roleId = RoleId;
+        var departmentId = DepartmentId;
+
+        var result = await _service
+            .GetPageAsync(page, pageSize, userId, roleId, departmentId);
+
         return Ok(result);
     }
 
