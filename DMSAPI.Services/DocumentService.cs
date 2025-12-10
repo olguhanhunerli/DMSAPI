@@ -6,22 +6,24 @@ using DMSAPI.Entities.DTOs.DepartmentDTOs;
 using DMSAPI.Entities.DTOs.DocumentDTOs;
 using DMSAPI.Entities.Models;
 using DMSAPI.Services.IServices;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace DMSAPI.Services
 {
-	public class DocumentService : IDocumentService
-	{
-		private readonly IDocumentRepository _documentRepository;
-		private readonly ICategoryRepository _categoryRepository;
-		private readonly IUserRepository _userRepository;
-		private readonly IMapper _mapper;
-		private readonly IHostEnvironment _env;
-		private readonly ICategoryServices  _categoryServices;
-		private readonly IDocumentAttachmentRepository  _documentAttachmentRepository;
+    public class DocumentService : IDocumentService
+    {
+        private readonly IDocumentRepository _documentRepository;
+        private readonly ICategoryRepository _categoryRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
+        private readonly IHostEnvironment _env;
+        private readonly ICategoryServices _categoryServices;
+        private readonly IDocumentAttachmentRepository _documentAttachmentRepository;
         private readonly IDocumentApprovalRepository _documentApprovalRepository;
-        
+
 
         public DocumentService(
             IDocumentRepository documentRepository,
@@ -44,8 +46,8 @@ namespace DMSAPI.Services
         }
 
         public async Task<DocumentCreateResponseDTO> CreateDocumentAsync(DocumentCreateDTO dto, int userId)
-		{
-			using var transaction = await _documentRepository.BeginTransactionAsync();
+        {
+            using var transaction = await _documentRepository.BeginTransactionAsync();
             try
             {
                 var user = await _userRepository.GetByIdAsync(userId)
@@ -150,11 +152,11 @@ namespace DMSAPI.Services
             }
         }
 
-		public async Task<IEnumerable<DocumentDTO>> GetAllDocumentsAsync()
-		{
-			var docs = await _documentRepository.GetAllAsync();
-			return _mapper.Map<IEnumerable<DocumentDTO>>(docs);
-		}
+        public async Task<IEnumerable<DocumentDTO>> GetAllDocumentsAsync()
+        {
+            var docs = await _documentRepository.GetAllAsync();
+            return _mapper.Map<IEnumerable<DocumentDTO>>(docs);
+        }
 
         public async Task<DocumentCreatePreviewDTO> GetCreatePreviewAsync(int categoryId, int userId)
         {
@@ -201,17 +203,49 @@ namespace DMSAPI.Services
             var documentIds = await _documentApprovalRepository.GetPendingDocumentIdsAsync(userId);
             if (!documentIds.Any())
             {
-                return new List<DocumentDTO>();
+                return new List<DocumentDTO> ();
             }
             var documents = await _documentRepository.GetPendingDocumentIdsForUserAsync(documentIds);
 
-            return _mapper.Map<List<DocumentDTO>>(documents);
+            return _mapper.Map <List<DocumentDTO>> (documents);
         }
 
+        public async Task<PagedResultDTO<DocumentDTO>> GetMyPendingApprovalsAsync(
+                                                                             int page,
+                                                                             int pageSize,
+                                                                             int userId)
+        {
+            var documentIds =
+                await _documentApprovalRepository
+                    .GetPendingDocumentIdsForUserAsync(userId);
+
+            if (!documentIds.Any())
+            {
+                return new PagedResultDTO<DocumentDTO>
+                {
+                    TotalCount = 0,
+                    Page = page,
+                    PageSize = pageSize,
+                    Items = new List<DocumentDTO>()
+                };
+            }
+
+            var pagedDocuments =
+                await _documentRepository
+                    .GetPagedPendingByIdsAsync(documentIds, page, pageSize);
+
+            return new PagedResultDTO<DocumentDTO>
+            {
+                TotalCount = pagedDocuments.TotalCount,
+                Page = pagedDocuments.Page,
+                PageSize = pagedDocuments.PageSize,
+                Items = _mapper.Map<List<DocumentDTO>>(pagedDocuments.Items)
+            };
+        }
         public async Task<PagedResultDTO<DocumentDTO>> GetPageAsync(int page, int pageSize, int userId, int roleId, int departmentId)
         {
             var result = await _documentRepository
-							.GetPagedAuthorizedAsync(page, pageSize, userId, roleId, departmentId);
+                            .GetPagedAuthorizedAsync(page, pageSize, userId, roleId, departmentId);
 
             return new PagedResultDTO<DocumentDTO>
             {

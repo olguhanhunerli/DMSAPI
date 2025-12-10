@@ -137,4 +137,30 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync();
     }
+
+    public async Task<PagedResultDTO<Document>> GetPagedPendingByIdsAsync(
+                                                                         List<int> documentIds,
+                                                                         int page,
+                                                                         int pageSize)
+    {
+        var query = _dbSet
+            .AsNoTracking()
+            .Where(x => documentIds.Contains(x.Id) && !x.IsDeleted);
+
+        var total = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResultDTO<Document>
+        {
+            TotalCount = total,
+            Page = page,
+            PageSize = pageSize,
+            Items = items
+        };
+    }
 }

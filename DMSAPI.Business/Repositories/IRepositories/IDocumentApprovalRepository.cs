@@ -13,5 +13,7 @@ namespace DMSAPI.Business.Repositories.IRepositories
         Task<List<DocumentApproval>> GetByDocumentIdAsync(int documentId);
         Task<List<int>> GetPendingDocumentIdsAsync(int userId);
         Task<DocumentApproval> GetNextPendingApprovalAsync(int documentId);
+        Task<List<int>> GetPendingDocumentIdsForUserAsync(int userId);
     }
 }
+

@@ -54,6 +54,18 @@ public class DocumentController : BaseApiController
 
         return Ok(docs);
     }
+    [HttpGet("my-pending-approvals/paged")]
+    public async Task<IActionResult> GetMyPendingApprovals(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
+    {
+        int userId = int.Parse(User.FindFirst("sub")!.Value);
+
+        var result = await _service
+            .GetMyPendingApprovalsAsync(page, pageSize, userId);
+
+        return Ok(result);
+    }
 
 
 }

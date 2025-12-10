@@ -44,5 +44,18 @@ namespace DMSAPI.Business.Repositories
                 .Distinct()
                 .ToListAsync();
         }
+
+        public async Task<List<int>> GetPendingDocumentIdsForUserAsync(int userId)
+        {
+            return await _context.DocumentApprovals
+            .AsNoTracking()
+            .Where(x =>
+                x.UserId == userId &&
+                !x.IsApproved &&
+                !x.IsRejected)
+            .Select(x => x.DocumentId)
+            .Distinct()
+            .ToListAsync();
+        }
     }
 }
