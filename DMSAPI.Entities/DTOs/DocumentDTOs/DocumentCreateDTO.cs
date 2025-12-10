@@ -9,22 +9,26 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
 {
     public class DocumentCreateDTO
     {
-        public string Title { get; set; }
-        public int CompanyId { get; set; }
-        public int CategoryId { get; set; }
+        public string? TitleTr { get; set; }
+        public string? TitleEn { get; set; }
 
-        public string DocumentType { get; set; }
+        public int CategoryId { get; set; }
+        public int? DepartmentId { get; set; }
+
+        public string? DocumentType { get; set; }
+        public string? VersionNote { get; set; }
+
+        public int RevisionNumber { get; set; } = 0;
+
         public bool IsPublic { get; set; }
 
         public List<int>? AllowedRoleIds { get; set; }
         public List<int>? AllowedDepartmentIds { get; set; }
         public List<int>? AllowedUserIds { get; set; }
 
-        public string? VersionNote { get; set; }
+        public List<int> ApproverUserIds { get; set; } = new();
 
-        public int? ApproverId { get; set; }
-
-        public IFormFile File { get; set; }
+        public List<IFormFile> Files { get; set; } = new();
 
     }
 }

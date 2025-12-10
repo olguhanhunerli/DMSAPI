@@ -42,8 +42,18 @@ public class DocumentController : BaseApiController
 	public async Task<IActionResult> CreatePreview(int categoryId)
 	{
 		var result = await _service.GetCreatePreviewAsync(categoryId, UserId);
+
 		return Ok(result);
 	}
+    [HttpGet("my-pending-approvals")]
+    public async Task<IActionResult> GetMyPendingApprovals()
+    {
+        int userId = int.Parse(User.FindFirst("sub").Value);
+
+        var docs = await _service.GetMyPendingApprovalsAsync(userId);
+
+        return Ok(docs);
+    }
 
 
 }

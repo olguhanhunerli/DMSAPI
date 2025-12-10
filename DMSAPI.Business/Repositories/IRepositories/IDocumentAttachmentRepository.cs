@@ -11,5 +11,6 @@ namespace DMSAPI.Business.Repositories.IRepositories
     public interface IDocumentAttachmentRepository: IGenericRepository<DocumentAttachment>
     {
         Task<List<DocumentAttachment>> GetByDocumentIdAsync(int documentId);
+        Task<DocumentAttachment?> GetMainFileAsync(int documentId);
     }
 }

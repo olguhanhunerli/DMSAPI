@@ -12,5 +12,6 @@ namespace DMSAPI.Services.IServices
         Task<DocumentCreatePreviewDTO> GetCreatePreviewAsync(int categoryId, int userId);
         Task<IEnumerable<DocumentDTO>> GetAllDocumentsAsync();
         Task<PagedResultDTO<DocumentDTO>> GetPageAsync(int page, int pageSize, int userId, int roleId, int departmentId);
+		Task<List<DocumentDTO>> GetMyPendingApprovalsAsync(int userId);
     }
 }

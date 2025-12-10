@@ -19,8 +19,18 @@ namespace DMSAPI.Business.Repositories
         public async Task<List<DocumentAttachment>> GetByDocumentIdAsync(int documentId)
         {
             return await _dbSet
-           .Where(x => x.DocumentId == documentId)
+           .Where(x => x.DocumentId == documentId && !x.IsDeleted)
+           .OrderByDescending(x => x.UploadedAt)
            .ToListAsync();
+        }
+
+        public async Task<DocumentAttachment?> GetMainFileAsync(int documentId)
+        {
+            return await _dbSet
+                 .FirstOrDefaultAsync(x =>
+                 x.DocumentId == documentId &&
+                 x.IsMainFile &&
+                 !x.IsDeleted);
         }
     }
 }

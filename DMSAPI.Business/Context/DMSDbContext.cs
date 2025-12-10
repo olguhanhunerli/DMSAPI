@@ -20,21 +20,23 @@ namespace DMSAPI.Business.Context
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Position> Positions { get; set; }
+
         public DbSet<Document> Documents { get; set; }
         public DbSet<DocumentAttachment> DocumentAttachments { get; set; }
         public DbSet<DocumentVersion> DocumentVersions { get; set; }
         public DbSet<DocumentApprovalHistory> DocumentApprovalHistories { get; set; }
         public DbSet<DocumentAccessLog> DocumentAccessLogs { get; set; }
+        public DbSet<DocumentApproval> DocumentApprovals { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<User>()
-                .HasOne(u => u.Manager)
-                .WithMany()
-                .HasForeignKey(u => u.ManagerId)
-                .OnDelete(DeleteBehavior.SetNull);
+         .HasOne(u => u.Manager)
+         .WithMany()
+         .HasForeignKey(u => u.ManagerId)
+         .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<User>()
                 .HasMany(u => u.RefreshTokens)
@@ -45,114 +47,143 @@ namespace DMSAPI.Business.Context
                 .HasMany(u => u.PermissionsList)
                 .WithOne(p => p.User)
                 .HasForeignKey(p => p.UserId);
+
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Position)
                 .WithMany(p => p.Users)
                 .HasForeignKey(u => u.PositionId);
+
+
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.HasKey(e => e.Id);
+
                 entity.HasOne(e => e.Parent)
                       .WithMany(e => e.Children)
                       .HasForeignKey(e => e.ParentId)
                       .OnDelete(DeleteBehavior.Restrict);
+
                 entity.HasOne(e => e.Company)
                       .WithMany()
                       .HasForeignKey(e => e.CompanyId)
                       .OnDelete(DeleteBehavior.Cascade);
-                entity.HasIndex(c => c.CompanyId);
-                entity.HasIndex(c => c.ParentId);
-                entity.HasIndex(c => c.IsActive);
 
-                entity.HasIndex(c => c.Slug).IsUnique(false);
-            }
-
-            );
-            modelBuilder.Entity<Category>()
-                    .HasOne(x => x.CreatedByUser)
-                    .WithMany()
-                    .HasForeignKey(x => x.CreatedBy)
-                    .OnDelete(DeleteBehavior.Restrict);
+                entity.HasIndex(e => e.CompanyId);
+                entity.HasIndex(e => e.ParentId);
+                entity.HasIndex(e => e.IsActive);
+                entity.HasIndex(e => e.Slug).IsUnique(false);
+            });
 
             modelBuilder.Entity<Category>()
-                    .HasOne(x => x.UpdatedByUser)
-                    .WithMany()
-                    .HasForeignKey(x => x.UpdatedBy)
-                    .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<Document>()
-                        .HasOne(d => d.CreatedByUser)
-                        .WithMany()
-                        .HasForeignKey(d => d.CreatedByUserId)
-                        .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(x => x.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(x => x.CreatedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Category>()
+                .HasOne(x => x.UpdatedByUser)
+                .WithMany()
+                .HasForeignKey(x => x.UpdatedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            modelBuilder.Entity<Document>(entity =>
+            {
+                entity.HasKey(d => d.Id);
+
+                entity.Property(d => d.Title).IsRequired();
+                entity.Property(d => d.DocumentCode).IsRequired();
+                entity.Property(d => d.FileName).IsRequired();
+                entity.Property(d => d.OriginalFileName).IsRequired();
+                entity.Property(d => d.FileType).IsRequired();
+                entity.Property(d => d.DocumentType).IsRequired();
+
+                entity.HasIndex(d => d.CompanyId);
+                entity.HasIndex(d => d.CategoryId);
+                entity.HasIndex(d => d.StatusId);
+                entity.HasIndex(d => d.IsDeleted);
+                entity.HasIndex(d => d.IsArchived);
+            });
 
             modelBuilder.Entity<Document>()
-                        .HasOne(d => d.UpdatedByUser)
-                        .WithMany()
-                        .HasForeignKey(d => d.UpdatedByUserId)
-                        .OnDelete(DeleteBehavior.Restrict);
+                .HasOne<User>()
+                .WithMany()
+                .HasForeignKey(d => d.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Document>()
-                        .HasOne(d => d.ApproverUser)
-                        .WithMany()
-                        .HasForeignKey(d => d.ApproverUserId)
-                        .OnDelete(DeleteBehavior.Restrict);
+                .HasOne<User>()
+                .WithMany()
+                .HasForeignKey(d => d.UpdatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Document>()
-                        .HasOne(d => d.ApprovedByUser)
-                        .WithMany()
-                        .HasForeignKey(d => d.ApprovedByUserId)
-                        .OnDelete(DeleteBehavior.Restrict);
+                .HasOne<User>()
+                .WithMany()
+                .HasForeignKey(d => d.DeletedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Document>()
-                        .HasOne(d => d.RejectedByUser)
-                        .WithMany()
-                        .HasForeignKey(d => d.RejectedByUserId)
-                        .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Document>()
-                        .HasOne(d => d.DeletedByUser)
-                        .WithMany()
-                        .HasForeignKey(d => d.DeletedByUserId)
-                        .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Department>()
-                        .HasOne(d => d.Manager)
-                        .WithMany()
-                        .HasForeignKey(d => d.ManagerId)
-                        .OnDelete(DeleteBehavior.SetNull);
-            modelBuilder.Entity<Department>()
-                        .HasOne(d => d.CreatedByUser)
-                        .WithMany()
-                        .HasForeignKey(d => d.CreatedBy)
-                        .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(d => d.Manager)
+                .WithMany()
+                .HasForeignKey(d => d.ManagerId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Department>()
-                        .HasOne(d => d.UploadedByUser)
-                        .WithMany()
-                        .HasForeignKey(d => d.UploadedBy)
-                        .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(d => d.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Department>()
+                .HasOne(d => d.UploadedByUser)
+                .WithMany()
+                .HasForeignKey(d => d.UploadedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
             modelBuilder.Entity<Role>()
-                        .HasOne(d => d.CreatedByUser)
-                        .WithMany()
-                        .HasForeignKey(d => d.CreatedBy)
-                        .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(r => r.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(r => r.CreatedBy)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Role>()
-                        .HasOne(d => d.UploadedByUser)
-                        .WithMany()
-                        .HasForeignKey(d => d.UploadedBy)
-                        .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<Position>()
-                        .HasOne(p => p.CreatedByUser)
-                        .WithMany()
-                        .HasForeignKey(p => p.CreatedBy)
-                        .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(r => r.UploadedByUser)
+                .WithMany()
+                .HasForeignKey(r => r.UploadedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+
 
             modelBuilder.Entity<Position>()
-                        .HasOne(p => p.UploadedByUser)
-                        .WithMany()
-                        .HasForeignKey(p => p.UploadedBy)
-                        .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(p => p.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(p => p.CreatedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Position>()
+                .HasOne(p => p.UploadedByUser)
+                .WithMany()
+                .HasForeignKey(p => p.UploadedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            modelBuilder.Entity<DocumentApproval>(entity =>
+            {
+                entity.HasIndex(x => new { x.DocumentId, x.UserId, x.ApprovalLevel })
+                      .IsUnique();
+
+                entity.HasOne(x => x.Document)
+                      .WithMany(d => d.Approvals)
+                      .HasForeignKey(x => x.DocumentId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(x => x.User)
+                      .WithMany()
+                      .HasForeignKey(x => x.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
         }
-
     }
 }

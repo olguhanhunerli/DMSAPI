@@ -3,6 +3,7 @@ using DMSAPI.Business.Repositories.GenericRepository;
 using DMSAPI.Entities.Owned;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using System.Linq.Expressions;
 using System.Security.Claims;
 
@@ -91,4 +92,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
 		return await query.ToListAsync();
 	}
+
+    public async Task<IDbContextTransaction> BeginTransactionAsync()
+    {
+        return await _context.Database.BeginTransactionAsync();
+    }
 }

@@ -74,40 +74,34 @@ namespace DMSAPI.Services.Mapping
             CreateMap<UpdateCategoryDTO, Category>();
 
             CreateMap<Document, DocumentDTO>()
-                .ForMember(d => d.CompanyName,
-                    o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
-                .ForMember(d => d.CompanyCode,
-                    o => o.MapFrom(s => s.Company != null ? s.Company.CompanyCode : null))
-                .ForMember(d => d.CategoryName,
-                    o => o.MapFrom(s => s.Category != null ? s.Category.Name : null))
+            .ForMember(d => d.CompanyName, o => o.Ignore())
+            .ForMember(d => d.CompanyCode, o => o.Ignore())
+            .ForMember(d => d.CategoryName, o => o.Ignore())
 
-                // isimler
-                .ForMember(d => d.CreatedByName,
-                    o => o.MapFrom(s => s.CreatedByUser != null
-                        ? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
-                        : null))
-                .ForMember(d => d.UpdatedByName,
-                    o => o.MapFrom(s => s.UpdatedByUser != null
-                        ? s.UpdatedByUser.FirstName + " " + s.UpdatedByUser.LastName
-                        : null))
-                .ForMember(d => d.ApproverName,
-                    o => o.MapFrom(s => s.ApproverUser != null
-                        ? s.ApproverUser.FirstName + " " + s.ApproverUser.LastName
-                        : null))
-                .ForMember(d => d.ApprovedByName,
-                    o => o.MapFrom(s => s.ApprovedByUser != null
-                        ? s.ApprovedByUser.FirstName + " " + s.ApprovedByUser.LastName
-                        : null))
-                .ForMember(d => d.RejectedByName,
-                    o => o.MapFrom(s => s.RejectedByUser != null
-                        ? s.RejectedByUser.FirstName + " " + s.RejectedByUser.LastName
-                        : null))
-                .ForMember(d => d.DeletedByName,
-                    o => o.MapFrom(s => s.DeletedByUser != null
-                        ? s.DeletedByUser.FirstName + " " + s.DeletedByUser.LastName
-                        : null))
+            .ForMember(d => d.CreatedByName, o => o.Ignore())
+            .ForMember(d => d.UpdatedByName, o => o.Ignore())
+            .ForMember(d => d.DeletedByName, o => o.Ignore())
+            .ForMember(d => d.ApproverName, o => o.Ignore())
+            .ForMember(d => d.ApprovedByName, o => o.Ignore())
+            .ForMember(d => d.RejectedByName, o => o.Ignore())
 
-                // listeler AfterMap ile doldurulacak
+            .ForMember(d => d.AllowedRoleIds, o => o.Ignore())
+            .ForMember(d => d.AllowedDepartmentIds, o => o.Ignore())
+            .ForMember(d => d.AllowedUserIds, o => o.Ignore())
+            .AfterMap((src, dest) =>
+            {
+                dest.AllowedRoleIds = string.IsNullOrWhiteSpace(src.AllowedRoles)
+                    ? new List<int>()
+                    : JsonSerializer.Deserialize<List<int>>(src.AllowedRoles);
+
+                dest.AllowedDepartmentIds = string.IsNullOrWhiteSpace(src.AllowedDepartments)
+                    ? new List<int>()
+                    : JsonSerializer.Deserialize<List<int>>(src.AllowedDepartments);
+
+                dest.AllowedUserIds = string.IsNullOrWhiteSpace(src.AllowedUsers)
+                    ? new List<int>()
+                    : JsonSerializer.Deserialize<List<int>>(src.AllowedUsers);
+            })
                 .ForMember(d => d.AllowedRoleIds, o => o.Ignore())
                 .ForMember(d => d.AllowedDepartmentIds, o => o.Ignore())
                 .ForMember(d => d.AllowedUserIds, o => o.Ignore())
@@ -163,6 +157,18 @@ namespace DMSAPI.Services.Mapping
 
             CreateMap<CreatePositionDTO, Position>();
             CreateMap<UpdatePositionDTO, Position>();
+            CreateMap<DocumentCreateDTO, Document>()
+             .ForMember(x => x.Id, opt => opt.Ignore())
+             .ForMember(x => x.DocumentCode, opt => opt.Ignore())
+             .ForMember(x => x.CreatedAt, opt => opt.Ignore())
+             .ForMember(x => x.CreatedByUserId, opt => opt.Ignore())
+             .ForMember(x => x.UpdatedAt, opt => opt.Ignore())
+             .ForMember(x => x.UpdatedByUserId, opt => opt.Ignore())
+             .ForMember(x => x.DeletedAt, opt => opt.Ignore())
+             .ForMember(x => x.DeletedByUserId, opt => opt.Ignore())
+             .ForMember(x => x.IsDeleted, opt => opt.Ignore())
+             .ForMember(x => x.IsArchived, opt => opt.Ignore());
+
         }
     }
 }

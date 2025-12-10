@@ -1,4 +1,5 @@
-﻿using DMSAPI.Entities.DTOs.DocumentDTOs;
+﻿using DMSAPI.Entities.DTOs.DocumentAttachmentDTO.cs;
+using DMSAPI.Entities.DTOs.DocumentDTOs;
 using DMSAPI.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -12,5 +13,6 @@ namespace DMSAPI.Services.IServices
     {
         Task AddAsync(DocumentAttachment attachment);
         Task<List<DocumentAttachmentDTO>> GetByDocumentIdAsync(int documentId);
+        Task UploadMultipleAsync(CreateDocumentAttachmentDTO dto, int userId);
     }
 }

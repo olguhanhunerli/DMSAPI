@@ -39,7 +39,7 @@ public static class ServiceRegistration
 		services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 		services.AddScoped<IPositionRepository, PositionRepository>();
 
-		services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IAuthService, AuthService>();
 		services.AddScoped<IUserService, UserService>();
 		services.AddScoped<IRoleService, RoleService>();
 		services.AddScoped<ICompanyService, CompanyService>();
@@ -56,6 +56,9 @@ public static class ServiceRegistration
 
         services.AddScoped<IDocumentApprovalHistoryRepository, DocumentApprovalHistoryRepository>();
         services.AddScoped<IDocumentApprovalHistoryService, DocumentApprovalHistoryService>();
+
+        services.AddScoped<IDocumentApprovalRepository, DocumentApprovalRepository>();
+        services.AddScoped<IDocumentApprovalService, DocumentApprovalService>();
 
         services.AddScoped<IDocumentAccessLogRepository, DocumentAccessLogRepository>();
         services.AddScoped<IDocumentAccessLogService, DocumentAccessLogService>();

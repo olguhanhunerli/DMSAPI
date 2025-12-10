@@ -31,6 +31,10 @@ namespace DMSAPI.Entities.Models
 
         public DateTime? UploadedAt { get; set; }
         public int? UploadedByUserId { get; set; }
+        public bool IsMainFile { get; set; }
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
+        public int? DeletedByUserId { get; set; }
         public Document Document { get; set; }
     }
 }

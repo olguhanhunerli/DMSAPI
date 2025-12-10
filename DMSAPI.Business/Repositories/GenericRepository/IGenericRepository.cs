@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using System.Linq.Expressions;
 
 namespace DMSAPI.Business.Repositories.GenericRepository
 {
@@ -12,5 +13,6 @@ namespace DMSAPI.Business.Repositories.GenericRepository
 		Task DeleteAsync(T entity);
 
 		Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
-	}
+        Task<IDbContextTransaction> BeginTransactionAsync();
+    }
 }

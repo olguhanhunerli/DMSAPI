@@ -19,6 +19,9 @@ namespace DMSAPI.Services
 		private readonly IMapper _mapper;
 		private readonly IHostEnvironment _env;
 		private readonly ICategoryServices  _categoryServices;
+		private readonly IDocumentAttachmentRepository  _documentAttachmentRepository;
+        private readonly IDocumentApprovalRepository _documentApprovalRepository;
+        
 
         public DocumentService(
             IDocumentRepository documentRepository,
@@ -26,7 +29,9 @@ namespace DMSAPI.Services
             ICategoryRepository categoryRepository,
             IUserRepository userRepository,
             IHostEnvironment env,
-            ICategoryServices categoryServices)
+            ICategoryServices categoryServices,
+            IDocumentAttachmentRepository documentAttachmentRepository,
+            IDocumentApprovalRepository documentApprovalRepository)
         {
             _documentRepository = documentRepository;
             _mapper = mapper;
@@ -34,29 +39,116 @@ namespace DMSAPI.Services
             _userRepository = userRepository;
             _env = env;
             _categoryServices = categoryServices;
+            _documentAttachmentRepository = documentAttachmentRepository;
+            _documentApprovalRepository = documentApprovalRepository;
         }
 
         public async Task<DocumentCreateResponseDTO> CreateDocumentAsync(DocumentCreateDTO dto, int userId)
 		{
-			var user = await _userRepository.GetByIdAsync(userId);
-			var category = await _categoryRepository.GetByIdAsync(dto.CategoryId);
+			using var transaction = await _documentRepository.BeginTransactionAsync();
+            try
+            {
+                var user = await _userRepository.GetByIdAsync(userId)
+                    ?? throw new Exception("User not found");
 
-			int number = await _documentRepository.GetNextDocumentNumberAsync(dto.CompanyId,dto.CategoryId);
+                var category = await _categoryRepository.GetByIdAsync(dto.CategoryId)
+                    ?? throw new Exception("Category not found");
 
-			string code = $"{user.Company.CompanyCode}-{category.Code}-{number:D3}";
+                int companyId = user.CompanyId;
 
-			if (await _documentRepository.DocumentCodeExistingAsync(code))
-				throw new Exception("Document code exists");
+                int number = await _documentRepository
+                    .GetNextDocumentNumberAsync(companyId, dto.CategoryId);
 
-			var document = _mapper.Map<Document>(dto);
-			document.DocumentCode = code;
-			document.CreatedByUserId = userId;
-			document.CreatedAt = DateTime.UtcNow;
+                string code = $"{user.Company.CompanyCode}-{category.Code}-{number:D3}";
 
-			await _documentRepository.AddAsync(document);
+                if (await _documentRepository.DocumentCodeExistingAsync(code))
+                    throw new Exception("Document code already exists");
 
-			return _mapper.Map<DocumentCreateResponseDTO>(document);
-		}
+                var document = _mapper.Map<Document>(dto);
+
+                document.CompanyId = companyId;
+                document.DocumentCode = code;
+                document.StatusId = 1;
+                document.CreatedByUserId = userId;
+                document.CreatedAt = DateTime.UtcNow;
+                document.IsDeleted = false;
+
+                await _documentRepository.AddAsync(document);
+
+                if (dto.ApproverUserIds != null && dto.ApproverUserIds.Any())
+                {
+                    int level = 1;
+
+                    foreach (var approverId in dto.ApproverUserIds)
+                    {
+                        var approval = new DocumentApproval
+                        {
+                            DocumentId = document.Id,
+                            UserId = approverId,
+                            ApprovalLevel = level,
+                            IsApproved = false,
+                            IsRejected = false,
+                            CreatedAt = DateTime.UtcNow
+                        };
+
+                        await _documentApprovalRepository.AddAsync(approval);
+                        level++;
+                    }
+
+                }
+
+                if (dto.Files != null && dto.Files.Any())
+                {
+                    var baseFolder = Path.Combine(
+                        _env.ContentRootPath,
+                        "uploads",
+                        "documents",
+                        document.DocumentCode,
+                        "attachments"
+                    );
+
+                    if (!Directory.Exists(baseFolder))
+                        Directory.CreateDirectory(baseFolder);
+
+                    foreach (var file in dto.Files)
+                    {
+                        var cleanName = Path.GetFileName(file.FileName);
+                        var fullPath = Path.Combine(baseFolder, cleanName);
+
+                        using (var stream = new FileStream(fullPath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        var attachment = new DocumentAttachment
+                        {
+                            DocumentId = document.Id,
+                            FileName = cleanName,
+                            OriginalFileName = file.FileName,
+                            FileSize = file.Length,
+                            FileType = Path.GetExtension(file.FileName),
+                            FilePath = $"uploads/documents/{document.DocumentCode}/attachments/{cleanName}",
+                            UploadedAt = DateTime.UtcNow,
+                            UploadedByUserId = userId,
+                            IsMainFile = false,
+                            IsDeleted = false
+                        };
+
+                        await _documentAttachmentRepository.AddAsync(attachment);
+                    }
+
+                }
+
+                await transaction.CommitAsync();
+
+                return _mapper.Map<DocumentCreateResponseDTO>(document);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
 
 		public async Task<IEnumerable<DocumentDTO>> GetAllDocumentsAsync()
 		{
@@ -102,6 +194,18 @@ namespace DMSAPI.Services
 
                 IsCodeValid = !exists
             };
+        }
+
+        public async Task<List<DocumentDTO>> GetMyPendingApprovalsAsync(int userId)
+        {
+            var documentIds = await _documentApprovalRepository.GetPendingDocumentIdsAsync(userId);
+            if (!documentIds.Any())
+            {
+                return new List<DocumentDTO>();
+            }
+            var documents = await _documentRepository.GetPendingDocumentIdsForUserAsync(documentIds);
+
+            return _mapper.Map<List<DocumentDTO>>(documents);
         }
 
         public async Task<PagedResultDTO<DocumentDTO>> GetPageAsync(int page, int pageSize, int userId, int roleId, int departmentId)
