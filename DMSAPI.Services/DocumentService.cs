@@ -210,7 +210,7 @@ namespace DMSAPI.Services
             return _mapper.Map <List<DocumentDTO>> (documents);
         }
 
-        public async Task<PagedResultDTO<DocumentDTO>> GetMyPendingApprovalsAsync(
+        public async Task<PagedResultDTO<MyPendingDTO>> GetMyPendingApprovalsAsync(
                                                                              int page,
                                                                              int pageSize,
                                                                              int userId)
@@ -221,12 +221,12 @@ namespace DMSAPI.Services
 
             if (!documentIds.Any())
             {
-                return new PagedResultDTO<DocumentDTO>
+                return new PagedResultDTO<MyPendingDTO>
                 {
                     TotalCount = 0,
                     Page = page,
                     PageSize = pageSize,
-                    Items = new List<DocumentDTO>()
+                    Items = new List<MyPendingDTO>()
                 };
             }
 
@@ -234,12 +234,12 @@ namespace DMSAPI.Services
                 await _documentRepository
                     .GetPagedPendingByIdsAsync(documentIds, page, pageSize);
 
-            return new PagedResultDTO<DocumentDTO>
+            return new PagedResultDTO<MyPendingDTO>
             {
                 TotalCount = pagedDocuments.TotalCount,
                 Page = pagedDocuments.Page,
                 PageSize = pagedDocuments.PageSize,
-                Items = _mapper.Map<List<DocumentDTO>>(pagedDocuments.Items)
+                Items = _mapper.Map<List<MyPendingDTO>>(pagedDocuments.Items)
             };
         }
         public async Task<PagedResultDTO<DocumentDTO>> GetPageAsync(int page, int pageSize, int userId, int roleId, int departmentId)

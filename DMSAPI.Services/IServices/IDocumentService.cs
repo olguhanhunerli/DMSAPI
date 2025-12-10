@@ -13,6 +13,6 @@ namespace DMSAPI.Services.IServices
         Task<IEnumerable<DocumentDTO>> GetAllDocumentsAsync();
         Task<PagedResultDTO<DocumentDTO>> GetPageAsync(int page, int pageSize, int userId, int roleId, int departmentId);
         Task<List<DocumentDTO>> GetMyPendingApprovalsAsync(int userId);
-        Task<PagedResultDTO<DocumentDTO>> GetMyPendingApprovalsAsync(int page,int pageSize,int userId);
+        Task<PagedResultDTO<MyPendingDTO>> GetMyPendingApprovalsAsync(int page,int pageSize,int userId);
     }
 }

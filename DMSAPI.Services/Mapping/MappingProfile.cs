@@ -168,6 +168,13 @@ namespace DMSAPI.Services.Mapping
              .ForMember(x => x.DeletedByUserId, opt => opt.Ignore())
              .ForMember(x => x.IsDeleted, opt => opt.Ignore())
              .ForMember(x => x.IsArchived, opt => opt.Ignore());
+            CreateMap<Document, MyPendingDTO>()
+            .ForMember(d => d.StatusName, o => o.MapFrom(s =>
+                s.StatusId == 1 ? "Bekliyor" :
+                s.StatusId == 2 ? "Onaylandı" :
+                s.StatusId == 3 ? "Reddedildi" :
+                "Bilinmiyor"
+            ));
 
         }
     }
