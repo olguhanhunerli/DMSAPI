@@ -50,8 +50,13 @@ namespace DMSAPI.Services
             using var transaction = await _documentRepository.BeginTransactionAsync();
             try
             {
-                var user = await _userRepository.GetByIdAsync(userId)
-                    ?? throw new Exception("User not found");
+                var user = await _userRepository
+                                 .GetAllUserAsync()
+                                 .ContinueWith(t => t.Result.FirstOrDefault(x => x.Id == userId))
+                                 ?? throw new Exception("User not found");
+
+                if (user.Company == null)
+                    throw new Exception("User.Company is NULL");
 
                 var category = await _categoryRepository.GetByIdAsync(dto.CategoryId)
                     ?? throw new Exception("Category not found");

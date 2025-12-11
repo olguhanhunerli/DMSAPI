@@ -97,20 +97,14 @@ namespace DMSAPI.Business.Repositories
 
 		public async Task<User?> GetUserByIdsync(int id)
 		{
-			var query = _dbSet
-				.Include(u => u.Role)
+            return await _dbSet
 				.Include(u => u.Company)
-				.Include(u => u.Department)
-				.Include(u => u.Manager)
 				.Include(u => u.Position)
-				.Where(u => u.Id == id &&
-							(u.IsDeleted == false || u.IsDeleted == null));
-
-			if (!IsGlobalAdmin)
-				query = query.Where(u => u.CompanyId == CompanyId);
-
-			return await query.FirstOrDefaultAsync();
-		}
+				.Include(u => u.Department)
+				.Include(u => u.Role)
+				.Include(u => u.Manager)
+				.FirstOrDefaultAsync(u => u.Id == id && (u.IsDeleted == false || u.IsDeleted == null));
+        }
 
 		public async Task<User?> GetUserWithRelationsAsync(int id)
 		{
