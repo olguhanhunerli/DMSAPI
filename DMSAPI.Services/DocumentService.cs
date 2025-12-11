@@ -47,112 +47,132 @@ namespace DMSAPI.Services
 
         public async Task<DocumentCreateResponseDTO> CreateDocumentAsync(DocumentCreateDTO dto, int userId)
         {
-            using var transaction = await _documentRepository.BeginTransactionAsync();
+            using var trx = await _documentRepository.BeginTransactionAsync();
+
             try
             {
-                var user = await _userRepository
-                                 .GetAllUserAsync()
-                                 .ContinueWith(t => t.Result.FirstOrDefault(x => x.Id == userId))
-                                 ?? throw new Exception("User not found");
-
-                if (user.Company == null)
-                    throw new Exception("User.Company is NULL");
+                var user = await _userRepository.GetUserByIdsync(userId)
+                    ?? throw new Exception("User not found");
 
                 var category = await _categoryRepository.GetByIdAsync(dto.CategoryId)
                     ?? throw new Exception("Category not found");
 
                 int companyId = user.CompanyId;
 
-                int number = await _documentRepository
-                    .GetNextDocumentNumberAsync(companyId, dto.CategoryId);
-
+                int number = await _documentRepository.GetNextDocumentNumberAsync(companyId, dto.CategoryId);
                 string code = $"{user.Company.CompanyCode}-{category.Code}-{number:D3}";
 
                 if (await _documentRepository.DocumentCodeExistingAsync(code))
                     throw new Exception("Document code already exists");
 
-                var document = _mapper.Map<Document>(dto);
-
-                document.CompanyId = companyId;
-                document.DocumentCode = code;
-                document.StatusId = 1;
-                document.CreatedByUserId = userId;
-                document.CreatedAt = DateTime.UtcNow;
-                document.IsDeleted = false;
+                var document = new Document
+                {
+                    Title = dto.TitleTr,
+                    CategoryId = dto.CategoryId,
+                    CompanyId = companyId,
+                    DocumentCode = code,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedByUserId = userId,
+                    VersionNumber = 1,
+                    StatusId = 1,
+                    IsDeleted = false
+                };
 
                 await _documentRepository.AddAsync(document);
 
-                if (dto.ApproverUserIds != null && dto.ApproverUserIds.Any())
+                if (dto.MainFile != null)
                 {
-                    int level = 1;
-
-                    foreach (var approverId in dto.ApproverUserIds)
-                    {
-                        var approval = new DocumentApproval
-                        {
-                            DocumentId = document.Id,
-                            UserId = approverId,
-                            ApprovalLevel = level,
-                            IsApproved = false,
-                            IsRejected = false,
-                            CreatedAt = DateTime.UtcNow
-                        };
-
-                        await _documentApprovalRepository.AddAsync(approval);
-                        level++;
-                    }
-
-                }
-
-                if (dto.Files != null && dto.Files.Any())
-                {
-                    var baseFolder = Path.Combine(
+                    var folder = Path.Combine(
                         _env.ContentRootPath,
                         "uploads",
                         "documents",
-                        document.DocumentCode,
+                        code,
+                        "main"
+                    );
+
+                    Directory.CreateDirectory(folder);
+
+                    var cleanName = Path.GetFileName(dto.MainFile.FileName);
+                    var fullPath = Path.Combine(folder, cleanName);
+
+                    using (var stream = new FileStream(fullPath, FileMode.Create))
+                        await dto.MainFile.CopyToAsync(stream);
+
+                    var mainFile = new DocumentFile
+                    {
+                        DocumentId = document.Id,
+                        FileName = cleanName,
+                        OriginalFileName = dto.MainFile.FileName,
+                        FileExtension = Path.GetExtension(cleanName),
+                        FileSize = dto.MainFile.Length,
+                        FilePath = $"uploads/documents/{code}/main/{cleanName}",
+                        UploadedAt = DateTime.UtcNow,
+                        UploadedByUserId = userId,
+                        IsDeleted = false
+                    };
+
+                    await _documentRepository.AddMainFileAsync(mainFile);
+                }
+
+                if (dto.Attachments != null)
+                {
+                    var attachFolder = Path.Combine(
+                        _env.ContentRootPath,
+                        "uploads",
+                        "documents",
+                        code,
                         "attachments"
                     );
 
-                    if (!Directory.Exists(baseFolder))
-                        Directory.CreateDirectory(baseFolder);
+                    Directory.CreateDirectory(attachFolder);
 
-                    foreach (var file in dto.Files)
+                    foreach (var file in dto.Attachments)
                     {
                         var cleanName = Path.GetFileName(file.FileName);
-                        var fullPath = Path.Combine(baseFolder, cleanName);
+                        var fullPath = Path.Combine(attachFolder, cleanName);
 
                         using (var stream = new FileStream(fullPath, FileMode.Create))
-                        {
                             await file.CopyToAsync(stream);
-                        }
 
-                        var attachment = new DocumentAttachment
+                        var attach = new DocumentAttachment
                         {
                             DocumentId = document.Id,
                             FileName = cleanName,
                             OriginalFileName = file.FileName,
                             FileSize = file.Length,
-                            FileType = Path.GetExtension(file.FileName),
-                            FilePath = $"uploads/documents/{document.DocumentCode}/attachments/{cleanName}",
+                            FilePath = $"uploads/documents/{code}/attachments/{cleanName}",
                             UploadedAt = DateTime.UtcNow,
                             UploadedByUserId = userId,
-                            IsMainFile = false,
                             IsDeleted = false
                         };
 
-                        await _documentAttachmentRepository.AddAsync(attachment);
+                        await _documentAttachmentRepository.AddAsync(attach);
                     }
-
                 }
 
-                await transaction.CommitAsync();
+                if (dto.ApproverUserIds.Any())
+                {
+                    int level = 1;
+
+                    foreach (var approverId in dto.ApproverUserIds)
+                    {
+                        await _documentApprovalRepository.AddAsync(new DocumentApproval
+                        {
+                            DocumentId = document.Id,
+                            UserId = approverId,
+                            ApprovalLevel = level++,
+                            CreatedAt = DateTime.UtcNow
+                        });
+                    }
+                }
+
+                await trx.CommitAsync();
 
                 return _mapper.Map<DocumentCreateResponseDTO>(document);
             }
             catch
             {
-                await transaction.RollbackAsync();
+                await trx.RollbackAsync();
                 throw;
             }
         }

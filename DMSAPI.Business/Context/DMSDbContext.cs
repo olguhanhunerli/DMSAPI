@@ -27,6 +27,7 @@ namespace DMSAPI.Business.Context
         public DbSet<DocumentApprovalHistory> DocumentApprovalHistories { get; set; }
         public DbSet<DocumentAccessLog> DocumentAccessLogs { get; set; }
         public DbSet<DocumentApproval> DocumentApprovals { get; set; }
+        public DbSet<DocumentFile> DocumentFiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -93,9 +94,8 @@ namespace DMSAPI.Business.Context
 
                 entity.Property(d => d.Title).IsRequired();
                 entity.Property(d => d.DocumentCode).IsRequired();
-                entity.Property(d => d.FileName).IsRequired();
-                entity.Property(d => d.OriginalFileName).IsRequired();
-                entity.Property(d => d.FileType).IsRequired();
+               
+             
                 entity.Property(d => d.DocumentType).IsRequired();
 
                 entity.HasIndex(d => d.CompanyId);

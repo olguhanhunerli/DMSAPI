@@ -163,4 +163,10 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
             Items = items
         };
     }
+
+    public async Task AddMainFileAsync(DocumentFile file)
+    {
+        await _context.DocumentFiles.AddAsync(file);
+        await _context.SaveChangesAsync();
+    }
 }

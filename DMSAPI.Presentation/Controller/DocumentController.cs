@@ -22,16 +22,22 @@ public class DocumentController : BaseApiController
     {
         try
         {
+            if (Request.Form.Files.Any(f => f.Name == "MainFile"))
+                dto.MainFile = Request.Form.Files["MainFile"];
+
+            dto.Attachments = Request.Form.Files
+                .Where(f => f.Name == "Attachments")
+                .ToList();
+
             var result = await _service.CreateDocumentAsync(dto, UserId);
             return Ok(result);
         }
         catch (Exception ex)
         {
-            // 🔥 Hata mesajını logla
-            Console.WriteLine("DOCUMENT CREATE ERROR: " + ex.Message);
+            Console.WriteLine("🔥 DOCUMENT CREATE ERROR:");
+            Console.WriteLine(ex.Message);
             Console.WriteLine(ex.StackTrace);
 
-            // API'ye tam hata dön
             return StatusCode(500, new
             {
                 message = ex.Message,
@@ -39,8 +45,7 @@ public class DocumentController : BaseApiController
             });
         }
     }
-
-	[HttpGet("get-all")]
+    [HttpGet("get-all")]
 	public async Task<IActionResult> GetAll()
 		=> Ok(await _service.GetAllDocumentsAsync());
     [HttpGet("get-paged")]
