@@ -10,12 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 [Route("api/[controller]")]
 public class DocumentController : BaseApiController
 {
-	private readonly IDocumentService _service;
+    private readonly IDocumentService _service;
 
-	public DocumentController(IDocumentService service)
-	{
-		_service = service;
-	}
+    public DocumentController(IDocumentService service)
+    {
+        _service = service;
+    }
 
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromForm] DocumentCreateDTO dto)
@@ -34,10 +34,6 @@ public class DocumentController : BaseApiController
         }
         catch (Exception ex)
         {
-            Console.WriteLine("🔥 DOCUMENT CREATE ERROR:");
-            Console.WriteLine(ex.Message);
-            Console.WriteLine(ex.StackTrace);
-
             return StatusCode(500, new
             {
                 message = ex.Message,
@@ -46,14 +42,14 @@ public class DocumentController : BaseApiController
         }
     }
     [HttpGet("get-all")]
-	public async Task<IActionResult> GetAll()
-		=> Ok(await _service.GetAllDocumentsAsync());
+    public async Task<IActionResult> GetAll()
+        => Ok(await _service.GetAllDocumentsAsync());
     [HttpGet("get-paged")]
     public async Task<IActionResult> GetPaged(
    int page = 1,
    int pageSize = 10)
     {
-        var userId = UserId;             
+        var userId = UserId;
         var roleId = RoleId;
         var departmentId = DepartmentId;
 
@@ -62,6 +58,49 @@ public class DocumentController : BaseApiController
 
         return Ok(result);
     }
+    [HttpGet("approved")]
+    public async Task<IActionResult> GetApproved(
+    int page = 1,
+    int pageSize = 10)
+    {
+        var result = await _service.GetPagedApprovedAsync(page, pageSize);
+        return Ok(result);
+    }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetDocumentDetailById(int id)
+    {
+        var document = await _service.GetDetailByIdAsync(id);
+		if (document == null)
+		{
+			return NotFound(new { message = "Document not found." });
+		}
+		return Ok(document);
+	}
+	[HttpGet("{id}/pdf")]
+	public async Task<IActionResult> GetDocumentPdf(int id)
+	{
+		var document = await _service.GetDetailByIdAsync(id);
+
+		if (document == null || document.MainFile == null)
+			return NotFound();
+
+		if (string.IsNullOrWhiteSpace(document.MainFile.PdfFilePath))
+			return NotFound("PDF not found");
+
+		var fullPath = Path.Combine(
+			Directory.GetCurrentDirectory(),
+			document.MainFile.PdfFilePath.Replace("/", Path.DirectorySeparatorChar.ToString())
+		);
+
+		if (!System.IO.File.Exists(fullPath))
+			return NotFound("PDF file missing on disk");
+
+		return PhysicalFile(
+			fullPath,
+			"application/pdf",
+			enableRangeProcessing: true // pdf.js için önemli
+		);
+	}
 	[HttpGet("create-preview")]
 	public async Task<IActionResult> CreatePreview(int categoryId)
 	{

@@ -9,11 +9,12 @@ using DMSAPI.Services.IServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace DMSAPI.Services
 {
-    public class DocumentService : IDocumentService
+	public class DocumentService : IDocumentService
     {
         private readonly IDocumentRepository _documentRepository;
         private readonly ICategoryRepository _categoryRepository;
@@ -64,14 +65,17 @@ namespace DMSAPI.Services
 
                 if (await _documentRepository.DocumentCodeExistingAsync(code))
                     throw new Exception("Document code already exists");
-
-                var document = new Document
+				string documentType =
+			        Path.GetExtension(dto.MainFile.FileName)?.ToLower()
+			        ?? "unknown";
+				var document = new Document
                 {
                     Title = dto.TitleTr,
                     CategoryId = dto.CategoryId,
                     CompanyId = companyId,
                     DocumentCode = code,
-                    CreatedAt = DateTime.UtcNow,
+					DocumentType = documentType,
+					CreatedAt = DateTime.UtcNow,
                     CreatedByUserId = userId,
                     VersionNumber = 1,
                     StatusId = 1,
@@ -86,32 +90,46 @@ namespace DMSAPI.Services
                         _env.ContentRootPath,
                         "uploads",
                         "documents",
+                        category.Name,
                         code,
                         "main"
                     );
 
                     Directory.CreateDirectory(folder);
 
-                    var cleanName = Path.GetFileName(dto.MainFile.FileName);
-                    var fullPath = Path.Combine(folder, cleanName);
+					var cleanName = Path.GetFileName(dto.MainFile.FileName);
+					var fullPath = Path.Combine(folder, cleanName);
 
-                    using (var stream = new FileStream(fullPath, FileMode.Create))
-                        await dto.MainFile.CopyToAsync(stream);
+					using (var stream = new FileStream(fullPath, FileMode.Create))
+					{
+						await dto.MainFile.CopyToAsync(stream);
+					}
 
-                    var mainFile = new DocumentFile
+					ConvertToPdf(fullPath, folder);
+
+					var pdfFileName = Path.GetFileNameWithoutExtension(cleanName) + ".pdf";
+					var pdfFullPath = Path.Combine(folder, pdfFileName);
+
+					if (!File.Exists(pdfFullPath))
+					{
+						throw new Exception("PDF üretilemedi. Doküman oluşturulamadı.");
+					}
+
+					var mainFiles = new DocumentFile
                     {
                         DocumentId = document.Id,
                         FileName = cleanName,
                         OriginalFileName = dto.MainFile.FileName,
                         FileExtension = Path.GetExtension(cleanName),
                         FileSize = dto.MainFile.Length,
-                        FilePath = $"uploads/documents/{code}/main/{cleanName}",
-                        UploadedAt = DateTime.UtcNow,
+                        FilePath = $"uploads/documents/{category.Name}/{code}/main/{cleanName}",
+						PdfFilePath = $"uploads/documents/{category.Name}/{code}/main/{pdfFileName}",
+						UploadedAt = DateTime.UtcNow,
                         UploadedByUserId = userId,
                         IsDeleted = false
                     };
 
-                    await _documentRepository.AddMainFileAsync(mainFile);
+                    await _documentRepository.AddMainFileAsync(mainFiles);
                 }
 
                 if (dto.Attachments != null)
@@ -120,6 +138,7 @@ namespace DMSAPI.Services
                         _env.ContentRootPath,
                         "uploads",
                         "documents",
+                        category.Name,
                         code,
                         "attachments"
                     );
@@ -140,7 +159,7 @@ namespace DMSAPI.Services
                             FileName = cleanName,
                             OriginalFileName = file.FileName,
                             FileSize = file.Length,
-                            FilePath = $"uploads/documents/{code}/attachments/{cleanName}",
+                            FilePath = $"uploads/documents/{category.Name}/{code}/attachments/{cleanName}",
                             UploadedAt = DateTime.UtcNow,
                             UploadedByUserId = userId,
                             IsDeleted = false
@@ -168,11 +187,25 @@ namespace DMSAPI.Services
 
                 await trx.CommitAsync();
 
-                return _mapper.Map<DocumentCreateResponseDTO>(document);
-            }
+				var dtoResponse = _mapper.Map<DocumentCreateResponseDTO>(document);
+
+				var mainFile = await _documentRepository.GetMainFileAsync(document.Id);
+
+				if (mainFile != null)
+				{
+					dtoResponse.FileName = mainFile.FileName;
+					dtoResponse.OriginalFileName = mainFile.OriginalFileName;
+					dtoResponse.FileSize = mainFile.FileSize;
+					dtoResponse.FileType = mainFile.FileExtension;
+				}
+
+				dtoResponse.CompanyName = user.Company.Name;
+				dtoResponse.CategoryName = category.Name;
+
+				return dtoResponse;
+			}
             catch
             {
-                await trx.RollbackAsync();
                 throw;
             }
         }
@@ -223,7 +256,14 @@ namespace DMSAPI.Services
             };
         }
 
-        public async Task<List<DocumentDTO>> GetMyPendingApprovalsAsync(int userId)
+		public async Task<DocumentDTO> GetDetailByIdAsync(int documentId)
+		{
+			var document = await _documentRepository.GetDetailByIdAsync(documentId)
+				?? throw new Exception("Document not found");
+			return _mapper.Map<DocumentDTO>(document);
+		}
+
+		public async Task<List<DocumentDTO>> GetMyPendingApprovalsAsync(int userId)
         {
             var documentIds = await _documentApprovalRepository.GetPendingDocumentIdsAsync(userId);
             if (!documentIds.Any())
@@ -280,5 +320,36 @@ namespace DMSAPI.Services
                 Items = _mapper.Map<List<DocumentDTO>>(result.Items)
             };
         }
-    }
+
+		public async Task<PagedResultDTO<DocumentDTO>> GetPagedApprovedAsync(int page, int pageSize)
+		{
+			var result = await _documentRepository.GetPagedApprovedAsync(page, pageSize);
+
+			return new PagedResultDTO<DocumentDTO>
+			{
+				TotalCount = result.TotalCount,
+				Page = result.Page,
+				PageSize = result.PageSize,
+				Items = _mapper.Map<List<DocumentDTO>>(result.Items)
+			};
+		}
+		private void ConvertToPdf(string inputFilePath, string outputFolder)
+		{
+			var process = new Process
+			{
+				StartInfo = new ProcessStartInfo
+				{
+					FileName = @"C:\Program Files\LibreOffice\program\soffice.exe",
+					Arguments = $"--headless --convert-to pdf \"{inputFilePath}\" --outdir \"{outputFolder}\"",
+					RedirectStandardOutput = true,
+					RedirectStandardError = true,
+					UseShellExecute = false,
+					CreateNoWindow = true
+				}
+			};
+
+			process.Start();
+			process.WaitForExit();
+		}
+	}
 }

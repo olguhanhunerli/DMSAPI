@@ -64,38 +64,42 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
     }
 
 
-    public async Task<PagedResultDTO<Document>> GetPagedAuthorizedAsync(
-        int page,
-        int pageSize,
-        int userId,
-        int roleId,
-        int departmentId)
-    {
-        var query = _dbSet
-            .AsNoTracking()
-            .Where(x => !x.IsDeleted && x.CompanyId == CompanyId);
+	public async Task<PagedResultDTO<Document>> GetPagedAuthorizedAsync(
+		int page,
+		int pageSize,
+		int userId,
+		int roleId,
+		int departmentId)
+	{
+		var query = _dbSet
+			.AsNoTracking()
+			.Where(x => !x.IsDeleted && x.CompanyId == CompanyId);
 
-        query = ApplyAccessFilter(query, userId, roleId, departmentId);
+		query = ApplyAccessFilter(query, userId, roleId, departmentId);
 
-        var totalCount = await query.CountAsync();
+		query = query
+			.Include(x => x.Approvals)
+				.ThenInclude(a => a.User);
 
-        var items = await query
-            .OrderByDescending(x => x.CreatedAt)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync(); 
+		var totalCount = await query.CountAsync();
 
-        return new PagedResultDTO<Document>
-        {
-            TotalCount = totalCount,
-            Page = page,
-            PageSize = pageSize,
-            Items = items
-        };
-    }
+		var items = await query
+			.OrderByDescending(x => x.CreatedAt)
+			.Skip((page - 1) * pageSize)
+			.Take(pageSize)
+			.ToListAsync();
+
+		return new PagedResultDTO<Document>
+		{
+			TotalCount = totalCount,
+			Page = page,
+			PageSize = pageSize,
+			Items = items
+		};
+	}
 
 
-    public async Task<bool> ValidateDocumentCodeAsync(
+	public async Task<bool> ValidateDocumentCodeAsync(
         string documentCode,
         int companyId,
         int categoryId)
@@ -132,41 +136,99 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
 
     public async Task<List<Document>> GetPendingDocumentIdsForUserAsync(List<int> documentIds)
     {
-        return await _dbSet
-            .Where(x => documentIds.Contains(x.Id) && !x.IsDeleted)
-            .OrderByDescending(x => x.CreatedAt)
-            .ToListAsync();
-    }
+		return await _dbSet
+		.Where(x => documentIds.Contains(x.Id) && !x.IsDeleted)
+		.Include(x => x.Approvals)
+			.ThenInclude(a => a.User)
+		.OrderByDescending(x => x.CreatedAt)
+		.ToListAsync();
+	}
 
-    public async Task<PagedResultDTO<Document>> GetPagedPendingByIdsAsync(
-                                                                         List<int> documentIds,
-                                                                         int page,
-                                                                         int pageSize)
-    {
-        var query = _dbSet
-            .AsNoTracking()
-            .Where(x => documentIds.Contains(x.Id) && !x.IsDeleted);
+	public async Task<PagedResultDTO<Document>> GetPagedPendingByIdsAsync(
+	List<int> documentIds,
+	int page,
+	int pageSize)
+	{
+		var query = _dbSet
+			.AsNoTracking()
 
-        var total = await query.CountAsync();
+			.Where(x => documentIds.Contains(x.Id) && !x.IsDeleted)
+			.Include(x => x.Approvals)
+				.ThenInclude(a => a.User)
+			.Include(x => x.Attachments)
+			.Include(x => x.Files)
+			.Include(x => x.Versions)
+			.Include(x => x.ApprovalHistories)
+			.Include(x => x.AccessLogs);
 
-        var items = await query
-            .OrderByDescending(x => x.CreatedAt)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
+		var total = await query.CountAsync();
 
-        return new PagedResultDTO<Document>
-        {
-            TotalCount = total,
-            Page = page,
-            PageSize = pageSize,
-            Items = items
-        };
-    }
+		var items = await query
+			.OrderByDescending(x => x.CreatedAt)
+			.Skip((page - 1) * pageSize)
+			.Take(pageSize)
+			.ToListAsync();
 
-    public async Task AddMainFileAsync(DocumentFile file)
+		return new PagedResultDTO<Document>
+		{
+			TotalCount = total,
+			Page = page,
+			PageSize = pageSize,
+			Items = items
+		};
+	}
+
+	public async Task AddMainFileAsync(DocumentFile file)
     {
         await _context.DocumentFiles.AddAsync(file);
         await _context.SaveChangesAsync();
     }
+
+	public async Task<DocumentFile?> GetMainFileAsync(int documentId)
+	{
+		return await _context.DocumentFiles
+		.Where(x => x.DocumentId == documentId)
+		.OrderByDescending(x => x.Id)
+		.FirstOrDefaultAsync();
+	}
+
+	public async Task<PagedResultDTO<Document>> GetPagedApprovedAsync(int page, int pageSize)
+	{
+		var query = _dbSet
+		.AsNoTracking()
+		.Where(d =>
+			!d.IsDeleted &&
+			d.StatusId == 2); 
+
+		var totalCount = await query.CountAsync();
+
+		var items = await query
+			.OrderByDescending(d => d.CreatedAt)
+			.Skip((page - 1) * pageSize)
+			.Take(pageSize)
+			.ToListAsync();
+
+		return new PagedResultDTO<Document>
+		{
+			TotalCount = totalCount,
+			Page = page,
+			PageSize = pageSize,
+			Items = items
+		};
+	}
+
+	public async Task<Document?> GetDetailByIdAsync(int documentId)
+	{
+		return await _dbSet
+			.AsNoTracking()
+			.Where(x => x.Id == documentId && !x.IsDeleted)
+			.Include(d => d.Approvals)
+				.ThenInclude(a => a.User)
+			.Include(d => d.Files)
+			.Include(d => d.Attachments.Where(a => !a.IsDeleted))
+			.Include(d => d.Versions)
+			.Include(d => d.ApprovalHistories)
+			.Include(d => d.AccessLogs)
+			.FirstOrDefaultAsync();
+	}
 }

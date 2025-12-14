@@ -10,172 +10,267 @@ using DMSAPI.Entities.DTOs.UserDTOs;
 using DMSAPI.Entities.Models;
 using System.Text.Json;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DMSAPI.Services.Mapping
 {
-    public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
-            CreateMap<User, UserDTO>()
-                .ForMember(d => d.RoleName,
-                    o => o.MapFrom(s => s.Role != null ? s.Role.Name : null))
-                .ForMember(d => d.CompanyName,
-                    o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
-                .ForMember(d => d.DepartmentName,
-                    o => o.MapFrom(s => s.Department != null ? s.Department.Name : null))
-                .ForMember(d => d.ManagerName,
-                    o => o.MapFrom(s => s.Manager != null
-                        ? s.Manager.FirstName + " " + s.Manager.LastName
-                        : null));
+	public class MappingProfile : Profile
+	{
+		public MappingProfile()
+		{
+			CreateMap<User, UserDTO>()
+				.ForMember(d => d.RoleName,
+					o => o.MapFrom(s => s.Role != null ? s.Role.Name : null))
+				.ForMember(d => d.CompanyName,
+					o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
+				.ForMember(d => d.DepartmentName,
+					o => o.MapFrom(s => s.Department != null ? s.Department.Name : null))
+				.ForMember(d => d.ManagerName,
+					o => o.MapFrom(s =>
+						s.Manager != null
+							? s.Manager.FirstName + " " + s.Manager.LastName
+							: null));
 
-            CreateMap<User, UserMiniDTO>()
-                .ForMember(d => d.FullName,
-                    o => o.MapFrom(s => s.FirstName + " " + s.LastName));
+			CreateMap<User, UserMiniDTO>()
+				.ForMember(d => d.FullName,
+					o => o.MapFrom(s => s.FirstName + " " + s.LastName));
 
-            CreateMap<User, AuthResponseDTO>()
-                .ForMember(d => d.User, o => o.MapFrom(s => s));
+			CreateMap<User, AuthResponseDTO>()
+				.ForMember(d => d.User, o => o.MapFrom(s => s));
 
-            CreateMap<UpdateUserDTO, User>()
-                .ForMember(d => d.Position, o => o.Ignore());
+			CreateMap<UpdateUserDTO, User>()
+				.ForMember(d => d.Position, o => o.Ignore());
 
-            CreateMap<Role, RoleDTO>()
-                .ForMember(d => d.CreatedByUser,
-                    o => o.MapFrom(s =>
-                        s.CreatedByUser != null
-                            ? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
-                            : null))
-                .ForMember(d => d.UploadedByUser,
-                    o => o.MapFrom(s =>
-                        s.UploadedByUser != null
-                            ? s.UploadedByUser.FirstName + " " + s.UploadedByUser.LastName
-                            : null));
 
-            CreateMap<AddRoleDTO, Role>();
-            CreateMap<UpdateRoleDTO, Role>();
+			CreateMap<Role, RoleDTO>()
+				.ForMember(d => d.CreatedByUser,
+					o => o.MapFrom(s =>
+						s.CreatedByUser != null
+							? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
+							: null))
+				.ForMember(d => d.UploadedByUser,
+					o => o.MapFrom(s =>
+						s.UploadedByUser != null
+							? s.UploadedByUser.FirstName + " " + s.UploadedByUser.LastName
+							: null));
 
-            CreateMap<Company, CompanyDTO>();
-            CreateMap<AddCompanyDTO, Company>();
-            CreateMap<UpdateCompanyDTO, Company>();
+			CreateMap<AddRoleDTO, Role>();
+			CreateMap<UpdateRoleDTO, Role>();
 
-            CreateMap<Category, CategoryDTO>()
-                .ForMember(d => d.CreatedByName,
-                    o => o.MapFrom(s => s.CreatedByUser != null
-                        ? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
-                        : null))
-                .ForMember(d => d.UpdatedByName,
-                    o => o.MapFrom(s => s.UpdatedByUser != null
-                        ? s.UpdatedByUser.FirstName + " " + s.UpdatedByUser.LastName
-                        : null))
-                .ForMember(d => d.CompanyName,
-                    o => o.MapFrom(s => s.Company != null ? s.Company.Name : null));
 
-            CreateMap<CreateCategoryDTO, Category>();
-            CreateMap<UpdateCategoryDTO, Category>();
+			CreateMap<Company, CompanyDTO>();
+			CreateMap<AddCompanyDTO, Company>();
+			CreateMap<UpdateCompanyDTO, Company>();
 
-            CreateMap<Document, DocumentDTO>()
-            .ForMember(d => d.CompanyName, o => o.Ignore())
-            .ForMember(d => d.CompanyCode, o => o.Ignore())
-            .ForMember(d => d.CategoryName, o => o.Ignore())
 
-            .ForMember(d => d.CreatedByName, o => o.Ignore())
-            .ForMember(d => d.UpdatedByName, o => o.Ignore())
-            .ForMember(d => d.DeletedByName, o => o.Ignore())
-            .ForMember(d => d.ApproverName, o => o.Ignore())
-            .ForMember(d => d.ApprovedByName, o => o.Ignore())
-            .ForMember(d => d.RejectedByName, o => o.Ignore())
+			CreateMap<Category, CategoryDTO>()
+				.ForMember(d => d.CreatedByName,
+					o => o.MapFrom(s =>
+						s.CreatedByUser != null
+							? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
+							: null))
+				.ForMember(d => d.UpdatedByName,
+					o => o.MapFrom(s =>
+						s.UpdatedByUser != null
+							? s.UpdatedByUser.FirstName + " " + s.UpdatedByUser.LastName
+							: null))
+				.ForMember(d => d.CompanyName,
+					o => o.MapFrom(s => s.Company != null ? s.Company.Name : null));
 
-            .ForMember(d => d.AllowedRoleIds, o => o.Ignore())
-            .ForMember(d => d.AllowedDepartmentIds, o => o.Ignore())
-            .ForMember(d => d.AllowedUserIds, o => o.Ignore())
-            .AfterMap((src, dest) =>
-            {
-                dest.AllowedRoleIds = string.IsNullOrWhiteSpace(src.AllowedRoles)
-                    ? new List<int>()
-                    : JsonSerializer.Deserialize<List<int>>(src.AllowedRoles);
+			CreateMap<CreateCategoryDTO, Category>();
+			CreateMap<UpdateCategoryDTO, Category>();
 
-                dest.AllowedDepartmentIds = string.IsNullOrWhiteSpace(src.AllowedDepartments)
-                    ? new List<int>()
-                    : JsonSerializer.Deserialize<List<int>>(src.AllowedDepartments);
 
-                dest.AllowedUserIds = string.IsNullOrWhiteSpace(src.AllowedUsers)
-                    ? new List<int>()
-                    : JsonSerializer.Deserialize<List<int>>(src.AllowedUsers);
-            })
-                .ForMember(d => d.AllowedRoleIds, o => o.Ignore())
-                .ForMember(d => d.AllowedDepartmentIds, o => o.Ignore())
-                .ForMember(d => d.AllowedUserIds, o => o.Ignore())
-                .AfterMap((src, dest) =>
-                {
-                    dest.AllowedRoleIds = string.IsNullOrWhiteSpace(src.AllowedRoles)
-                        ? new List<int>()
-                        : JsonSerializer.Deserialize<List<int>>(src.AllowedRoles);
+			CreateMap<Department, DepartmentDTO>()
+				.ForMember(d => d.CompanyName,
+					o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
+				.ForMember(d => d.ManagerName,
+					o => o.MapFrom(s =>
+						s.Manager != null
+							? s.Manager.FirstName + " " + s.Manager.LastName
+							: null))
+				.ForMember(d => d.CreatedByName,
+					o => o.MapFrom(s =>
+						s.CreatedByUser != null
+							? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
+							: null))
+				.ForMember(d => d.UploadedByName,
+					o => o.MapFrom(s =>
+						s.UploadedByUser != null
+							? s.UploadedByUser.FirstName + " " + s.UploadedByUser.LastName
+							: null));
 
-                    dest.AllowedDepartmentIds = string.IsNullOrWhiteSpace(src.AllowedDepartments)
-                        ? new List<int>()
-                        : JsonSerializer.Deserialize<List<int>>(src.AllowedDepartments);
+			CreateMap<Department, DepartmentDetailDTO>()
+				.ForMember(d => d.CompanyName,
+					o => o.MapFrom(s => s.Company != null ? s.Company.Name : null));
 
-                    dest.AllowedUserIds = string.IsNullOrWhiteSpace(src.AllowedUsers)
-                        ? new List<int>()
-                        : JsonSerializer.Deserialize<List<int>>(src.AllowedUsers);
-                });
+			CreateMap<CreateDepartmentDTO, Department>();
+			CreateMap<UpdateDepartmentDTO, Department>();
 
-            CreateMap<Department, DepartmentDTO>()
-                .ForMember(d => d.CompanyName,
-                    o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
-                .ForMember(d => d.ManagerName,
-                    o => o.MapFrom(s => s.Manager != null
-                        ? s.Manager.FirstName + " " + s.Manager.LastName
-                        : null))
-                .ForMember(d => d.CreatedByName,
-                    o => o.MapFrom(s => s.CreatedByUser != null
-                        ? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
-                        : null))
-                .ForMember(d => d.UploadedByName,
-                    o => o.MapFrom(s => s.UploadedByUser != null
-                        ? s.UploadedByUser.FirstName + " " + s.UploadedByUser.LastName
-                        : null));
 
-            CreateMap<Department, DepartmentDetailDTO>()
-                .ForMember(d => d.CompanyName,
-                    o => o.MapFrom(s => s.Company != null ? s.Company.Name : null));
+			CreateMap<Position, PositionDTO>()
+				.ForMember(d => d.CompanyName,
+					o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
+				.ForMember(d => d.CreatedByName,
+					o => o.MapFrom(s =>
+						s.CreatedByUser != null
+							? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
+							: null))
+				.ForMember(d => d.UploadedByName,
+					o => o.MapFrom(s =>
+						s.UploadedByUser != null
+							? s.UploadedByUser.FirstName + " " + s.UploadedByUser.LastName
+							: null));
 
-            CreateMap<CreateDepartmentDTO, Department>();
-            CreateMap<UpdateDepartmentDTO, Department>();
+			CreateMap<CreatePositionDTO, Position>();
+			CreateMap<UpdatePositionDTO, Position>();
 
-            CreateMap<Position, PositionDTO>()
-                .ForMember(d => d.CompanyName,
-                    o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
-                .ForMember(d => d.CreatedByName,
-                    o => o.MapFrom(s => s.CreatedByUser != null
-                        ? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
-                        : null))
-                .ForMember(d => d.UploadedByName,
-                    o => o.MapFrom(s => s.UploadedByUser != null
-                        ? s.UploadedByUser.FirstName + " " + s.UploadedByUser.LastName
-                        : null));
 
-            CreateMap<CreatePositionDTO, Position>();
-            CreateMap<UpdatePositionDTO, Position>();
-            CreateMap<DocumentCreateDTO, Document>()
-             .ForMember(x => x.Id, opt => opt.Ignore())
-             .ForMember(x => x.DocumentCode, opt => opt.Ignore())
-             .ForMember(x => x.CreatedAt, opt => opt.Ignore())
-             .ForMember(x => x.CreatedByUserId, opt => opt.Ignore())
-             .ForMember(x => x.UpdatedAt, opt => opt.Ignore())
-             .ForMember(x => x.UpdatedByUserId, opt => opt.Ignore())
-             .ForMember(x => x.DeletedAt, opt => opt.Ignore())
-             .ForMember(x => x.DeletedByUserId, opt => opt.Ignore())
-             .ForMember(x => x.IsDeleted, opt => opt.Ignore())
-             .ForMember(x => x.IsArchived, opt => opt.Ignore());
-            CreateMap<Document, MyPendingDTO>()
-            .ForMember(d => d.StatusName, o => o.MapFrom(s =>
-                s.StatusId == 1 ? "Bekliyor" :
-                s.StatusId == 2 ? "Onaylandı" :
-                s.StatusId == 3 ? "Reddedildi" :
-                "Bilinmiyor"
-            ));
+			CreateMap<DocumentFile, MainDocumentFileDTO>();
+			CreateMap<DocumentAttachment, DocumentAttachmentDTO>();
+			CreateMap<DocumentVersion, DocumentVersionDTO>();
+			CreateMap<DocumentApprovalHistory, DocumentApprovalHistoryDTO>();
+			CreateMap<DocumentAccessLog, DocumentAccessLogDTO>();
 
-        }
-    }
+
+			CreateMap<Document, DocumentCreateResponseDTO>()
+				.ForMember(d => d.FileName, o => o.Ignore())
+				.ForMember(d => d.OriginalFileName, o => o.Ignore())
+				.ForMember(d => d.FileSize, o => o.Ignore())
+				.ForMember(d => d.FileType, o => o.Ignore())
+				.ForMember(d => d.CompanyName, o => o.MapFrom(s => string.Empty))
+				.ForMember(d => d.CategoryName, o => o.MapFrom(s => string.Empty))
+				.ForMember(d => d.Breadcrumb, o => o.MapFrom(s => new List<string>()))
+				.ForMember(d => d.BreadcrumbPath, o => o.MapFrom(s => string.Empty))
+				.ForMember(d => d.CreatedBy, o => o.MapFrom(s => s.CreatedByUserId))
+				.ForMember(d => d.CreatedByName, o => o.MapFrom(s => string.Empty));
+
+
+			CreateMap<Document, DocumentDTO>()
+		.ForMember(d => d.Title, o => o.MapFrom(s => s.Title))
+		.ForMember(d => d.DocumentCode, o => o.MapFrom(s => s.DocumentCode))
+		.ForMember(d => d.VersionNumber, o => o.MapFrom(s => s.VersionNumber))
+		.ForMember(d => d.VersionNote, o => o.MapFrom(s => s.VersionNote))
+		.ForMember(d => d.DocumentType, o => o.MapFrom(s => s.DocumentType))
+		.ForMember(d => d.IsLatestVersion, o => o.MapFrom(s => s.IsLatestVersion))
+
+		.ForMember(d => d.CategoryName, o => o.MapFrom(s => string.Empty))
+		.ForMember(d => d.Breadcrumb, o => o.MapFrom(s => new List<string>()))
+		.ForMember(d => d.BreadcrumbPath, o => o.MapFrom(s => string.Empty))
+		.ForMember(d => d.CompanyName, o => o.MapFrom(s => string.Empty))
+		.ForMember(d => d.CompanyCode, o => o.MapFrom(s => string.Empty))
+
+		.ForMember(d => d.IsPublic, o => o.MapFrom(s => s.IsPublic))
+		.ForMember(d => d.AllowedRoleIds, o => o.Ignore())
+		.ForMember(d => d.AllowedDepartmentIds, o => o.Ignore())
+		.ForMember(d => d.AllowedUserIds, o => o.Ignore())
+
+		.ForMember(d => d.Status, o => o.MapFrom(s =>
+			s.StatusId == 1 ? "Bekliyor" :
+			s.StatusId == 2 ? "Onaylandı" :
+			s.StatusId == 3 ? "Reddedildi" :
+			"Bilinmiyor"))
+
+		.ForMember(d => d.CurrentApproverId, o => o.MapFrom(s =>
+			s.Approvals
+				.Where(a => !a.IsApproved && !a.IsRejected)
+				.Select(a => (int?)a.UserId)
+				.FirstOrDefault()
+		))
+		.ForMember(d => d.CurrentApproverName, o => o.MapFrom(s =>
+			s.Approvals
+				.Where(a => !a.IsApproved && !a.IsRejected)
+				.Select(a => a.User != null
+					? a.User.FirstName + " " + a.User.LastName
+					: null)
+				.FirstOrDefault()
+		))
+
+		.ForMember(d => d.ApprovedBy, o => o.MapFrom(s =>
+			s.Approvals.Where(a => a.IsApproved)
+					   .Select(a => (int?)a.UserId)
+					   .FirstOrDefault()))
+		.ForMember(d => d.ApprovedByName, o => o.MapFrom(s =>
+			s.Approvals.Where(a => a.IsApproved && a.User != null)
+					   .Select(a => a.User.FirstName + " " + a.User.LastName)
+					   .FirstOrDefault()))
+
+		.ForMember(d => d.RejectedBy, o => o.MapFrom(s =>
+			s.Approvals.Where(a => a.IsRejected)
+					   .Select(a => (int?)a.UserId)
+					   .FirstOrDefault()))
+		.ForMember(d => d.RejectedByName, o => o.MapFrom(s =>
+			s.Approvals.Where(a => a.IsRejected && a.User != null)
+					   .Select(a => a.User.FirstName + " " + a.User.LastName)
+					   .FirstOrDefault()))
+
+		.ForMember(d => d.MainFile, o => o.MapFrom(s =>
+			s.Files.Select(f => new MainDocumentFileDTO
+			{
+				Id = f.Id,
+				FileName = f.FileName,
+				OriginalFileName = f.OriginalFileName,
+				FileExtension = f.FileExtension,
+				FileSize = f.FileSize,
+				FilePath = f.FilePath,
+				PdfFilePath = f.PdfFilePath
+			}).FirstOrDefault()
+		))
+
+		.ForMember(d => d.Attachments, o => o.MapFrom(s => s.Attachments))
+		.ForMember(d => d.Versions, o => o.MapFrom(s => s.Versions))
+		.ForMember(d => d.ApprovalHistories, o => o.MapFrom(s => s.ApprovalHistories))
+		.ForMember(d => d.AccessLogs, o => o.MapFrom(s => s.AccessLogs))
+
+		.ForMember(d => d.CreatedByName, o => o.MapFrom(s => string.Empty))
+		.ForMember(d => d.UpdatedByName, o => o.MapFrom(s => string.Empty))
+		.ForMember(d => d.DeletedByName, o => o.MapFrom(s => string.Empty))
+
+		.AfterMap((src, dest) =>
+		{
+			dest.AllowedRoleIds = SafeParseJson(src.AllowedRoles);
+			dest.AllowedDepartmentIds = SafeParseJson(src.AllowedDepartments);
+			dest.AllowedUserIds = SafeParseJson(src.AllowedUsers);
+		});
+
+
+
+			CreateMap<DocumentCreateDTO, Document>()
+				.ForMember(x => x.Id, opt => opt.Ignore())
+				.ForMember(x => x.DocumentCode, opt => opt.Ignore())
+				.ForMember(x => x.CreatedAt, opt => opt.Ignore())
+				.ForMember(x => x.CreatedByUserId, opt => opt.Ignore())
+				.ForMember(x => x.UpdatedAt, opt => opt.Ignore())
+				.ForMember(x => x.UpdatedByUserId, opt => opt.Ignore())
+				.ForMember(x => x.DeletedAt, opt => opt.Ignore())
+				.ForMember(x => x.DeletedByUserId, opt => opt.Ignore())
+				.ForMember(x => x.IsDeleted, opt => opt.Ignore())
+				.ForMember(x => x.IsArchived, opt => opt.Ignore())
+				.ForMember(x => x.Files, opt => opt.Ignore())
+				.ForMember(x => x.Attachments, opt => opt.Ignore());
+
+
+			CreateMap<Document, MyPendingDTO>()
+				.ForMember(d => d.StatusName, o => o.MapFrom(s =>
+					s.StatusId == 1 ? "Bekliyor" :
+					s.StatusId == 2 ? "Onaylandı" :
+					s.StatusId == 3 ? "Reddedildi" :
+					"Bilinmiyor"));
+		}
+		private static List<int> SafeParseJson(string? json)
+		{
+			if (string.IsNullOrWhiteSpace(json))
+				return new List<int>();
+
+			try
+			{
+				return JsonSerializer.Deserialize<List<int>>(json) ?? new List<int>();
+			}
+			catch
+			{
+				return new List<int>();
+			}
+		}
+	}
+
 }

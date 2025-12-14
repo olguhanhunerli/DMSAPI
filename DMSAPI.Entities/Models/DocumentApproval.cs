@@ -26,7 +26,6 @@ namespace DMSAPI.Entities.Models
 
         public string? RejectReason { get; set; }
 
-        [Required]
         public DateTime CreatedAt { get; set; }
 
 
