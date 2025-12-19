@@ -13,7 +13,17 @@ namespace DMSAPI.Business.Repositories
 		public CategoryRepository(DMSDbContext context, IHttpContextAccessor accessor)
 			: base(context, accessor) { }
 
-		public async Task<bool> ExistsAsync(string name, int? parentId, int companyId)
+        private IQueryable<Category> CategoryBaseQuery()
+        {
+            return _dbSet
+                .Where(x => !x.IsDeleted)
+                .Include(x => x.Company)
+                .Include(x => x.Parent)
+                .Include(x => x.CreatedByUser)
+                .Include(x => x.UpdatedByUser)
+                .Include(x => x.Documents); 
+        }
+        public async Task<bool> ExistsAsync(string name, int? parentId, int companyId)
 		{
 			return await _dbSet.AnyAsync(c =>
 				c.Name == name &&
@@ -25,59 +35,29 @@ namespace DMSAPI.Business.Repositories
 
 		public async Task<IEnumerable<Category>> GetCategoriesAsync()
 		{
-			return await _dbSet
-                .Include(x => x.Parent)
-				.Include(x => x.CreatedByUser)
-				.Include(x => x.UpdatedByUser)
-				.Include(x => x.Company)
-				.OrderBy(x => x.SortOrder)
-				.ToListAsync();
+            return await CategoryBaseQuery()
+						.OrderBy(x => x.SortOrder)
+						.ToListAsync();
         }
 
 		public async Task<Category?> GetCategoryWithChildrenAsync(int categoryId)
 		{
-			return await _dbSet
-				.Where(c => c.Id == categoryId && !c.IsDeleted)
+            return await CategoryBaseQuery()
+					   .Where(c => c.Id == categoryId)
 
-				.Include(c => c.Parent)
-				.Include(c => c.Company)
-				.Include(c => c.CreatedByUser)
-				.Include(c => c.UpdatedByUser)
+					   .Include(c => c.Children
+						   .Where(child => !child.IsDeleted)
+						   .OrderBy(child => child.SortOrder))
 
-				.Include(c => c.Children
-					.Where(child => !child.IsDeleted)
-					.OrderBy(child => child.SortOrder))
+						   .ThenInclude(child => child.Documents) 
 
-					.ThenInclude(child => child.CreatedByUser)
+					   .Include(c => c.Children)
+						   .ThenInclude(child => child.Children
+							   .Where(gc => !gc.IsDeleted))
+						   .ThenInclude(gc => gc.Documents) 
 
-				.Include(c => c.Children
-					.Where(child => !child.IsDeleted)
-					.OrderBy(child => child.SortOrder))
-
-					.ThenInclude(child => child.UpdatedByUser)
-
-				.Include(c => c.Children
-					.Where(child => !child.IsDeleted)
-					.OrderBy(child => child.SortOrder))
-
-					.ThenInclude(child => child.Children
-						.Where(gc => !gc.IsDeleted)
-						.OrderBy(gc => gc.SortOrder))
-
-						.ThenInclude(gc => gc.CreatedByUser)
-
-				.Include(c => c.Children
-					.Where(child => !child.IsDeleted)
-					.OrderBy(child => child.SortOrder))
-
-					.ThenInclude(child => child.Children
-						.Where(gc => !gc.IsDeleted)
-						.OrderBy(gc => gc.SortOrder))
-
-						.ThenInclude(gc => gc.UpdatedByUser)
-
-				.FirstOrDefaultAsync();
-		}
+					   .FirstOrDefaultAsync();
+        }
 
 		public async Task<IEnumerable<Category>> GetChildrenAsync(int parentId)
 		{
@@ -152,5 +132,14 @@ namespace DMSAPI.Business.Repositories
 			_dbSet.Update(category);
 			await _context.SaveChangesAsync();
 		}
-	}
+
+        public async Task<List<Category>> GetCategoryTreeWithDocumentsAsync(int companyId)
+        {
+            return await _dbSet
+				.Where(c => c.CompanyId == companyId && !c.IsDeleted)
+				.Include(c => c.Documents.Where(d => !d.IsDeleted))
+				.OrderBy(c => c.SortOrder)
+				.ToListAsync();
+        }
+    }
 }

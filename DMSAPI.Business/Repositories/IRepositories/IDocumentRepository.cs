@@ -18,5 +18,6 @@ namespace DMSAPI.Business.Repositories.IRepositories
 		Task<DocumentFile?> GetMainFileAsync(int documentId);
 		Task<Document?> GetDetailByIdAsync(int documentId);
 
-	}
+
+    }
 }

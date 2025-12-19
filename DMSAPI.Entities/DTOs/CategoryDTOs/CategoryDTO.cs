@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DMSAPI.Entities.DTOs.DocumentDTOs;
+using DMSAPI.Entities.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -40,5 +42,6 @@ namespace DMSAPI.Entities.DTOs.CategoryDTOs
 		public int? UpdatedBy { get; set; }
 		public string? UpdatedByName { get; set; }
 		public List<CategoryDTO> Children { get; set; }
+		public List<DocumentDTO> Document { get; set; }
 	}
 }

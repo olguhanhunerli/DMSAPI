@@ -32,6 +32,7 @@ namespace DMSAPI.Entities.Models
 		public User CreatedByUser { get; set; }
 		public int? UpdatedBy { get; set; }
         public User UpdatedByUser { get; set; }
+		public ICollection<Document> Documents { get; set; }
 
     }
 }

@@ -16,5 +16,7 @@ namespace DMSAPI.Business.Repositories.IRepositories
 		Task SoftDeleteAsync(int categoryId, int? uploadedBy);
 		Task RestoreCategoryAsync(int categoryId, int? uploadedBy);
         Task<PagedResultDTO<Category>> GetPagedAsync(int page, int pageSize);
+        Task<List<Category>> GetCategoryTreeWithDocumentsAsync(int companyId);
+
     }
 }

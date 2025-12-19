@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DMSAPI.Entities.DTOs.DocumentDTOs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,5 +19,6 @@ namespace DMSAPI.Entities.DTOs.CategoryDTOs
 		public DateTime? UpdatedAt { get; set; }
 
 		public List<CategoryTreeDTO> Children { get; set; } = new();
+		public List<DocumentDTO> Documents { get; set; } = new(); 
 	}
 }

@@ -6,7 +6,7 @@ using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[Authorize]
+[ApiController]
 [Route("api/[controller]")]
 public class DocumentController : BaseApiController
 {
@@ -98,7 +98,7 @@ public class DocumentController : BaseApiController
 		return PhysicalFile(
 			fullPath,
 			"application/pdf",
-			enableRangeProcessing: true // pdf.js için önemli
+			enableRangeProcessing: true
 		);
 	}
 	[HttpGet("create-preview")]
@@ -111,9 +111,9 @@ public class DocumentController : BaseApiController
     [HttpGet("my-pending-approvals")]
     public async Task<IActionResult> GetMyPendingApprovals()
     {
-        int userId = int.Parse(User.FindFirst("sub").Value);
+        
 
-        var docs = await _service.GetMyPendingApprovalsAsync(userId);
+        var docs = await _service.GetMyPendingApprovalsAsync(UserId);
 
         return Ok(docs);
     }
@@ -122,10 +122,10 @@ public class DocumentController : BaseApiController
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10)
     {
-        int userId = int.Parse(User.FindFirst("sub")!.Value);
+        
 
         var result = await _service
-            .GetMyPendingApprovalsAsync(page, pageSize, userId);
+            .GetMyPendingApprovalsAsync(page, pageSize, UserId);
 
         return Ok(result);
     }

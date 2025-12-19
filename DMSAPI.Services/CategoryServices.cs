@@ -3,6 +3,7 @@ using DMSAPI.Business.Repositories.IRepositories;
 using DMSAPI.Entities.DTOs;
 using DMSAPI.Entities.DTOs.CategoryDTOs;
 using DMSAPI.Entities.DTOs.Common;
+using DMSAPI.Entities.DTOs.DocumentDTOs;
 using DMSAPI.Entities.Models;
 using DMSAPI.Services.IServices;
 
@@ -56,9 +57,9 @@ namespace DMSAPI.Services
 
 		public async Task<IEnumerable<CategoryTreeDTO>> GetCategoryTreeAsync(int companyId)
 		{
-			var categories = await _categoryRepository.GetAllAsync();
+			var categories = await _categoryRepository.GetCategoryTreeWithDocumentsAsync(companyId);
 
-			var companyCategories = categories
+            var companyCategories = categories
 				.Where(c => c.CompanyId == companyId && !c.IsDeleted)
 				.ToList();
 
@@ -69,7 +70,7 @@ namespace DMSAPI.Services
 
 		public async Task<IEnumerable<CategoryDTO>> SearchCategoryTreeAsync(string keyword, int companyId)
 		{
-			var categories = await _categoryRepository.GetAllAsync();
+			var categories = await _categoryRepository.GetCategoriesAsync();
 
 			var filtered = categories
 				.Where(x =>
@@ -150,19 +151,23 @@ namespace DMSAPI.Services
 				});
 		}
 
-		private CategoryTreeDTO BuildTree(Category category, IEnumerable<Category> all)
-		{
-			return new CategoryTreeDTO
-			{
-				Id = category.Id,
-				Name = category.Name,
-				ParentId = category.ParentId,
-				Children = all
-					.Where(x => x.ParentId == category.Id && !x.IsDeleted)
-					.Select(x => BuildTree(x, all))
-					.ToList()
-			};
-		}
+        private CategoryTreeDTO BuildTree(Category category, IEnumerable<Category> all)
+        {
+            return new CategoryTreeDTO
+            {
+                Id = category.Id,
+                Name = category.Name,
+                ParentId = category.ParentId,
+                Documents = category.Documents?
+                    .Select(d => _mapper.Map<DocumentDTO>(d))
+                    .ToList() ?? new(),
+
+                Children = all
+                    .Where(x => x.ParentId == category.Id && !x.IsDeleted)
+                    .Select(x => BuildTree(x, all))
+                    .ToList()
+            };
+        }
 
         public async Task<PagedResultDTO<CategoryDTO>> GetPagedAsync(int page, int pageSize)
         {
