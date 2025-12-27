@@ -168,9 +168,6 @@ namespace DMSAPI.Business.Context
 				.HasForeignKey(x => x.UpdatedBy)
 				.OnDelete(DeleteBehavior.Restrict);
 
-			// ============================
-			// DOCUMENT
-			// ============================
 			modelBuilder.Entity<Document>(entity =>
 			{
 				entity.HasKey(d => d.Id);
@@ -184,26 +181,35 @@ namespace DMSAPI.Business.Context
 				entity.HasIndex(d => d.StatusId);
 				entity.HasIndex(d => d.IsDeleted);
 				entity.HasIndex(d => d.IsArchived);
+
+				// 🔥 USER RELATIONS
+				entity.HasOne(d => d.CreatedByUser)
+					.WithMany()
+					.HasForeignKey(d => d.CreatedByUserId)
+					.OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(d => d.UpdatedByUser)
+					.WithMany()
+					.HasForeignKey(d => d.UpdatedByUserId)
+					.OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(d => d.DeletedByUser)
+					.WithMany()
+					.HasForeignKey(d => d.DeletedByUserId)
+					.OnDelete(DeleteBehavior.Restrict);
+
+				// 🔥 CATEGORY
+				entity.HasOne(d => d.Category)
+					.WithMany(c => c.Documents)
+					.HasForeignKey(d => d.CategoryId)
+					.OnDelete(DeleteBehavior.Restrict);
+
+				// 🔥 COMPANY
+				entity.HasOne(d => d.Company)
+					.WithMany()
+					.HasForeignKey(d => d.CompanyId)
+					.OnDelete(DeleteBehavior.Restrict);
 			});
-
-			modelBuilder.Entity<Document>()
-				.HasOne<User>()
-				.WithMany()
-				.HasForeignKey(d => d.CreatedByUserId)
-				.OnDelete(DeleteBehavior.Restrict);
-
-			modelBuilder.Entity<Document>()
-				.HasOne<User>()
-				.WithMany()
-				.HasForeignKey(d => d.UpdatedByUserId)
-				.OnDelete(DeleteBehavior.Restrict);
-
-			modelBuilder.Entity<Document>()
-				.HasOne<User>()
-				.WithMany()
-				.HasForeignKey(d => d.DeletedByUserId)
-				.OnDelete(DeleteBehavior.Restrict);
-
 			// ============================
 			// DOCUMENT ATTACHMENT
 			// ============================

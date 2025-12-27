@@ -15,10 +15,10 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
 
         public int StatusId { get; set; }
         public string StatusName { get; set; } = null!;
-
+        public int CreatedById { get; set; }
+        public string CreatedByName { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public int WaitingDays
-            => (DateTime.UtcNow - CreatedAt).Days;
+        public int WaitingDays   => (DateTime.UtcNow - CreatedAt).Days;
     }
 }

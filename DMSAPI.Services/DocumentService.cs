@@ -79,7 +79,8 @@ namespace DMSAPI.Services
                     CreatedByUserId = userId,
                     VersionNumber = 1,
                     StatusId = 1,
-                    IsDeleted = false
+                    IsDeleted = false,
+                    VersionNote = dto.VersionNote
                 };
 
                 await _documentRepository.AddAsync(document);

@@ -18,17 +18,17 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
         int roleId,
         int departmentId)
     {
-        return query.Where(d =>
-            d.IsPublic
-            || d.CreatedByUserId == userId
-            || (d.AllowedUsers != null &&
-                d.AllowedUsers.Contains($"\"{userId}\""))
-            || (d.AllowedRoles != null &&
-                d.AllowedRoles.Contains($"\"{roleId}\""))
-            || (d.AllowedDepartments != null &&
-                d.AllowedDepartments.Contains($"\"{departmentId}\""))
-        );
-    }
+		return query.Where(d =>
+		d.CompanyId == CompanyId &&  
+		(
+			d.IsPublic
+			|| d.CreatedByUserId == userId
+			|| (d.AllowedUsers != null && d.AllowedUsers.Contains($"\"{userId}\""))
+			|| (d.AllowedRoles != null && d.AllowedRoles.Contains($"\"{roleId}\""))
+			|| (d.AllowedDepartments != null && d.AllowedDepartments.Contains($"\"{departmentId}\""))
+		)
+	);
+	}
 
 
     public async Task<bool> DocumentCodeExistingAsync(string documentCode)
@@ -72,8 +72,13 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
 		int departmentId)
 	{
 		var query = _dbSet
-			.AsNoTracking()
-			.Where(x => !x.IsDeleted && x.CompanyId == CompanyId);
+			 .AsNoTracking()
+			.Include(x => x.Category)
+			.Include(x => x.Company)
+			.Include(x => x.CreatedByUser)
+			.Include(x => x.Approvals)
+				.ThenInclude(a => a.User)
+			.Where(x => !x.IsDeleted && x.CompanyId == CompanyId && x.StatusId ==2);
 
 		query = ApplyAccessFilter(query, userId, roleId, departmentId);
 
@@ -137,11 +142,14 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
     public async Task<List<Document>> GetPendingDocumentIdsForUserAsync(List<int> documentIds)
     {
 		return await _dbSet
-		.Where(x => documentIds.Contains(x.Id) && !x.IsDeleted)
-		.Include(x => x.Approvals)
-			.ThenInclude(a => a.User)
-		.OrderByDescending(x => x.CreatedAt)
-		.ToListAsync();
+				.Where(x =>
+					documentIds.Contains(x.Id)
+					&& !x.IsDeleted
+					&& x.CompanyId == CompanyId) 
+				.Include(x => x.Approvals)
+					.ThenInclude(a => a.User)
+				.OrderByDescending(x => x.CreatedAt)
+				.ToListAsync();
 	}
 
 	public async Task<PagedResultDTO<Document>> GetPagedPendingByIdsAsync(
@@ -152,10 +160,11 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
 		var query = _dbSet
 			.AsNoTracking()
 
-			.Where(x => documentIds.Contains(x.Id) && !x.IsDeleted)
+			.Where(x => documentIds.Contains(x.Id) && !x.IsDeleted && x.CompanyId == CompanyId)
 			.Include(x => x.Approvals)
 				.ThenInclude(a => a.User)
 			.Include(x => x.Attachments)
+			.Include(x => x.CreatedByUser)
 			.Include(x => x.Files)
 			.Include(x => x.Versions)
 			.Include(x => x.ApprovalHistories)
@@ -195,10 +204,11 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
 	public async Task<PagedResultDTO<Document>> GetPagedApprovedAsync(int page, int pageSize)
 	{
 		var query = _dbSet
-		.AsNoTracking()
-		.Where(d =>
-			!d.IsDeleted &&
-			d.StatusId == 2); 
+			.AsNoTracking()
+			.Include(x => x.Category)
+			.Include(x => x.Company)
+			.Include(x => x.CreatedByUser)
+			.Where(x => !x.IsDeleted && x.StatusId == 2 && x.CompanyId == CompanyId);
 
 		var totalCount = await query.CountAsync();
 
@@ -220,15 +230,19 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
 	public async Task<Document?> GetDetailByIdAsync(int documentId)
 	{
 		return await _dbSet
-			.AsNoTracking()
-			.Where(x => x.Id == documentId && !x.IsDeleted)
-			.Include(d => d.Approvals)
-				.ThenInclude(a => a.User)
-			.Include(d => d.Files)
-			.Include(d => d.Attachments.Where(a => !a.IsDeleted))
-			.Include(d => d.Versions)
-			.Include(d => d.ApprovalHistories)
-			.Include(d => d.AccessLogs)
-			.FirstOrDefaultAsync();
+		.AsNoTracking()
+		.Include(x => x.Category)
+		.Include(x => x.Company)
+		.Include(x => x.CreatedByUser)
+		.Include(x => x.UpdatedByUser)
+		.Include(x => x.DeletedByUser)
+		.Include(x => x.Approvals)
+			.ThenInclude(a => a.User)
+		.Include(x => x.Files)
+		.Include(x => x.Attachments)
+		.Include(x => x.Versions)
+		.Include(x => x.ApprovalHistories)
+		.Include(x => x.AccessLogs)
+		.FirstOrDefaultAsync(x => x.Id == documentId && !x.IsDeleted && x.CompanyId == CompanyId);
 	}
 }

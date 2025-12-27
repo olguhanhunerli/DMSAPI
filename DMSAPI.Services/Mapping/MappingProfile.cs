@@ -154,17 +154,31 @@ namespace DMSAPI.Services.Mapping
 		.ForMember(d => d.DocumentType, o => o.MapFrom(s => s.DocumentType))
 		.ForMember(d => d.IsLatestVersion, o => o.MapFrom(s => s.IsLatestVersion))
 
-		.ForMember(d => d.CategoryName, o => o.MapFrom(s => string.Empty))
-		.ForMember(d => d.Breadcrumb, o => o.MapFrom(s => new List<string>()))
-		.ForMember(d => d.BreadcrumbPath, o => o.MapFrom(s => string.Empty))
-		.ForMember(d => d.CompanyName, o => o.MapFrom(s => string.Empty))
-		.ForMember(d => d.CompanyCode, o => o.MapFrom(s => string.Empty))
+		.ForMember(d => d.CategoryName,
+			o => o.MapFrom(s => s.Category != null ? s.Category.Name : null))
 
-		.ForMember(d => d.IsPublic, o => o.MapFrom(s => s.IsPublic))
-		.ForMember(d => d.AllowedRoleIds, o => o.Ignore())
-		.ForMember(d => d.AllowedDepartmentIds, o => o.Ignore())
-		.ForMember(d => d.AllowedUserIds, o => o.Ignore())
+		.ForMember(d => d.CompanyName,
+			o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
+		.ForMember(d => d.CompanyCode,
+			o => o.MapFrom(s => s.Company != null ? s.Company.CompanyCode : null))
 
+		.ForMember(d => d.CreatedByName,
+			o => o.MapFrom(s =>
+				s.CreatedByUser != null
+					? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
+					: null))
+
+		.ForMember(d => d.UpdatedByName,
+			o => o.MapFrom(s =>
+				s.UpdatedByUser != null
+					? s.UpdatedByUser.FirstName + " " + s.UpdatedByUser.LastName
+					: null))
+
+		.ForMember(d => d.DeletedByName,
+			o => o.MapFrom(s =>
+				s.DeletedByUser != null
+					? s.DeletedByUser.FirstName + " " + s.DeletedByUser.LastName
+					: null))
 		.ForMember(d => d.Status, o => o.MapFrom(s =>
 			s.StatusId == 1 ? "Bekliyor" :
 			s.StatusId == 2 ? "Onaylandı" :
@@ -175,21 +189,19 @@ namespace DMSAPI.Services.Mapping
 			s.Approvals
 				.Where(a => !a.IsApproved && !a.IsRejected)
 				.Select(a => (int?)a.UserId)
-				.FirstOrDefault()
-		))
+				.FirstOrDefault()))
+
 		.ForMember(d => d.CurrentApproverName, o => o.MapFrom(s =>
 			s.Approvals
-				.Where(a => !a.IsApproved && !a.IsRejected)
-				.Select(a => a.User != null
-					? a.User.FirstName + " " + a.User.LastName
-					: null)
-				.FirstOrDefault()
-		))
+				.Where(a => !a.IsApproved && !a.IsRejected && a.User != null)
+				.Select(a => a.User.FirstName + " " + a.User.LastName)
+				.FirstOrDefault()))
 
 		.ForMember(d => d.ApprovedBy, o => o.MapFrom(s =>
 			s.Approvals.Where(a => a.IsApproved)
 					   .Select(a => (int?)a.UserId)
 					   .FirstOrDefault()))
+
 		.ForMember(d => d.ApprovedByName, o => o.MapFrom(s =>
 			s.Approvals.Where(a => a.IsApproved && a.User != null)
 					   .Select(a => a.User.FirstName + " " + a.User.LastName)
@@ -199,6 +211,7 @@ namespace DMSAPI.Services.Mapping
 			s.Approvals.Where(a => a.IsRejected)
 					   .Select(a => (int?)a.UserId)
 					   .FirstOrDefault()))
+
 		.ForMember(d => d.RejectedByName, o => o.MapFrom(s =>
 			s.Approvals.Where(a => a.IsRejected && a.User != null)
 					   .Select(a => a.User.FirstName + " " + a.User.LastName)
@@ -214,17 +227,12 @@ namespace DMSAPI.Services.Mapping
 				FileSize = f.FileSize,
 				FilePath = f.FilePath,
 				PdfFilePath = f.PdfFilePath
-			}).FirstOrDefault()
-		))
+			}).FirstOrDefault()))
 
 		.ForMember(d => d.Attachments, o => o.MapFrom(s => s.Attachments))
 		.ForMember(d => d.Versions, o => o.MapFrom(s => s.Versions))
 		.ForMember(d => d.ApprovalHistories, o => o.MapFrom(s => s.ApprovalHistories))
 		.ForMember(d => d.AccessLogs, o => o.MapFrom(s => s.AccessLogs))
-
-		.ForMember(d => d.CreatedByName, o => o.MapFrom(s => string.Empty))
-		.ForMember(d => d.UpdatedByName, o => o.MapFrom(s => string.Empty))
-		.ForMember(d => d.DeletedByName, o => o.MapFrom(s => string.Empty))
 
 		.AfterMap((src, dest) =>
 		{
@@ -251,11 +259,22 @@ namespace DMSAPI.Services.Mapping
 
 
 			CreateMap<Document, MyPendingDTO>()
+				.ForMember(d => d.DocumentCode, o => o.MapFrom(s => s.DocumentCode))
+				.ForMember(d => d.Title, o => o.MapFrom(s => s.Title))
+				.ForMember(d => d.StatusId, o => o.MapFrom(s => s.StatusId))
 				.ForMember(d => d.StatusName, o => o.MapFrom(s =>
 					s.StatusId == 1 ? "Bekliyor" :
 					s.StatusId == 2 ? "Onaylandı" :
 					s.StatusId == 3 ? "Reddedildi" :
-					"Bilinmiyor"));
+					"Bilinmiyor"))
+				.ForMember(d => d.CreatedAt, o => o.MapFrom(s => s.CreatedAt))
+				.ForMember(d => d.CreatedById, o => o.MapFrom(s => s.CreatedByUserId))
+				.ForMember(d => d.CreatedByName, o => o.MapFrom(s =>
+					s.CreatedByUser != null
+						? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
+						: null));
+				
+
 		}
 		private static List<int> SafeParseJson(string? json)
 		{

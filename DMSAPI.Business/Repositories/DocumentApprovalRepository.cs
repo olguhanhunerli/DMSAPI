@@ -37,11 +37,13 @@ namespace DMSAPI.Business.Repositories
 		public async Task<List<int>> GetPendingDocumentIdsAsync(int userId)
 		{
 			return await _dbSet
+				
 				.Where(x =>
 					x.UserId == userId &&
 					!x.IsApproved &&
 					!x.IsRejected &&
-					x.DocumentId != null)                
+					x.DocumentId != null &&
+					x.Document.CompanyId == CompanyId )                
 				.Select(x => x.DocumentId)         
 				.Distinct()
 				.ToListAsync();
@@ -52,11 +54,14 @@ namespace DMSAPI.Business.Repositories
 		{
 			return await _context.DocumentApprovals
 				.AsNoTracking()
+				
 				.Where(x =>
 					x.UserId == userId &&
 					!x.IsApproved &&
 					!x.IsRejected &&
-					x.DocumentId != null)
+					x.DocumentId != null &&
+					x.Document.CompanyId == CompanyId 
+					)
 				.Select(x => x.DocumentId)
 				.Distinct()
 				.ToListAsync();
