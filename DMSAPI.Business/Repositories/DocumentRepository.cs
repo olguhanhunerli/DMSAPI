@@ -245,4 +245,51 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
 		.Include(x => x.AccessLogs)
 		.FirstOrDefaultAsync(x => x.Id == documentId && !x.IsDeleted && x.CompanyId == CompanyId);
 	}
+
+	public async Task<PagedResultDTO<Document>> GetPagedRejectedAsync(int page, int pageSize)
+	{
+		if (page <= 0) page = 1;
+		if (pageSize <= 0) pageSize = 10;
+
+		var query = _dbSet
+			.AsNoTracking()
+			.Include(x => x.Category)
+			.Include(x => x.Company)
+			.Include(x => x.CreatedByUser)
+			.Include(x => x.Approvals)
+				.ThenInclude(x => x.User)
+			.Where(x =>
+				!x.IsDeleted &&
+				x.CompanyId == CompanyId &&
+				(
+					x.StatusId == 3 ||
+					x.Approvals.Any(a => a.IsRejected)
+				)
+			);
+
+		var totalCount = await query.CountAsync();
+
+		var items = await query
+			.OrderByDescending(x => x.CreatedAt)
+			.Skip((page - 1) * pageSize)
+			.Take(pageSize)
+			.ToListAsync();
+
+		return new PagedResultDTO<Document>
+		{
+			TotalCount = totalCount,
+			Page = page,
+			PageSize = pageSize,
+			Items = items
+		};
+	}
+
+	public async Task<Document?> GetDocumentWithFileAsync(int documentId)
+	{
+		return await _dbSet
+			.Include(x => x.Files)
+			.Include(x => x.Category)
+			.Include(x => x.Company)
+			.FirstOrDefaultAsync(x => x.Id == documentId && !x.IsDeleted && x.CompanyId == CompanyId);
+	}
 }

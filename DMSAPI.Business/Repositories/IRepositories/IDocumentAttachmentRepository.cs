@@ -12,5 +12,6 @@ namespace DMSAPI.Business.Repositories.IRepositories
     {
         Task<List<DocumentAttachment>> GetByDocumentIdAsync(int documentId);
         Task<DocumentAttachment?> GetMainFileAsync(int documentId);
-    }
+		Task<DocumentAttachment?> GetByIdAsync(int attachmentId);
+	}
 }

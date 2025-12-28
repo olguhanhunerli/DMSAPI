@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Services
 {
-    public class DocumentAttachmentService : IDocumentAttachmentService
+	public class DocumentAttachmentService : IDocumentAttachmentService
     {
         private readonly IDocumentAttachmentRepository _documentAttachmentRepository;
         private readonly IDocumentRepository _documentRepository;
@@ -32,7 +32,28 @@ namespace DMSAPI.Services
              await _documentAttachmentRepository.AddAsync(attachment);    
         }
 
-        public async Task<List<DocumentAttachmentDTO>> GetByDocumentIdAsync(int documentId)
+		public async Task<DownloadFileResultDTO> DownloadAttachmentAsync(int attachmentId)
+		{
+			var attachment = await _documentAttachmentRepository.GetByIdAsync(attachmentId)
+			?? throw new Exception("Attachment not found");
+
+			if (string.IsNullOrWhiteSpace(attachment.FilePath))
+				throw new Exception("Attachment file path not found");
+
+			if (!File.Exists(attachment.FilePath))
+				throw new Exception("Attachment file does not exist");
+
+			var bytes = await File.ReadAllBytesAsync(attachment.FilePath);
+
+			return new DownloadFileResultDTO
+			{
+				FileBytes = bytes,
+				OriginalFileName = attachment.OriginalFileName,
+				ContentType = GetContentType(attachment.OriginalFileName)
+			};
+		}
+
+		public async Task<List<DocumentAttachmentDTO>> GetByDocumentIdAsync(int documentId)
         {
             var list = await _documentAttachmentRepository.GetByDocumentIdAsync(documentId);
             return _mapper.Map<List<DocumentAttachmentDTO>>(list);
@@ -77,5 +98,19 @@ namespace DMSAPI.Services
                 await _documentAttachmentRepository.AddAsync(attachment);
             }
         }
-    }
+		private static string GetContentType(string fileName)
+		{
+			var ext = Path.GetExtension(fileName).ToLowerInvariant();
+
+			return ext switch
+			{
+				".pdf" => "application/pdf",
+				".jpg" or ".jpeg" => "image/jpeg",
+				".png" => "image/png",
+				".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+				".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+				_ => "application/octet-stream"
+			};
+		}
+	}
 }

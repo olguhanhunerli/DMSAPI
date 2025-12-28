@@ -14,5 +14,6 @@ namespace DMSAPI.Services.IServices
         Task AddAsync(DocumentAttachment attachment);
         Task<List<DocumentAttachmentDTO>> GetByDocumentIdAsync(int documentId);
         Task UploadMultipleAsync(CreateDocumentAttachmentDTO dto, int userId);
-    }
+		Task<DownloadFileResultDTO> DownloadAttachmentAsync(int attachmentId);
+	}
 }

@@ -6,6 +6,7 @@ using DMSAPI.Entities.DTOs.DepartmentDTOs;
 using DMSAPI.Entities.DTOs.DocumentDTOs;
 using DMSAPI.Entities.Models;
 using DMSAPI.Services.IServices;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
@@ -211,7 +212,36 @@ namespace DMSAPI.Services
             }
         }
 
-        public async Task<IEnumerable<DocumentDTO>> GetAllDocumentsAsync()
+		public async Task<DownloadFileResultDTO> DownloadDocumentFileAsync(int documentId)
+		{
+			var document = await _documentRepository.GetDocumentWithFileAsync(documentId)
+				?? throw new Exception("Document not found");
+            var file = document.Files.First();
+            var bytes = await File.ReadAllBytesAsync(file.FilePath);
+			return new DownloadFileResultDTO
+			{
+				FileBytes = bytes,
+				OriginalFileName = file.OriginalFileName,
+				ContentType = GetContentType(file.FilePath)
+			};
+		}
+
+		public async Task<DownloadFileResultDTO> DownloadPdfAsync(int documentId)
+		{
+			var document = await _documentRepository.GetDocumentWithFileAsync(documentId)
+				?? throw new Exception("Document not found");
+            var file = document.Files.FirstOrDefault()
+                ?? throw new Exception("PDF Dosyası Bulunamadı");
+			var bytes = await File.ReadAllBytesAsync(file.PdfFilePath);
+			return new DownloadFileResultDTO
+			{
+				FileBytes = bytes,
+				OriginalFileName = Path.GetFileName(file.PdfFilePath), 
+				ContentType = "application/pdf"                        
+			};
+
+		}
+		public async Task<IEnumerable<DocumentDTO>> GetAllDocumentsAsync()
         {
             var docs = await _documentRepository.GetAllAsync();
             return _mapper.Map<IEnumerable<DocumentDTO>>(docs);
@@ -334,6 +364,21 @@ namespace DMSAPI.Services
 				Items = _mapper.Map<List<DocumentDTO>>(result.Items)
 			};
 		}
+
+		public async Task<PagedResultDTO<DocumentDTO>> GetRejectedDocumentsAsync(int page, int pageSize)
+		{
+			var pagedDocs = await _documentRepository
+		        .GetPagedRejectedAsync(page, pageSize);
+
+			return new PagedResultDTO<DocumentDTO>
+			{
+				TotalCount = pagedDocs.TotalCount,
+				Page = pagedDocs.Page,
+				PageSize = pagedDocs.PageSize,
+				Items = _mapper.Map<List<DocumentDTO>>(pagedDocs.Items)
+			};
+		}
+
 		private void ConvertToPdf(string inputFilePath, string outputFolder)
 		{
 			var process = new Process
@@ -352,5 +397,18 @@ namespace DMSAPI.Services
 			process.Start();
 			process.WaitForExit();
 		}
+		private static string GetContentType(string path)
+		{
+			var provider = new FileExtensionContentTypeProvider();
+
+			if (!provider.TryGetContentType(path, out var contentType))
+			{
+				contentType = "application/octet-stream";
+			}
+
+			return contentType;
+		}
+
+	
 	}
 }

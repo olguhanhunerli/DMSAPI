@@ -147,99 +147,125 @@ namespace DMSAPI.Services.Mapping
 
 
 			CreateMap<Document, DocumentDTO>()
-		.ForMember(d => d.Title, o => o.MapFrom(s => s.Title))
-		.ForMember(d => d.DocumentCode, o => o.MapFrom(s => s.DocumentCode))
-		.ForMember(d => d.VersionNumber, o => o.MapFrom(s => s.VersionNumber))
-		.ForMember(d => d.VersionNote, o => o.MapFrom(s => s.VersionNote))
-		.ForMember(d => d.DocumentType, o => o.MapFrom(s => s.DocumentType))
-		.ForMember(d => d.IsLatestVersion, o => o.MapFrom(s => s.IsLatestVersion))
+				.ForMember(d => d.Title, o => o.MapFrom(s => s.Title))
+				.ForMember(d => d.DocumentCode, o => o.MapFrom(s => s.DocumentCode))
+				.ForMember(d => d.VersionNumber, o => o.MapFrom(s => s.VersionNumber))
+				.ForMember(d => d.VersionNote, o => o.MapFrom(s => s.VersionNote))
+				.ForMember(d => d.DocumentType, o => o.MapFrom(s => s.DocumentType))
+				.ForMember(d => d.IsLatestVersion, o => o.MapFrom(s => s.IsLatestVersion))
+				.ForMember(d => d.RejectReason, o => o.MapFrom(s =>
+								s.Approvals
+									.Where(a => a.IsRejected)
+									.Select(a => a.RejectReason)
+									.FirstOrDefault()
+							))
 
-		.ForMember(d => d.CategoryName,
-			o => o.MapFrom(s => s.Category != null ? s.Category.Name : null))
+							.ForMember(d => d.RejectedBy, o => o.MapFrom(s =>
+								s.Approvals
+									.Where(a => a.IsRejected)
+									.Select(a => (int?)a.UserId)
+									.FirstOrDefault()
+							))
 
-		.ForMember(d => d.CompanyName,
-			o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
-		.ForMember(d => d.CompanyCode,
-			o => o.MapFrom(s => s.Company != null ? s.Company.CompanyCode : null))
+							.ForMember(d => d.RejectedByName, o => o.MapFrom(s =>
+								s.Approvals
+									.Where(a => a.IsRejected && a.User != null)
+									.Select(a => a.User.FirstName + " " + a.User.LastName)
+									.FirstOrDefault()
+							))
 
-		.ForMember(d => d.CreatedByName,
-			o => o.MapFrom(s =>
-				s.CreatedByUser != null
-					? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
-					: null))
+							.ForMember(d => d.RejectedAt, o => o.MapFrom(s =>
+								s.Approvals
+									.Where(a => a.IsRejected)
+									.Select(a => a.ActionAt)
+									.FirstOrDefault()
+							))
+				.ForMember(d => d.CategoryName,
+					o => o.MapFrom(s => s.Category != null ? s.Category.Name : null))
 
-		.ForMember(d => d.UpdatedByName,
-			o => o.MapFrom(s =>
-				s.UpdatedByUser != null
-					? s.UpdatedByUser.FirstName + " " + s.UpdatedByUser.LastName
-					: null))
+				.ForMember(d => d.CompanyName,
+					o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
+				.ForMember(d => d.CompanyCode,
+					o => o.MapFrom(s => s.Company != null ? s.Company.CompanyCode : null))
 
-		.ForMember(d => d.DeletedByName,
-			o => o.MapFrom(s =>
-				s.DeletedByUser != null
-					? s.DeletedByUser.FirstName + " " + s.DeletedByUser.LastName
-					: null))
-		.ForMember(d => d.Status, o => o.MapFrom(s =>
-			s.StatusId == 1 ? "Bekliyor" :
-			s.StatusId == 2 ? "Onaylandı" :
-			s.StatusId == 3 ? "Reddedildi" :
-			"Bilinmiyor"))
+				.ForMember(d => d.CreatedByName,
+					o => o.MapFrom(s =>
+						s.CreatedByUser != null
+							? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
+							: null))
 
-		.ForMember(d => d.CurrentApproverId, o => o.MapFrom(s =>
-			s.Approvals
-				.Where(a => !a.IsApproved && !a.IsRejected)
-				.Select(a => (int?)a.UserId)
-				.FirstOrDefault()))
+				.ForMember(d => d.UpdatedByName,
+					o => o.MapFrom(s =>
+						s.UpdatedByUser != null
+							? s.UpdatedByUser.FirstName + " " + s.UpdatedByUser.LastName
+							: null))
 
-		.ForMember(d => d.CurrentApproverName, o => o.MapFrom(s =>
-			s.Approvals
-				.Where(a => !a.IsApproved && !a.IsRejected && a.User != null)
-				.Select(a => a.User.FirstName + " " + a.User.LastName)
-				.FirstOrDefault()))
+				.ForMember(d => d.DeletedByName,
+					o => o.MapFrom(s =>
+						s.DeletedByUser != null
+							? s.DeletedByUser.FirstName + " " + s.DeletedByUser.LastName
+							: null))
+				.ForMember(d => d.Status, o => o.MapFrom(s =>
+					s.StatusId == 1 ? "Bekliyor" :
+					s.StatusId == 2 ? "Onaylandı" :
+					s.StatusId == 3 ? "Reddedildi" :
+					"Bilinmiyor"))
 
-		.ForMember(d => d.ApprovedBy, o => o.MapFrom(s =>
-			s.Approvals.Where(a => a.IsApproved)
-					   .Select(a => (int?)a.UserId)
-					   .FirstOrDefault()))
+				.ForMember(d => d.CurrentApproverId, o => o.MapFrom(s =>
+					s.Approvals
+						.Where(a => !a.IsApproved && !a.IsRejected)
+						.Select(a => (int?)a.UserId)
+						.FirstOrDefault()))
 
-		.ForMember(d => d.ApprovedByName, o => o.MapFrom(s =>
-			s.Approvals.Where(a => a.IsApproved && a.User != null)
-					   .Select(a => a.User.FirstName + " " + a.User.LastName)
-					   .FirstOrDefault()))
+				.ForMember(d => d.CurrentApproverName, o => o.MapFrom(s =>
+					s.Approvals
+						.Where(a => !a.IsApproved && !a.IsRejected && a.User != null)
+						.Select(a => a.User.FirstName + " " + a.User.LastName)
+						.FirstOrDefault()))
 
-		.ForMember(d => d.RejectedBy, o => o.MapFrom(s =>
-			s.Approvals.Where(a => a.IsRejected)
-					   .Select(a => (int?)a.UserId)
-					   .FirstOrDefault()))
+				.ForMember(d => d.ApprovedBy, o => o.MapFrom(s =>
+					s.Approvals.Where(a => a.IsApproved)
+							   .Select(a => (int?)a.UserId)
+							   .FirstOrDefault()))
 
-		.ForMember(d => d.RejectedByName, o => o.MapFrom(s =>
-			s.Approvals.Where(a => a.IsRejected && a.User != null)
-					   .Select(a => a.User.FirstName + " " + a.User.LastName)
-					   .FirstOrDefault()))
+				.ForMember(d => d.ApprovedByName, o => o.MapFrom(s =>
+					s.Approvals.Where(a => a.IsApproved && a.User != null)
+							   .Select(a => a.User.FirstName + " " + a.User.LastName)
+							   .FirstOrDefault()))
 
-		.ForMember(d => d.MainFile, o => o.MapFrom(s =>
-			s.Files.Select(f => new MainDocumentFileDTO
-			{
-				Id = f.Id,
-				FileName = f.FileName,
-				OriginalFileName = f.OriginalFileName,
-				FileExtension = f.FileExtension,
-				FileSize = f.FileSize,
-				FilePath = f.FilePath,
-				PdfFilePath = f.PdfFilePath
-			}).FirstOrDefault()))
+				.ForMember(d => d.RejectedBy, o => o.MapFrom(s =>
+					s.Approvals.Where(a => a.IsRejected)
+							   .Select(a => (int?)a.UserId)
+							   .FirstOrDefault()))
 
-		.ForMember(d => d.Attachments, o => o.MapFrom(s => s.Attachments))
-		.ForMember(d => d.Versions, o => o.MapFrom(s => s.Versions))
-		.ForMember(d => d.ApprovalHistories, o => o.MapFrom(s => s.ApprovalHistories))
-		.ForMember(d => d.AccessLogs, o => o.MapFrom(s => s.AccessLogs))
+				.ForMember(d => d.RejectedByName, o => o.MapFrom(s =>
+					s.Approvals.Where(a => a.IsRejected && a.User != null)
+							   .Select(a => a.User.FirstName + " " + a.User.LastName)
+							   .FirstOrDefault()))
 
-		.AfterMap((src, dest) =>
-		{
-			dest.AllowedRoleIds = SafeParseJson(src.AllowedRoles);
-			dest.AllowedDepartmentIds = SafeParseJson(src.AllowedDepartments);
-			dest.AllowedUserIds = SafeParseJson(src.AllowedUsers);
-		});
+				.ForMember(d => d.MainFile, o => o.MapFrom(s =>
+					s.Files.Select(f => new MainDocumentFileDTO
+					{
+						Id = f.Id,
+						FileName = f.FileName,
+						OriginalFileName = f.OriginalFileName,
+						FileExtension = f.FileExtension,
+						FileSize = f.FileSize,
+						FilePath = f.FilePath,
+						PdfFilePath = f.PdfFilePath
+					}).FirstOrDefault()))
+
+				.ForMember(d => d.Attachments, o => o.MapFrom(s => s.Attachments))
+				.ForMember(d => d.Versions, o => o.MapFrom(s => s.Versions))
+				.ForMember(d => d.ApprovalHistories, o => o.MapFrom(s => s.ApprovalHistories))
+				.ForMember(d => d.AccessLogs, o => o.MapFrom(s => s.AccessLogs))
+
+				.AfterMap((src, dest) =>
+				{
+					dest.AllowedRoleIds = SafeParseJson(src.AllowedRoles);
+					dest.AllowedDepartmentIds = SafeParseJson(src.AllowedDepartments);
+					dest.AllowedUserIds = SafeParseJson(src.AllowedUsers);
+				});
 
 
 

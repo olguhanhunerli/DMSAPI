@@ -15,5 +15,6 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
 		public long FileSize { get; set; }
 		public string FilePath { get; set; }
 		public string PdfFilePath { get; set; }
+		public string AttachmentFilePath { get; set; }
 	}
 }

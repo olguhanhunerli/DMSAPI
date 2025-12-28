@@ -17,7 +17,8 @@ namespace DMSAPI.Business.Repositories.IRepositories
         Task AddMainFileAsync(DocumentFile file);
 		Task<DocumentFile?> GetMainFileAsync(int documentId);
 		Task<Document?> GetDetailByIdAsync(int documentId);
+		Task<PagedResultDTO<Document>> GetPagedRejectedAsync(int page, int pageSize);
+		Task<Document?> GetDocumentWithFileAsync(int documentId);
 
-
-    }
+	}
 }

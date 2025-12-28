@@ -1,4 +1,5 @@
-﻿using DMSAPI.Entities.DTOs.DocumentDTOs;
+﻿using DMSAPI.Entities.DTOs.Common;
+using DMSAPI.Entities.DTOs.DocumentDTOs;
 using DMSAPI.Entities.Models;
 using DMSAPI.Presentation.Controller;
 using DMSAPI.Services;
@@ -129,6 +130,39 @@ public class DocumentController : BaseApiController
 
         return Ok(result);
     }
+	[HttpGet("rejected")]
+	public async Task<IActionResult> GetRejectedDocuments(
+		   [FromQuery] int page = 1,
+		   [FromQuery] int pageSize = 10)
+	{
+		var result = await _service
+			.GetRejectedDocumentsAsync(page, pageSize);
 
+		return Ok(result);
+	}
+	[AllowAnonymous]
+	[HttpGet("download/{documentId}")]
+	public async Task<IActionResult> Download(int documentId)
+	{
+		var result = await _service.DownloadDocumentFileAsync(documentId);
+
+		return File(
+			result.FileBytes,
+			result.ContentType,
+			result.OriginalFileName
+		);
+	}
+	[AllowAnonymous]
+	[HttpGet("download-pdf/{documentId}")]
+	public async Task<IActionResult> DownloadPdf(int documentId)
+	{
+		var result = await _service.DownloadPdfAsync(documentId);
+
+		return File(
+			result.FileBytes,
+			"application/pdf",
+			result.OriginalFileName
+		);
+	}
 
 }

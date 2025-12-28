@@ -26,5 +26,16 @@ namespace DMSAPI.Presentation.Controller
             await _documentAttachmentService.UploadMultipleAsync(dto, UserId);
             return Ok();
         }
-    }
+		[HttpGet("download/{attachmentId}")]
+		public async Task<IActionResult> Download(int attachmentId)
+		{
+			var result = await _documentAttachmentService.DownloadAttachmentAsync(attachmentId);
+
+			return File(
+				result.FileBytes,
+				result.ContentType,
+				result.OriginalFileName
+			);
+		}
+	}
 }

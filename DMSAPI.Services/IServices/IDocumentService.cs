@@ -16,6 +16,9 @@ namespace DMSAPI.Services.IServices
         Task<PagedResultDTO<DocumentDTO>> GetPageAsync(int page, int pageSize, int userId, int roleId, int departmentId);
         Task<List<DocumentDTO>> GetMyPendingApprovalsAsync(int userId);
         Task<PagedResultDTO<MyPendingDTO>> GetMyPendingApprovalsAsync(int page,int pageSize,int userId);
-		Task<DocumentDTO> GetDetailByIdAsync(int documentId);	
+		Task<DocumentDTO> GetDetailByIdAsync(int documentId);
+		Task<PagedResultDTO<DocumentDTO>> GetRejectedDocumentsAsync(int page, int pageSize);
+		Task<DownloadFileResultDTO> DownloadDocumentFileAsync(int documentId);
+		Task<DownloadFileResultDTO> DownloadPdfAsync(int documentId);
 	}
 }
