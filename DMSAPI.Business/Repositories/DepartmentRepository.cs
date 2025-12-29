@@ -111,5 +111,21 @@ namespace DMSAPI.Business.Repositories
                 Items = items
             };
         }
+
+        public async Task<List<Department>> GetByIdsAsync(List<int> ids)
+        {
+            if (ids == null || ids.Count == 0)
+                return new List<Department>();
+
+            return await _dbSet
+                .AsNoTracking()
+                .Where(d =>
+                    ids.Contains(d.Id) &&
+                    !d.IsDeleted &&
+                    d.CompanyId == CompanyId)
+                 .Include(d => d.Manager)
+				.Include(d => d.Company)
+                .ToListAsync();
+        }
     }
 }

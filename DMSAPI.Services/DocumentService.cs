@@ -4,6 +4,8 @@ using DMSAPI.Business.Repositories.IRepositories;
 using DMSAPI.Entities.DTOs.Common;
 using DMSAPI.Entities.DTOs.DepartmentDTOs;
 using DMSAPI.Entities.DTOs.DocumentDTOs;
+using DMSAPI.Entities.DTOs.RoleDTOs;
+using DMSAPI.Entities.DTOs.UserDTOs;
 using DMSAPI.Entities.Models;
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.StaticFiles;
@@ -12,6 +14,7 @@ using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
+using System.Text.Json;
 
 namespace DMSAPI.Services
 {
@@ -25,8 +28,8 @@ namespace DMSAPI.Services
         private readonly ICategoryServices _categoryServices;
         private readonly IDocumentAttachmentRepository _documentAttachmentRepository;
         private readonly IDocumentApprovalRepository _documentApprovalRepository;
-
-
+        private readonly IRoleRepository _roleRepository;
+        private readonly IDepartmentRepository _departmentRepository;
         public DocumentService(
             IDocumentRepository documentRepository,
             IMapper mapper,
@@ -35,7 +38,9 @@ namespace DMSAPI.Services
             IHostEnvironment env,
             ICategoryServices categoryServices,
             IDocumentAttachmentRepository documentAttachmentRepository,
-            IDocumentApprovalRepository documentApprovalRepository)
+            IDocumentApprovalRepository documentApprovalRepository,
+            IRoleRepository roleRepository,
+            IDepartmentRepository departmentRepository)
         {
             _documentRepository = documentRepository;
             _mapper = mapper;
@@ -45,6 +50,8 @@ namespace DMSAPI.Services
             _categoryServices = categoryServices;
             _documentAttachmentRepository = documentAttachmentRepository;
             _documentApprovalRepository = documentApprovalRepository;
+            _roleRepository = roleRepository;
+            _departmentRepository = departmentRepository;
         }
 
         public async Task<DocumentCreateResponseDTO> CreateDocumentAsync(DocumentCreateDTO dto, int userId)
@@ -81,7 +88,18 @@ namespace DMSAPI.Services
                     VersionNumber = 1,
                     StatusId = 1,
                     IsDeleted = false,
-                    VersionNote = dto.VersionNote
+                    VersionNote = dto.VersionNote,
+                    AllowedDepartments = dto.AllowedDepartmentIds != null
+                            ? JsonSerializer.Serialize(dto.AllowedDepartmentIds)
+                            : null,
+
+                                            AllowedRoles = dto.AllowedRoleIds != null
+                            ? JsonSerializer.Serialize(dto.AllowedRoleIds)
+                            : null,
+
+                                            AllowedUsers = dto.AllowedUserIds != null
+                            ? JsonSerializer.Serialize(dto.AllowedUserIds)
+                            : null,
                 };
 
                 await _documentRepository.AddAsync(document);
@@ -291,8 +309,12 @@ namespace DMSAPI.Services
 		{
 			var document = await _documentRepository.GetDetailByIdAsync(documentId)
 				?? throw new Exception("Document not found");
-			return _mapper.Map<DocumentDTO>(document);
-		}
+            var dto = _mapper.Map<DocumentDTO>(document);
+
+            await EnrichAllowedEntitiesAsync(new[] { dto });
+
+            return dto;
+        }
 
 		public async Task<List<DocumentDTO>> GetMyPendingApprovalsAsync(int userId)
         {
@@ -342,19 +364,20 @@ namespace DMSAPI.Services
         {
             var result = await _documentRepository
                             .GetPagedAuthorizedAsync(page, pageSize, userId, roleId, departmentId);
-
+            var items = _mapper.Map<List<DocumentDTO>>(result.Items);
+            await EnrichAllowedEntitiesAsync(items);
             return new PagedResultDTO<DocumentDTO>
             {
                 TotalCount = result.TotalCount,
                 Page = result.Page,
                 PageSize = result.PageSize,
-                Items = _mapper.Map<List<DocumentDTO>>(result.Items)
+                Items = items
             };
         }
 
-		public async Task<PagedResultDTO<DocumentDTO>> GetPagedApprovedAsync(int page, int pageSize)
+		public async Task<PagedResultDTO<DocumentDTO>> GetPagedApprovedAsync(int page, int pageSize, int userId, int roleId, int departmentId)
 		{
-			var result = await _documentRepository.GetPagedApprovedAsync(page, pageSize);
+			var result = await _documentRepository.GetPagedApprovedAsync(page, pageSize, userId, roleId,departmentId);
 
 			return new PagedResultDTO<DocumentDTO>
 			{
@@ -408,7 +431,85 @@ namespace DMSAPI.Services
 
 			return contentType;
 		}
+        private async Task EnrichAllowedEntitiesAsync(IEnumerable<DocumentDTO> documents)
+        {
+            if (documents == null || !documents.Any())
+                return;
 
-	
-	}
+            var roleIds = documents
+                .Where(d => d.AllowedRoleIds != null)
+                .SelectMany(d => d.AllowedRoleIds!)
+                .Distinct()
+                .ToList();
+
+            var departmentIds = documents
+                .Where(d => d.AllowedDepartmentIds != null)
+                .SelectMany(d => d.AllowedDepartmentIds!)
+                .Distinct()
+                .ToList();
+
+            var userIds = documents
+                .Where(d => d.AllowedUserIds != null)
+                .SelectMany(d => d.AllowedUserIds!)
+                .Distinct()
+                .ToList();
+
+            var roles = roleIds.Any()
+                ? await _roleRepository.GetByIdsAsync(roleIds)
+                : new List<Role>();
+
+            var departments = departmentIds.Any()
+                ? await _departmentRepository.GetByIdsAsync(departmentIds)
+                : new List<Department>();
+
+            var users = userIds.Any()
+                ? await _userRepository.GetByIdsAsync(userIds)
+                : new List<User>();
+
+            var roleDict = roles.ToDictionary(x => x.Id);
+            var departmentDict = departments.ToDictionary(x => x.Id);
+            var userDict = users.ToDictionary(x => x.Id);
+
+            foreach (var dto in documents)
+            {
+                if (dto.AllowedRoleIds?.Any() == true)
+                {
+                    dto.AllowedRoles = dto.AllowedRoleIds
+                        .Where(id => roleDict.ContainsKey(id))
+                        .Select(id => new RoleDTO
+                        {
+                            Id = roleDict[id].Id,
+                            Name = roleDict[id].Name
+                        })
+                        .ToList();
+                }
+
+                if (dto.AllowedDepartmentIds?.Any() == true)
+                {
+                    dto.AllowedDepartments = dto.AllowedDepartmentIds
+                        .Where(id => departmentDict.ContainsKey(id))
+                        .Select(id => new DepartmentDTO
+                        {
+                            Id = departmentDict[id].Id,
+                            Name = departmentDict[id].Name
+                        })
+                        .ToList();
+                }
+
+                if (dto.AllowedUserIds?.Any() == true)
+                {
+                    dto.AllowedUsers = dto.AllowedUserIds
+                        .Where(id => userDict.ContainsKey(id))
+                        .Select(id => new UserMiniDTO
+                        {
+                            Id = userDict[id].Id,
+                            FullName = $"{userDict[id].FirstName} {userDict[id].LastName}"
+                        })
+                        .ToList();
+                }
+            }
+        }
+
+
+    }
 }

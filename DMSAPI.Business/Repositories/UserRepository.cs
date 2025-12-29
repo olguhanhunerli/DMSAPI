@@ -53,7 +53,26 @@ namespace DMSAPI.Business.Repositories
 
 		}
 
-		public async Task<IEnumerable<User>> GetEmployeesByManagerIdAsync(int managerId)
+        public async Task<List<User>> GetByIdsAsync(List<int> ids)
+        {
+            if (ids == null || ids.Count == 0)
+                return new List<User>();
+
+            var query = _dbSet
+                .AsNoTracking()
+                 .Include(u => u.Department)
+				 .Include(u => u.Position)
+                .Where(u =>
+                    ids.Contains(u.Id) &&
+                    (u.IsDeleted == false || u.IsDeleted == null));
+
+            if (!IsGlobalAdmin)
+                query = query.Where(u => u.CompanyId == CompanyId);
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<IEnumerable<User>> GetEmployeesByManagerIdAsync(int managerId)
 		{
 			var query = _dbSet
 				.Where(u =>

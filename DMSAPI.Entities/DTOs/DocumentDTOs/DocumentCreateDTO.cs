@@ -23,9 +23,12 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
         public bool IsPublic { get; set; }
 
         public List<int> ApproverUserIds { get; set; } = new();
+        public List<int>? AllowedDepartmentIds { get; set; }
+        public List<int>? AllowedRoleIds { get; set; }
+        public List<int>? AllowedUserIds { get; set; }
 
-        public IFormFile? MainFile { get; set; }     // NEW → Ana dosya
-        public List<IFormFile>? Attachments { get; set; } = new(); // NEW → Ek dosyalar
+        public IFormFile? MainFile { get; set; }    
+        public List<IFormFile>? Attachments { get; set; } = new(); 
 
     }
 }

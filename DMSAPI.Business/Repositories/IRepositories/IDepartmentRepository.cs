@@ -14,5 +14,6 @@ namespace DMSAPI.Business.Repositories.IRepositories
 		Task<bool> IsNameExistAsync(string name, int companyId);
 		Task<bool> IsCodeExistAsync(string code, int companyId);
         Task<PagedResultDTO<Department>> GetPagedAsync(int page, int pageSize);
+        Task<List<Department>> GetByIdsAsync(List<int> ids);
     }
 }

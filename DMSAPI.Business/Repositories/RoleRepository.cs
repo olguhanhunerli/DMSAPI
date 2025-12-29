@@ -26,6 +26,19 @@ namespace DMSAPI.Business.Repositories
 				.ToListAsync();
 		}
 
+        public async Task<List<Role>> GetByIdsAsync(List<int> ids)
+        {
+            if (ids == null || ids.Count == 0)
+                return new List<Role>();
+
+            return await _dbSet
+                .AsNoTracking()
+                .Where(r =>
+                    ids.Contains(r.Id) &&
+                    r.CompanyId == CompanyId)
+                .ToListAsync();
+        }
+
         public async Task<PagedResultDTO<Role>> GetPagedAsync(int page, int pageSize)
         {
             if (page <= 0) page = 1;

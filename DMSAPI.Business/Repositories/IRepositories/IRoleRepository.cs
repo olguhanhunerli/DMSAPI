@@ -8,5 +8,6 @@ namespace DMSAPI.Business.Repositories.IRepositories
 	{
 		Task<IEnumerable<Role>> GetAllRolesAsync();
         Task<PagedResultDTO<Role>> GetPagedAsync(int page, int pageSize);
+        Task<List<Role>> GetByIdsAsync(List<int> ids);
     }
 }

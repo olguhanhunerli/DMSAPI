@@ -1,4 +1,7 @@
-﻿using DMSAPI.Entities.Models;
+﻿using DMSAPI.Entities.DTOs.DepartmentDTOs;
+using DMSAPI.Entities.DTOs.RoleDTOs;
+using DMSAPI.Entities.DTOs.UserDTOs;
+using DMSAPI.Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,8 +35,10 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
 		public List<int>? AllowedRoleIds { get; set; }
 		public List<int>? AllowedDepartmentIds { get; set; }
 		public List<int>? AllowedUserIds { get; set; }
-
-		public int StatusId { get; set; }
+        public List<RoleDTO> AllowedRoles { get; set; } = new();
+        public List<DepartmentDTO> AllowedDepartments { get; set; } = new();
+        public List<UserMiniDTO> AllowedUsers { get; set; } = new();
+        public int StatusId { get; set; }
 		public string? Status { get; set; }
 
 		public int? CurrentApproverId { get; set; }
@@ -53,8 +58,9 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
 
 		public List<DocumentApprovalHistoryDTO>? ApprovalHistories { get; set; }
 		public List<DocumentAccessLogDTO>? AccessLogs { get; set; }
+        
 
-		public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
 		public int CreatedByUserId { get; set; }
 		public string? CreatedByName { get; set; }
 

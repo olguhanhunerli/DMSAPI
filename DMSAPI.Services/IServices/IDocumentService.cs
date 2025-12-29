@@ -10,7 +10,7 @@ namespace DMSAPI.Services.IServices
 			DocumentCreateDTO documentCreateDTO,
 			int userIdFromToken
 		);
-		Task<PagedResultDTO<DocumentDTO>> GetPagedApprovedAsync(int page, int pageSize);
+		Task<PagedResultDTO<DocumentDTO>> GetPagedApprovedAsync(int page, int pageSize, int userId, int roleId, int departmentId);
 		Task<DocumentCreatePreviewDTO> GetCreatePreviewAsync(int categoryId, int userId);
         Task<IEnumerable<DocumentDTO>> GetAllDocumentsAsync();
         Task<PagedResultDTO<DocumentDTO>> GetPageAsync(int page, int pageSize, int userId, int roleId, int departmentId);

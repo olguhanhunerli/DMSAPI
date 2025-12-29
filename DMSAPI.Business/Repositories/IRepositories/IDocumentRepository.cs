@@ -6,7 +6,7 @@ namespace DMSAPI.Business.Repositories.IRepositories
 {
 	public interface IDocumentRepository : IGenericRepository<Document>
 	{
-		Task<PagedResultDTO<Document>> GetPagedApprovedAsync(int page, int pageSize);
+		Task<PagedResultDTO<Document>> GetPagedApprovedAsync(int page, int pageSize, int userId, int roleId, int departmentId);
 		
 		Task<int> GetNextDocumentNumberAsync(int companyId, int categoryId);
 		Task<bool> DocumentCodeExistingAsync(string documentCode);

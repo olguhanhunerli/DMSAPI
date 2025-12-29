@@ -18,5 +18,6 @@ namespace DMSAPI.Business.Repositories.IRepositories
 		Task<List<User>> GetApproverAsync(int companyId);
 
 		Task<(IEnumerable<User> Users, int TotalCount)> SearchUsersAsync(UserSearchDTO dto);
-	}
+        Task<List<User>> GetByIdsAsync(List<int> ids);
+    }
 }

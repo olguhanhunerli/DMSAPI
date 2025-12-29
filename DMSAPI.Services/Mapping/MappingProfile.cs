@@ -153,7 +153,10 @@ namespace DMSAPI.Services.Mapping
 				.ForMember(d => d.VersionNote, o => o.MapFrom(s => s.VersionNote))
 				.ForMember(d => d.DocumentType, o => o.MapFrom(s => s.DocumentType))
 				.ForMember(d => d.IsLatestVersion, o => o.MapFrom(s => s.IsLatestVersion))
-				.ForMember(d => d.RejectReason, o => o.MapFrom(s =>
+                .ForMember(d => d.AllowedDepartments, opt => opt.Ignore())
+				.ForMember(d => d.AllowedRoles, opt => opt.Ignore())
+				.ForMember(d => d.AllowedUsers, opt => opt.Ignore())
+                .ForMember(d => d.RejectReason, o => o.MapFrom(s =>
 								s.Approvals
 									.Where(a => a.IsRejected)
 									.Select(a => a.RejectReason)

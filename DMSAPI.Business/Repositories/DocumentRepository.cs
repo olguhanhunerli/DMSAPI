@@ -13,23 +13,57 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
     }
 
     private IQueryable<Document> ApplyAccessFilter(
-        IQueryable<Document> query,
-        int userId,
-        int roleId,
-        int departmentId)
+      IQueryable<Document> query,
+      int userId,
+      int roleId,
+      int departmentId)
     {
-		return query.Where(d =>
-		d.CompanyId == CompanyId &&  
-		(
-			d.IsPublic
-			|| d.CreatedByUserId == userId
-			|| (d.AllowedUsers != null && d.AllowedUsers.Contains($"\"{userId}\""))
-			|| (d.AllowedRoles != null && d.AllowedRoles.Contains($"\"{roleId}\""))
-			|| (d.AllowedDepartments != null && d.AllowedDepartments.Contains($"\"{departmentId}\""))
-		)
-	);
-	}
+        var dept = departmentId.ToString();
+        var role = roleId.ToString();
+        var user = userId.ToString();
 
+        return query.Where(d =>
+            d.CompanyId == CompanyId
+            &&
+            (
+                d.IsPublic
+
+                || (
+                    d.AllowedDepartments != null
+                    && d.AllowedDepartments != "[]"
+
+                    && (
+                        d.AllowedDepartments == $"[{dept}]"
+                        || d.AllowedDepartments.StartsWith($"[{dept},")
+                        || d.AllowedDepartments.Contains($",{dept},")
+                        || d.AllowedDepartments.EndsWith($",{dept}]")
+                    )
+
+                    && (
+                        d.AllowedRoles == null
+                        || d.AllowedRoles == "[]"
+                        || (
+                            d.AllowedRoles == $"[{role}]"
+                            || d.AllowedRoles.StartsWith($"[{role},")
+                            || d.AllowedRoles.Contains($",{role},")
+                            || d.AllowedRoles.EndsWith($",{role}]")
+                        )
+                    )
+
+                    && (
+                        d.AllowedUsers == null
+                        || d.AllowedUsers == "[]"
+                        || (
+                            d.AllowedUsers == $"[{user}]"
+                            || d.AllowedUsers.StartsWith($"[{user},")
+                            || d.AllowedUsers.Contains($",{user},")
+                            || d.AllowedUsers.EndsWith($",{user}]")
+                        )
+                    )
+                )
+            )
+        );
+    }
 
     public async Task<bool> DocumentCodeExistingAsync(string documentCode)
     {
@@ -64,47 +98,47 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
     }
 
 
-	public async Task<PagedResultDTO<Document>> GetPagedAuthorizedAsync(
-		int page,
-		int pageSize,
-		int userId,
-		int roleId,
-		int departmentId)
-	{
-		var query = _dbSet
-			 .AsNoTracking()
-			.Include(x => x.Category)
-			.Include(x => x.Company)
-			.Include(x => x.CreatedByUser)
-			.Include(x => x.Approvals)
-				.ThenInclude(a => a.User)
-			.Where(x => !x.IsDeleted && x.CompanyId == CompanyId && x.StatusId ==2);
+    public async Task<PagedResultDTO<Document>> GetPagedAuthorizedAsync(
+        int page,
+        int pageSize,
+        int userId,
+        int roleId,
+        int departmentId)
+    {
+        var query = _dbSet
+             .AsNoTracking()
+            .Include(x => x.Category)
+            .Include(x => x.Company)
+            .Include(x => x.CreatedByUser)
+            .Include(x => x.Approvals)
+                .ThenInclude(a => a.User)
+            .Where(x => !x.IsDeleted && x.CompanyId == CompanyId && x.StatusId == 2);
 
-		query = ApplyAccessFilter(query, userId, roleId, departmentId);
+        query = ApplyAccessFilter(query, userId, roleId, departmentId);
 
-		query = query
-			.Include(x => x.Approvals)
-				.ThenInclude(a => a.User);
+        query = query
+            .Include(x => x.Approvals)
+                .ThenInclude(a => a.User);
 
-		var totalCount = await query.CountAsync();
+        var totalCount = await query.CountAsync();
 
-		var items = await query
-			.OrderByDescending(x => x.CreatedAt)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync();
+        var items = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
 
-		return new PagedResultDTO<Document>
-		{
-			TotalCount = totalCount,
-			Page = page,
-			PageSize = pageSize,
-			Items = items
-		};
-	}
+        return new PagedResultDTO<Document>
+        {
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            Items = items
+        };
+    }
 
 
-	public async Task<bool> ValidateDocumentCodeAsync(
+    public async Task<bool> ValidateDocumentCodeAsync(
         string documentCode,
         int companyId,
         int categoryId)
@@ -141,155 +175,155 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
 
     public async Task<List<Document>> GetPendingDocumentIdsForUserAsync(List<int> documentIds)
     {
-		return await _dbSet
-				.Where(x =>
-					documentIds.Contains(x.Id)
-					&& !x.IsDeleted
-					&& x.CompanyId == CompanyId) 
-				.Include(x => x.Approvals)
-					.ThenInclude(a => a.User)
-				.OrderByDescending(x => x.CreatedAt)
-				.ToListAsync();
-	}
+        return await _dbSet
+                .Where(x =>
+                    documentIds.Contains(x.Id)
+                    && !x.IsDeleted
+                    && x.CompanyId == CompanyId)
+                .Include(x => x.Approvals)
+                    .ThenInclude(a => a.User)
+                .OrderByDescending(x => x.CreatedAt)
+                .ToListAsync();
+    }
 
-	public async Task<PagedResultDTO<Document>> GetPagedPendingByIdsAsync(
-	List<int> documentIds,
-	int page,
-	int pageSize)
-	{
-		var query = _dbSet
-			.AsNoTracking()
+    public async Task<PagedResultDTO<Document>> GetPagedPendingByIdsAsync(
+    List<int> documentIds,
+    int page,
+    int pageSize)
+    {
+        var query = _dbSet
+            .AsNoTracking()
 
-			.Where(x => documentIds.Contains(x.Id) && !x.IsDeleted && x.CompanyId == CompanyId)
-			.Include(x => x.Approvals)
-				.ThenInclude(a => a.User)
-			.Include(x => x.Attachments)
-			.Include(x => x.CreatedByUser)
-			.Include(x => x.Files)
-			.Include(x => x.Versions)
-			.Include(x => x.ApprovalHistories)
-			.Include(x => x.AccessLogs);
+            .Where(x => documentIds.Contains(x.Id) && !x.IsDeleted && x.CompanyId == CompanyId)
+            .Include(x => x.Approvals)
+                .ThenInclude(a => a.User)
+            .Include(x => x.Attachments)
+            .Include(x => x.CreatedByUser)
+            .Include(x => x.Files)
+            .Include(x => x.Versions)
+            .Include(x => x.ApprovalHistories)
+            .Include(x => x.AccessLogs);
 
-		var total = await query.CountAsync();
+        var total = await query.CountAsync();
 
-		var items = await query
-			.OrderByDescending(x => x.CreatedAt)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync();
+        var items = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
 
-		return new PagedResultDTO<Document>
-		{
-			TotalCount = total,
-			Page = page,
-			PageSize = pageSize,
-			Items = items
-		};
-	}
+        return new PagedResultDTO<Document>
+        {
+            TotalCount = total,
+            Page = page,
+            PageSize = pageSize,
+            Items = items
+        };
+    }
 
-	public async Task AddMainFileAsync(DocumentFile file)
+    public async Task AddMainFileAsync(DocumentFile file)
     {
         await _context.DocumentFiles.AddAsync(file);
         await _context.SaveChangesAsync();
     }
 
-	public async Task<DocumentFile?> GetMainFileAsync(int documentId)
-	{
-		return await _context.DocumentFiles
-		.Where(x => x.DocumentId == documentId)
-		.OrderByDescending(x => x.Id)
-		.FirstOrDefaultAsync();
-	}
+    public async Task<DocumentFile?> GetMainFileAsync(int documentId)
+    {
+        return await _context.DocumentFiles
+        .Where(x => x.DocumentId == documentId)
+        .OrderByDescending(x => x.Id)
+        .FirstOrDefaultAsync();
+    }
 
-	public async Task<PagedResultDTO<Document>> GetPagedApprovedAsync(int page, int pageSize)
-	{
-		var query = _dbSet
-			.AsNoTracking()
-			.Include(x => x.Category)
-			.Include(x => x.Company)
-			.Include(x => x.CreatedByUser)
-			.Where(x => !x.IsDeleted && x.StatusId == 2 && x.CompanyId == CompanyId);
+    public async Task<PagedResultDTO<Document>> GetPagedApprovedAsync(int page, int pageSize, int userId, int roleId, int departmentId)
+    {
+        var query = _dbSet
+            .AsNoTracking()
+            .Include(x => x.Category)
+            .Include(x => x.Company)
+            .Include(x => x.CreatedByUser)
+            .Where(x => !x.IsDeleted && x.StatusId == 2 && x.CompanyId == CompanyId);
+        query = ApplyAccessFilter(query, userId, roleId, departmentId);
+        var totalCount = await query.CountAsync();
 
-		var totalCount = await query.CountAsync();
+        var items = await query
+            .OrderByDescending(d => d.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
 
-		var items = await query
-			.OrderByDescending(d => d.CreatedAt)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync();
+        return new PagedResultDTO<Document>
+        {
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            Items = items
+        };
+    }
 
-		return new PagedResultDTO<Document>
-		{
-			TotalCount = totalCount,
-			Page = page,
-			PageSize = pageSize,
-			Items = items
-		};
-	}
+    public async Task<Document?> GetDetailByIdAsync(int documentId)
+    {
+        return await _dbSet
+        .AsNoTracking()
+        .Include(x => x.Category)
+        .Include(x => x.Company)
+        .Include(x => x.CreatedByUser)
+        .Include(x => x.UpdatedByUser)
+        .Include(x => x.DeletedByUser)
+        .Include(x => x.Approvals)
+            .ThenInclude(a => a.User)
+        .Include(x => x.Files)
+        .Include(x => x.Attachments)
+        .Include(x => x.Versions)
+        .Include(x => x.ApprovalHistories)
+        .Include(x => x.AccessLogs)
+        .FirstOrDefaultAsync(x => x.Id == documentId && !x.IsDeleted && x.CompanyId == CompanyId);
+    }
 
-	public async Task<Document?> GetDetailByIdAsync(int documentId)
-	{
-		return await _dbSet
-		.AsNoTracking()
-		.Include(x => x.Category)
-		.Include(x => x.Company)
-		.Include(x => x.CreatedByUser)
-		.Include(x => x.UpdatedByUser)
-		.Include(x => x.DeletedByUser)
-		.Include(x => x.Approvals)
-			.ThenInclude(a => a.User)
-		.Include(x => x.Files)
-		.Include(x => x.Attachments)
-		.Include(x => x.Versions)
-		.Include(x => x.ApprovalHistories)
-		.Include(x => x.AccessLogs)
-		.FirstOrDefaultAsync(x => x.Id == documentId && !x.IsDeleted && x.CompanyId == CompanyId);
-	}
+    public async Task<PagedResultDTO<Document>> GetPagedRejectedAsync(int page, int pageSize)
+    {
+        if (page <= 0) page = 1;
+        if (pageSize <= 0) pageSize = 10;
 
-	public async Task<PagedResultDTO<Document>> GetPagedRejectedAsync(int page, int pageSize)
-	{
-		if (page <= 0) page = 1;
-		if (pageSize <= 0) pageSize = 10;
+        var query = _dbSet
+            .AsNoTracking()
+            .Include(x => x.Category)
+            .Include(x => x.Company)
+            .Include(x => x.CreatedByUser)
+            .Include(x => x.Approvals)
+                .ThenInclude(x => x.User)
+            .Where(x =>
+                !x.IsDeleted &&
+                x.CompanyId == CompanyId &&
+                (
+                    x.StatusId == 3 ||
+                    x.Approvals.Any(a => a.IsRejected)
+                )
+            );
 
-		var query = _dbSet
-			.AsNoTracking()
-			.Include(x => x.Category)
-			.Include(x => x.Company)
-			.Include(x => x.CreatedByUser)
-			.Include(x => x.Approvals)
-				.ThenInclude(x => x.User)
-			.Where(x =>
-				!x.IsDeleted &&
-				x.CompanyId == CompanyId &&
-				(
-					x.StatusId == 3 ||
-					x.Approvals.Any(a => a.IsRejected)
-				)
-			);
+        var totalCount = await query.CountAsync();
 
-		var totalCount = await query.CountAsync();
+        var items = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
 
-		var items = await query
-			.OrderByDescending(x => x.CreatedAt)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync();
+        return new PagedResultDTO<Document>
+        {
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            Items = items
+        };
+    }
 
-		return new PagedResultDTO<Document>
-		{
-			TotalCount = totalCount,
-			Page = page,
-			PageSize = pageSize,
-			Items = items
-		};
-	}
-
-	public async Task<Document?> GetDocumentWithFileAsync(int documentId)
-	{
-		return await _dbSet
-			.Include(x => x.Files)
-			.Include(x => x.Category)
-			.Include(x => x.Company)
-			.FirstOrDefaultAsync(x => x.Id == documentId && !x.IsDeleted && x.CompanyId == CompanyId);
-	}
+    public async Task<Document?> GetDocumentWithFileAsync(int documentId)
+    {
+        return await _dbSet
+            .Include(x => x.Files)
+            .Include(x => x.Category)
+            .Include(x => x.Company)
+            .FirstOrDefaultAsync(x => x.Id == documentId && !x.IsDeleted && x.CompanyId == CompanyId);
+    }
 }

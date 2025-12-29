@@ -21,6 +21,16 @@ public class DocumentController : BaseApiController
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromForm] DocumentCreateDTO dto)
     {
+        Console.WriteLine("=== API CREATE ===");
+
+        if (dto.AllowedDepartmentIds == null)
+            Console.WriteLine("AllowedDepartmentIds = NULL");
+        else
+            Console.WriteLine("AllowedDepartmentIds = " +
+                string.Join(",", dto.AllowedDepartmentIds));
+
+        Console.WriteLine("Form Keys: " +
+            string.Join(",", Request.Form.Keys));
         try
         {
             if (Request.Form.Files.Any(f => f.Name == "MainFile"))
@@ -61,10 +71,11 @@ public class DocumentController : BaseApiController
     }
     [HttpGet("approved")]
     public async Task<IActionResult> GetApproved(
+    int roleId, int departmentId,
     int page = 1,
     int pageSize = 10)
     {
-        var result = await _service.GetPagedApprovedAsync(page, pageSize);
+        var result = await _service.GetPagedApprovedAsync(page, pageSize, UserId, roleId, departmentId);
         return Ok(result);
     }
     [HttpGet("{id}")]
