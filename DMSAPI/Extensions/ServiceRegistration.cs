@@ -63,6 +63,9 @@ public static class ServiceRegistration
         services.AddScoped<IDocumentAccessLogRepository, DocumentAccessLogRepository>();
         services.AddScoped<IDocumentAccessLogService, DocumentAccessLogService>();
 
+		services.AddScoped<IGlobalSearchRepository, GlobalSearchRepository>();
+		services.AddScoped<IGlobalSearchService, GlobalSearchService>();
+
         services.AddSingleton<ITokenService, TokenService>();
 
 		services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));

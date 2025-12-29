@@ -50,12 +50,10 @@ namespace DMSAPI.Business.Repositories
 						   .OrderBy(child => child.SortOrder))
 
 						   .ThenInclude(child => child.Documents) 
-
 					   .Include(c => c.Children)
 						   .ThenInclude(child => child.Children
 							   .Where(gc => !gc.IsDeleted))
-						   .ThenInclude(gc => gc.Documents) 
-
+						   .ThenInclude(gc => gc.Documents)
 					   .FirstOrDefaultAsync();
         }
 
@@ -141,5 +139,7 @@ namespace DMSAPI.Business.Repositories
 				.OrderBy(c => c.SortOrder)
 				.ToListAsync();
         }
-    }
+
+	
+	}
 }

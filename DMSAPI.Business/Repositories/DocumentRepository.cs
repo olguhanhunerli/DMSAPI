@@ -38,28 +38,6 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
                         || d.AllowedDepartments.Contains($",{dept},")
                         || d.AllowedDepartments.EndsWith($",{dept}]")
                     )
-
-                    && (
-                        d.AllowedRoles == null
-                        || d.AllowedRoles == "[]"
-                        || (
-                            d.AllowedRoles == $"[{role}]"
-                            || d.AllowedRoles.StartsWith($"[{role},")
-                            || d.AllowedRoles.Contains($",{role},")
-                            || d.AllowedRoles.EndsWith($",{role}]")
-                        )
-                    )
-
-                    && (
-                        d.AllowedUsers == null
-                        || d.AllowedUsers == "[]"
-                        || (
-                            d.AllowedUsers == $"[{user}]"
-                            || d.AllowedUsers.StartsWith($"[{user},")
-                            || d.AllowedUsers.Contains($",{user},")
-                            || d.AllowedUsers.EndsWith($",{user}]")
-                        )
-                    )
                 )
             )
         );
@@ -326,4 +304,31 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
             .Include(x => x.Company)
             .FirstOrDefaultAsync(x => x.Id == documentId && !x.IsDeleted && x.CompanyId == CompanyId);
     }
+
+	public async Task<PagedResultDTO<Document>> GetPagedByCategoryAsync(int page, int pageSize, int? categoryId, int roleId, int userId, int departmentId)
+	{
+		var query = _dbSet
+            .Include(x => x.Category)
+            .Include(x => x.Company)
+			.Include(x => x.CreatedByUser)
+			.Where(x => !x.IsDeleted && x.CompanyId == CompanyId && x.StatusId == 2);
+		if (categoryId.HasValue)
+		{
+			query = query.Where(x => x.CategoryId == categoryId.Value);
+		}
+		query = ApplyAccessFilter(query, userId, roleId, departmentId);
+		var totalCount = await query.CountAsync();
+		var items = await query
+			.OrderByDescending(x => x.CreatedAt)
+			.Skip((page - 1) * pageSize)
+			.Take(pageSize)
+			.ToListAsync();
+		return new PagedResultDTO<Document>
+		{
+			TotalCount = totalCount,
+			Page = page,
+			PageSize = pageSize,
+			Items = items
+		};
+	}
 }

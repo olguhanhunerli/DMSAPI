@@ -18,5 +18,5 @@ namespace DMSAPI.Business.Repositories.IRepositories
         Task<PagedResultDTO<Category>> GetPagedAsync(int page, int pageSize);
         Task<List<Category>> GetCategoryTreeWithDocumentsAsync(int companyId);
 
-    }
+	}
 }

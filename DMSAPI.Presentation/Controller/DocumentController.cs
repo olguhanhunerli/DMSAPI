@@ -175,5 +175,19 @@ public class DocumentController : BaseApiController
 			result.OriginalFileName
 		);
 	}
+    [AllowAnonymous]
+	[HttpGet("get-paged-by-category")]
+	public async Task<IActionResult> GetPagedByCategory(
+		int categoryId,
+		[FromQuery] int page = 1,
+		[FromQuery] int pageSize = 10)
+	{
+		var userId = UserId;
+		var roleId = RoleId;
+		var departmentId = DepartmentId;
+		var result = await _service
+			.GetPagedByCategoryAsync(page, pageSize, categoryId, userId, roleId, departmentId);
+		return Ok(result);
+	}
 
 }

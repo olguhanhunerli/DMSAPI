@@ -20,5 +20,6 @@ namespace DMSAPI.Services.IServices
 		Task<PagedResultDTO<DocumentDTO>> GetRejectedDocumentsAsync(int page, int pageSize);
 		Task<DownloadFileResultDTO> DownloadDocumentFileAsync(int documentId);
 		Task<DownloadFileResultDTO> DownloadPdfAsync(int documentId);
+		Task<PagedResultDTO<DocumentDTO>> GetPagedByCategoryAsync(int page, int pageSize, int categoryId, int userId, int roleId, int departmentId);
 	}
 }

@@ -510,6 +510,16 @@ namespace DMSAPI.Services
             }
         }
 
-
-    }
+		public async Task<PagedResultDTO<DocumentDTO>> GetPagedByCategoryAsync(int page, int pageSize, int categoryId, int userId, int roleId, int departmentId)
+		{
+			var result = await _documentRepository.GetPagedByCategoryAsync(page, pageSize, categoryId, userId, roleId, departmentId);
+			return new PagedResultDTO<DocumentDTO>
+			{
+				TotalCount = result.TotalCount,
+				Page = result.Page,
+				PageSize = result.PageSize,
+				Items = _mapper.Map<List<DocumentDTO>>(result.Items)
+			};
+		}
+	}
 }
