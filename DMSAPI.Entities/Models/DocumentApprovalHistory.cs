@@ -19,6 +19,7 @@ namespace DMSAPI.Entities.Models
         public string? ActionType { get; set; }  
 
         public int? ActionByUserId { get; set; }
+        public User ActionByUser { get; set; }
 
         public DateTime? ActionAt { get; set; }
 

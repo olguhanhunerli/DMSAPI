@@ -7,13 +7,16 @@ public class DocumentApprovalService : IDocumentApprovalService
 {
     private readonly IDocumentRepository _documentRepository;
     private readonly IDocumentApprovalRepository _documentApprovalRepository;
+    private readonly IDocumentApprovalHistoryService _documentApprovalHistoryService;
 
     public DocumentApprovalService(
         IDocumentRepository documentRepository,
-        IDocumentApprovalRepository documentApprovalRepository)
+        IDocumentApprovalRepository documentApprovalRepository,
+        IDocumentApprovalHistoryService documentApprovalHistoryService)
     {
         _documentRepository = documentRepository;
         _documentApprovalRepository = documentApprovalRepository;
+        _documentApprovalHistoryService = documentApprovalHistoryService;
     }
 
     public async Task ApproveAsync(int documentId, int userId)
@@ -31,6 +34,14 @@ public class DocumentApprovalService : IDocumentApprovalService
         currentApproval.ActionAt = DateTime.UtcNow;
 
         await _documentApprovalRepository.UpdateAsync(currentApproval);
+        await _documentApprovalHistoryService.AddAsync(new DocumentApprovalHistory
+        {
+            DocumentId = documentId,
+            ActionType = "APPROVED",
+            ActionByUserId = userId,
+            ActionAt = DateTime.UtcNow,
+            ActionNote = "Onay verildi"
+        });
 
         var nextApproval =
             await _documentApprovalRepository.GetNextPendingApprovalAsync(documentId);
@@ -47,7 +58,7 @@ public class DocumentApprovalService : IDocumentApprovalService
         {
             document.StatusId = 1; 
         }
-
+        
         await _documentRepository.UpdateAsync(document);
     }
 
@@ -112,5 +123,13 @@ public class DocumentApprovalService : IDocumentApprovalService
         document.StatusId = 3;
 
         await _documentRepository.UpdateAsync(document);
+        await _documentApprovalHistoryService.AddAsync(new DocumentApprovalHistory
+        {
+            DocumentId = documentId,
+            ActionType = "REJECTED",
+            ActionByUserId = userId,
+            ActionAt = DateTime.UtcNow,
+            ActionNote = reason
+        });
     }
 }

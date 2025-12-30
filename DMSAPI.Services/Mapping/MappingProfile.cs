@@ -8,9 +8,9 @@ using DMSAPI.Entities.DTOs.PositionDTOs;
 using DMSAPI.Entities.DTOs.RoleDTOs;
 using DMSAPI.Entities.DTOs.UserDTOs;
 using DMSAPI.Entities.Models;
-using System.Text.Json;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace DMSAPI.Services.Mapping
 {
@@ -129,8 +129,22 @@ namespace DMSAPI.Services.Mapping
 			CreateMap<DocumentFile, MainDocumentFileDTO>();
 			CreateMap<DocumentAttachment, DocumentAttachmentDTO>();
 			CreateMap<DocumentVersion, DocumentVersionDTO>();
-			CreateMap<DocumentApprovalHistory, DocumentApprovalHistoryDTO>();
-			CreateMap<DocumentAccessLog, DocumentAccessLogDTO>();
+			CreateMap<DocumentApprovalHistory, DocumentApprovalHistoryDTO>()
+                .ForMember(d => d.ActionByName,
+				o => o.MapFrom(s =>
+					s.ActionByUser != null
+						? s.ActionByUser.FirstName + " " + s.ActionByUser.LastName
+						: "-"))
+
+			.ForMember(d => d.ActionDisplayName,
+				o => o.MapFrom(s => s.ActionType))
+
+			.ForMember(d => d.ActionTimeText,
+				o => o.MapFrom(s =>
+					s.ActionAt.HasValue
+						? s.ActionAt.Value.ToString("dd.MM.yyyy HH:mm")
+						: "-")); 
+            CreateMap<DocumentAccessLog, DocumentAccessLogDTO>();
 
 
 			CreateMap<Document, DocumentCreateResponseDTO>()

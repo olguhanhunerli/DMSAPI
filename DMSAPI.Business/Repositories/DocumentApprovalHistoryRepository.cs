@@ -18,9 +18,10 @@ namespace DMSAPI.Business.Repositories
         public async Task<List<DocumentApprovalHistory>> GetByDocumentIdAsync(int documentId)
         {
             return await _dbSet
-           .Where(x => x.DocumentId == documentId)
-           .OrderBy(x => x.ActionAt)
-           .ToListAsync();
+               .Include(x => x.ActionByUser)
+               .Where(x => x.DocumentId == documentId)
+               .OrderBy(x => x.ActionAt)
+               .ToListAsync();
         }
     }
 }

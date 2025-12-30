@@ -30,6 +30,7 @@ namespace DMSAPI.Services
         private readonly IDocumentApprovalRepository _documentApprovalRepository;
         private readonly IRoleRepository _roleRepository;
         private readonly IDepartmentRepository _departmentRepository;
+        private readonly IDocumentApprovalHistoryRepository _documentApprovalHistoryRepository;
         public DocumentService(
             IDocumentRepository documentRepository,
             IMapper mapper,
@@ -40,7 +41,8 @@ namespace DMSAPI.Services
             IDocumentAttachmentRepository documentAttachmentRepository,
             IDocumentApprovalRepository documentApprovalRepository,
             IRoleRepository roleRepository,
-            IDepartmentRepository departmentRepository)
+            IDepartmentRepository departmentRepository,
+            IDocumentApprovalHistoryRepository documentApprovalHistoryRepository)
         {
             _documentRepository = documentRepository;
             _mapper = mapper;
@@ -52,6 +54,7 @@ namespace DMSAPI.Services
             _documentApprovalRepository = documentApprovalRepository;
             _roleRepository = roleRepository;
             _departmentRepository = departmentRepository;
+            _documentApprovalHistoryRepository = documentApprovalHistoryRepository;
         }
 
         public async Task<DocumentCreateResponseDTO> CreateDocumentAsync(DocumentCreateDTO dto, int userId)
@@ -103,6 +106,15 @@ namespace DMSAPI.Services
                 };
 
                 await _documentRepository.AddAsync(document);
+                await _documentApprovalHistoryRepository.AddAsync(new DocumentApprovalHistory
+                {
+                    DocumentId = document.Id,
+                    ActionType = "Created",
+                    ActionByUserId = userId,
+                    ActionAt = DateTime.UtcNow,
+                    ActionNote = "Document created"
+                });
+
 
                 if (dto.MainFile != null)
                 {
@@ -204,6 +216,14 @@ namespace DMSAPI.Services
                         });
                     }
                 }
+                await _documentApprovalHistoryRepository.AddAsync(new DocumentApprovalHistory
+                {
+                    DocumentId = document.Id,
+                    ActionType = "SENT_FOR_APPROVAL",
+                    ActionByUserId = userId,
+                    ActionAt = DateTime.UtcNow,
+                    ActionNote = "Doküman Onay Sürecine Gönderildi"
+                });
 
                 await trx.CommitAsync();
 
