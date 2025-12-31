@@ -1,4 +1,6 @@
-﻿using DMSAPI.Entities.Models;
+﻿using DMSAPI.Entities.DTOs.Common;
+using DMSAPI.Entities.DTOs.DocumentDTOs;
+using DMSAPI.Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +12,6 @@ namespace DMSAPI.Services.IServices
     public interface IDocumentAccessLogService
     {
         Task AddAsync(DocumentAccessLog log);
+        Task<PagedResultDTO<DocumentAccessLogDTO>> GetAllAsync(DocumentAccessLogFilterDTO queryDto);
     }
 }

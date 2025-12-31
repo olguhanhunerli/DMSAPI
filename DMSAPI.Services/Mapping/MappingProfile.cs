@@ -143,11 +143,20 @@ namespace DMSAPI.Services.Mapping
 				o => o.MapFrom(s =>
 					s.ActionAt.HasValue
 						? s.ActionAt.Value.ToString("dd.MM.yyyy HH:mm")
-						: "-")); 
-            CreateMap<DocumentAccessLog, DocumentAccessLogDTO>();
+						: "-"));
+            CreateMap<DocumentAccessLog, DocumentAccessLogDTO>()
+					 .ForMember(d => d.UserName,
+						 o => o.MapFrom(x =>
+							 x.User != null
+								 ? x.User.FirstName + " " + x.User.LastName
+								 : "-"))
+					 .ForMember(d => d.AccessTimeText,
+						 o => o.MapFrom(x =>
+							 x.AccessAt.HasValue
+								 ? x.AccessAt.Value.ToString("dd.MM.yyyy HH:mm")
+								 : "-"));
 
-
-			CreateMap<Document, DocumentCreateResponseDTO>()
+            CreateMap<Document, DocumentCreateResponseDTO>()
 				.ForMember(d => d.FileName, o => o.Ignore())
 				.ForMember(d => d.OriginalFileName, o => o.Ignore())
 				.ForMember(d => d.FileSize, o => o.Ignore())

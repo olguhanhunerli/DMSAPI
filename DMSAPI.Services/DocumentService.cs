@@ -31,6 +31,7 @@ namespace DMSAPI.Services
         private readonly IRoleRepository _roleRepository;
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IDocumentApprovalHistoryRepository _documentApprovalHistoryRepository;
+
         public DocumentService(
             IDocumentRepository documentRepository,
             IMapper mapper,
@@ -112,7 +113,7 @@ namespace DMSAPI.Services
                     ActionType = "Created",
                     ActionByUserId = userId,
                     ActionAt = DateTime.UtcNow,
-                    ActionNote = "Document created"
+                    ActionNote = "Doküman Oluşturuldu"
                 });
 
 

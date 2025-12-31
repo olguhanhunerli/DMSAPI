@@ -6,16 +6,19 @@ using DMSAPI.Services;
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection.Metadata;
 
 [ApiController]
 [Route("api/[controller]")]
 public class DocumentController : BaseApiController
 {
     private readonly IDocumentService _service;
+    private readonly IDocumentAccessLogService _documentAccessLogService;
 
-    public DocumentController(IDocumentService service)
+    public DocumentController(IDocumentService service, IDocumentAccessLogService documentAccessLogService)
     {
         _service = service;
+        _documentAccessLogService = documentAccessLogService;
     }
 
     [HttpPost("create")]
@@ -31,6 +34,7 @@ public class DocumentController : BaseApiController
 
         Console.WriteLine("Form Keys: " +
             string.Join(",", Request.Form.Keys));
+       
         try
         {
             if (Request.Form.Files.Any(f => f.Name == "MainFile"))
@@ -42,6 +46,7 @@ public class DocumentController : BaseApiController
 
             var result = await _service.CreateDocumentAsync(dto, UserId);
             return Ok(result);
+           
         }
         catch (Exception ex)
         {
@@ -51,6 +56,7 @@ public class DocumentController : BaseApiController
                 detail = ex.InnerException?.Message
             });
         }
+
     }
     [HttpGet("get-all")]
     public async Task<IActionResult> GetAll()
@@ -86,7 +92,15 @@ public class DocumentController : BaseApiController
 		{
 			return NotFound(new { message = "Document not found." });
 		}
-		return Ok(document);
+        await _documentAccessLogService.AddAsync(new DocumentAccessLog
+        {
+            DocumentId = id,
+            UserId = UserId,
+            AccessType = "ORIGINAL DOCUMENT VIEW",
+            AccessAt = DateTime.UtcNow,
+            IpAddress = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString()
+        });
+        return Ok(document);
 	}
 	[HttpGet("{id}/pdf")]
 	public async Task<IActionResult> GetDocumentPdf(int id)
@@ -98,16 +112,23 @@ public class DocumentController : BaseApiController
 
 		if (string.IsNullOrWhiteSpace(document.MainFile.PdfFilePath))
 			return NotFound("PDF not found");
-
-		var fullPath = Path.Combine(
+        await _documentAccessLogService.AddAsync(new DocumentAccessLog
+        {
+            DocumentId = id,
+            UserId = UserId,
+            AccessType = "PDF DOCUMENT VIEW",
+            AccessAt = DateTime.UtcNow,
+            IpAddress = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString()
+        });
+        var fullPath = Path.Combine(
 			Directory.GetCurrentDirectory(),
 			document.MainFile.PdfFilePath.Replace("/", Path.DirectorySeparatorChar.ToString())
 		);
 
 		if (!System.IO.File.Exists(fullPath))
 			return NotFound("PDF file missing on disk");
-
-		return PhysicalFile(
+        
+        return PhysicalFile(
 			fullPath,
 			"application/pdf",
 			enableRangeProcessing: true
@@ -156,8 +177,15 @@ public class DocumentController : BaseApiController
 	public async Task<IActionResult> Download(int documentId)
 	{
 		var result = await _service.DownloadDocumentFileAsync(documentId);
-
-		return File(
+        await _documentAccessLogService.AddAsync(new DocumentAccessLog
+        {
+            DocumentId = documentId,
+            UserId = UserId,
+            AccessType = "Original Document Download",
+            AccessAt = DateTime.UtcNow,
+            IpAddress = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString()
+        });
+        return File(
 			result.FileBytes,
 			result.ContentType,
 			result.OriginalFileName
@@ -168,8 +196,15 @@ public class DocumentController : BaseApiController
 	public async Task<IActionResult> DownloadPdf(int documentId)
 	{
 		var result = await _service.DownloadPdfAsync(documentId);
-
-		return File(
+        await _documentAccessLogService.AddAsync(new DocumentAccessLog
+        {
+            DocumentId = documentId,
+            UserId = UserId,
+            AccessType = "PDF Document Download",
+            AccessAt = DateTime.UtcNow,
+            IpAddress = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString()
+        });
+        return File(
 			result.FileBytes,
 			"application/pdf",
 			result.OriginalFileName

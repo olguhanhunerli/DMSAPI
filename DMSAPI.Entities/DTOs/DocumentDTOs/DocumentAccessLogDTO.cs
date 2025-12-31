@@ -9,10 +9,14 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
 	public class DocumentAccessLogDTO
 	{
 		public int Id { get; set; }
-		public string? UserName { get; set; }
+        public int DocumentId { get; set; }
+        public string DocumentCode { get; set; }
+        public int UserId { get; set; }
+        public string? UserName { get; set; }
 		public string? AccessType { get; set; }
 		public string? IpAddress { get; set; }
 		public string? AccessTypeDisplayName { get; set; }
 		public string? AccessTimeText { get; set; }
-	}
+        public DateTime? AccessAt { get; set; }
+    }
 }

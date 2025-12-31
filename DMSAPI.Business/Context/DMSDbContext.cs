@@ -35,9 +35,6 @@ namespace DMSAPI.Business.Context
 			modelBuilder.Entity<Company>()
 					.HasKey(c => c.Id);
 
-			// ============================
-			// ROLE
-			// ============================
 			modelBuilder.Entity<Role>()
 				.HasOne(r => r.CreatedByUser)
 				.WithMany()
@@ -50,18 +47,12 @@ namespace DMSAPI.Business.Context
 				.HasForeignKey(r => r.UploadedBy)
 				.OnDelete(DeleteBehavior.Restrict);
 
-			// ============================
-			// PERMISSION (User → Permission Many)
-			// ============================
 			modelBuilder.Entity<Permission>()
 				.HasOne(p => p.User)
 				.WithMany(u => u.PermissionsList)
 				.HasForeignKey(p => p.UserId)
 				.OnDelete(DeleteBehavior.Cascade);
 
-			// ============================
-			// USER
-			// ============================
 			modelBuilder.Entity<User>()
 				.HasOne(u => u.Manager)
 				.WithMany()
@@ -91,15 +82,9 @@ namespace DMSAPI.Business.Context
 				.HasForeignKey(u => u.RoleId)
 				.OnDelete(DeleteBehavior.Restrict);
 
-			// ============================
-			// REFRESH TOKEN
-			// ============================
 			modelBuilder.Entity<RefreshToken>()
 				.HasKey(r => r.Id);
 
-			// ============================
-			// POSITION
-			// ============================
 			modelBuilder.Entity<Position>()
 				.HasOne(p => p.CreatedByUser)
 				.WithMany()
@@ -111,11 +96,7 @@ namespace DMSAPI.Business.Context
 				.WithMany()
 				.HasForeignKey(p => p.UploadedBy)
 				.OnDelete(DeleteBehavior.Restrict);
-
-			// ============================
-			// DEPARTMENT
-			// ============================
-			modelBuilder.Entity<Department>()
+            modelBuilder.Entity<Department>()
 				.HasOne(d => d.Manager)
 				.WithMany()
 				.HasForeignKey(d => d.ManagerId)
@@ -133,9 +114,6 @@ namespace DMSAPI.Business.Context
 				.HasForeignKey(d => d.UploadedBy)
 				.OnDelete(DeleteBehavior.Restrict);
 
-			// ============================
-			// CATEGORY
-			// ============================
 			modelBuilder.Entity<Category>(entity =>
 			{
 				entity.HasKey(e => e.Id);
@@ -182,7 +160,6 @@ namespace DMSAPI.Business.Context
 				entity.HasIndex(d => d.IsDeleted);
 				entity.HasIndex(d => d.IsArchived);
 
-				// 🔥 USER RELATIONS
 				entity.HasOne(d => d.CreatedByUser)
 					.WithMany()
 					.HasForeignKey(d => d.CreatedByUserId)
@@ -198,48 +175,34 @@ namespace DMSAPI.Business.Context
 					.HasForeignKey(d => d.DeletedByUserId)
 					.OnDelete(DeleteBehavior.Restrict);
 
-				// 🔥 CATEGORY
 				entity.HasOne(d => d.Category)
 					.WithMany(c => c.Documents)
 					.HasForeignKey(d => d.CategoryId)
 					.OnDelete(DeleteBehavior.Restrict);
 
-				// 🔥 COMPANY
 				entity.HasOne(d => d.Company)
 					.WithMany()
 					.HasForeignKey(d => d.CompanyId)
 					.OnDelete(DeleteBehavior.Restrict);
 			});
-			// ============================
-			// DOCUMENT ATTACHMENT
-			// ============================
 			modelBuilder.Entity<DocumentAttachment>()
 				.HasOne(x => x.Document)
 				.WithMany(d => d.Attachments)
 				.HasForeignKey(x => x.DocumentId)
 				.OnDelete(DeleteBehavior.Cascade);
 
-			// ============================
-			// DOCUMENT VERSION
-			// ============================
 			modelBuilder.Entity<DocumentVersion>()
 				.HasOne(x => x.Document)
 				.WithMany(d => d.Versions)
 				.HasForeignKey(x => x.DocumentId)
 				.OnDelete(DeleteBehavior.Cascade);
 
-			// ============================
-			// DOCUMENT FILE
-			// ============================
 			modelBuilder.Entity<DocumentFile>()
 				.HasOne(x => x.Document)
 				.WithMany(d => d.Files)
 				.HasForeignKey(x => x.DocumentId)
 				.OnDelete(DeleteBehavior.Cascade);
 
-			// ============================
-			// DOCUMENT APPROVAL
-			// ============================
 			modelBuilder.Entity<DocumentApproval>(entity =>
 			{
 				entity.HasIndex(x => new { x.DocumentId, x.UserId, x.ApprovalLevel })
@@ -256,23 +219,22 @@ namespace DMSAPI.Business.Context
 					  .OnDelete(DeleteBehavior.Restrict);
 			});
 
-			// ============================
-			// DOCUMENT APPROVAL HISTORY
-			// ============================
 			modelBuilder.Entity<DocumentApprovalHistory>()
 				.HasOne(x => x.Document)
 				.WithMany(d => d.ApprovalHistories)
 				.HasForeignKey(x => x.DocumentId)
 				.OnDelete(DeleteBehavior.Cascade);
 
-			// ============================
-			// DOCUMENT ACCESS LOGS
-			// ============================
 			modelBuilder.Entity<DocumentAccessLog>()
 				.HasOne(x => x.Document)
 				.WithMany(d => d.AccessLogs)
 				.HasForeignKey(x => x.DocumentId)
 				.OnDelete(DeleteBehavior.Cascade);
-		}
+            modelBuilder.Entity<DocumentAccessLog>()
+				.HasOne(x => x.User)
+				.WithMany()
+				.HasForeignKey(x => x.UserId)
+				.OnDelete(DeleteBehavior.NoAction);
+        }
     }
 }

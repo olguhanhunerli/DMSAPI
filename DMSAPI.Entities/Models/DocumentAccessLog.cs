@@ -17,6 +17,7 @@ namespace DMSAPI.Entities.Models
 
         [Required]
         public int UserId { get; set; }
+        public User User { get; set; }
 
         [StringLength(50)]
         public string? AccessType { get; set; }  
