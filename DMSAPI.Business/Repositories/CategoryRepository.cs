@@ -140,6 +140,12 @@ namespace DMSAPI.Business.Repositories
 				.ToListAsync();
         }
 
-	
+		public async Task<Category> GetRootCategoryAsync(int categoryId)
+		{
+			var category = await _dbSet.FirstOrDefaultAsync(x => x.Id == categoryId);
+			while (category.ParentId != null)
+				category = await _dbSet.FirstOrDefaultAsync(x => x.Id == category.ParentId);
+			return category;
+		}
 	}
 }

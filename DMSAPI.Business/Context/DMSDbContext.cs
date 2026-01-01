@@ -28,8 +28,9 @@ namespace DMSAPI.Business.Context
         public DbSet<DocumentAccessLog> DocumentAccessLogs { get; set; }
         public DbSet<DocumentApproval> DocumentApprovals { get; set; }
         public DbSet<DocumentFile> DocumentFiles { get; set; }
+		public DbSet<DocumentCodeReservation> DocumentCodeReservations { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 			modelBuilder.Entity<Company>()
@@ -235,6 +236,13 @@ namespace DMSAPI.Business.Context
 				.WithMany()
 				.HasForeignKey(x => x.UserId)
 				.OnDelete(DeleteBehavior.NoAction);
-        }
+			modelBuilder.Entity<DocumentCodeReservation>()
+				.HasIndex(x => new { x.CompanyId, x.RootCategoryId, x.SequenceNumber })
+				.IsUnique();
+
+			modelBuilder.Entity<DocumentCodeReservation>()
+				.HasIndex(x => x.DocumentCode)
+				.IsUnique();
+		}
     }
 }

@@ -17,6 +17,7 @@ namespace DMSAPI.Business.Repositories.IRepositories
 		Task RestoreCategoryAsync(int categoryId, int? uploadedBy);
         Task<PagedResultDTO<Category>> GetPagedAsync(int page, int pageSize);
         Task<List<Category>> GetCategoryTreeWithDocumentsAsync(int companyId);
+		Task<Category> GetRootCategoryAsync(int categoryId);
 
 	}
 }

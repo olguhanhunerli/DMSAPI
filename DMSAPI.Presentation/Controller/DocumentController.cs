@@ -137,9 +137,19 @@ public class DocumentController : BaseApiController
 	[HttpGet("create-preview")]
 	public async Task<IActionResult> CreatePreview(int categoryId)
 	{
-		var result = await _service.GetCreatePreviewAsync(categoryId, UserId);
-
-		return Ok(result);
+		try
+		{
+			var result = await _service.GetCreatePreviewAsync(categoryId, UserId);
+			return Ok(result);
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(500, new
+			{
+				message = ex.Message,
+				detail = ex.InnerException?.Message
+			});
+		}
 	}
     [HttpGet("my-pending-approvals")]
     public async Task<IActionResult> GetMyPendingApprovals()

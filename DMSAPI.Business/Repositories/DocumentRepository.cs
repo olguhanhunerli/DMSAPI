@@ -43,39 +43,6 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
         );
     }
 
-    public async Task<bool> DocumentCodeExistingAsync(string documentCode)
-    {
-        return await _dbSet.AnyAsync(d =>
-            d.DocumentCode == documentCode &&
-            d.CompanyId == CompanyId &&
-            !d.IsDeleted
-        );
-    }
-
-
-    public async Task<int> GetNextDocumentNumberAsync(int companyId, int categoryId)
-    {
-        var lastDocCode = await _dbSet
-            .Where(d => d.CompanyId == companyId
-                     && d.CategoryId == categoryId
-                     && !d.IsDeleted)
-            .OrderByDescending(d => d.Id)
-            .Select(d => d.DocumentCode)
-            .FirstOrDefaultAsync();
-
-        if (string.IsNullOrEmpty(lastDocCode))
-            return 1;
-
-        var parts = lastDocCode.Split('-');
-        var numberPart = parts.Last();
-
-        if (int.TryParse(numberPart, out int number))
-            return number + 1;
-
-        return 1;
-    }
-
-
     public async Task<PagedResultDTO<Document>> GetPagedAuthorizedAsync(
         int page,
         int pageSize,

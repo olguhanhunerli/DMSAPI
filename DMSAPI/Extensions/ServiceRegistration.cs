@@ -66,7 +66,9 @@ public static class ServiceRegistration
 		services.AddScoped<IGlobalSearchRepository, GlobalSearchRepository>();
 		services.AddScoped<IGlobalSearchService, GlobalSearchService>();
 
-        services.AddSingleton<ITokenService, TokenService>();
+		services.AddScoped<IDocumentCodeReservationRepository, DocumentCodeReservationRepository>();
+
+		services.AddSingleton<ITokenService, TokenService>();
 
 		services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 		var jwt = configuration.GetSection("JwtSettings").Get<JwtSettings>();

@@ -9,7 +9,8 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
 {
     public class DocumentCreateDTO
     {
-        public string? TitleTr { get; set; }
+		public string DocumentCode { get; set; }
+		public string? TitleTr { get; set; }
         public string? TitleEn { get; set; }
 
         public int CategoryId { get; set; }

@@ -31,34 +31,37 @@ namespace DMSAPI.Services
         private readonly IRoleRepository _roleRepository;
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IDocumentApprovalHistoryRepository _documentApprovalHistoryRepository;
+        private readonly IDocumentCodeReservationRepository _documentCodeReservationRepository;
 
-        public DocumentService(
-            IDocumentRepository documentRepository,
-            IMapper mapper,
-            ICategoryRepository categoryRepository,
-            IUserRepository userRepository,
-            IHostEnvironment env,
-            ICategoryServices categoryServices,
-            IDocumentAttachmentRepository documentAttachmentRepository,
-            IDocumentApprovalRepository documentApprovalRepository,
-            IRoleRepository roleRepository,
-            IDepartmentRepository departmentRepository,
-            IDocumentApprovalHistoryRepository documentApprovalHistoryRepository)
-        {
-            _documentRepository = documentRepository;
-            _mapper = mapper;
-            _categoryRepository = categoryRepository;
-            _userRepository = userRepository;
-            _env = env;
-            _categoryServices = categoryServices;
-            _documentAttachmentRepository = documentAttachmentRepository;
-            _documentApprovalRepository = documentApprovalRepository;
-            _roleRepository = roleRepository;
-            _departmentRepository = departmentRepository;
-            _documentApprovalHistoryRepository = documentApprovalHistoryRepository;
-        }
+		public DocumentService(
+			IDocumentRepository documentRepository,
+			IMapper mapper,
+			ICategoryRepository categoryRepository,
+			IUserRepository userRepository,
+			IHostEnvironment env,
+			ICategoryServices categoryServices,
+			IDocumentAttachmentRepository documentAttachmentRepository,
+			IDocumentApprovalRepository documentApprovalRepository,
+			IRoleRepository roleRepository,
+			IDepartmentRepository departmentRepository,
+			IDocumentApprovalHistoryRepository documentApprovalHistoryRepository,
+			IDocumentCodeReservationRepository documentCodeReservationRepository)
+		{
+			_documentRepository = documentRepository;
+			_mapper = mapper;
+			_categoryRepository = categoryRepository;
+			_userRepository = userRepository;
+			_env = env;
+			_categoryServices = categoryServices;
+			_documentAttachmentRepository = documentAttachmentRepository;
+			_documentApprovalRepository = documentApprovalRepository;
+			_roleRepository = roleRepository;
+			_departmentRepository = departmentRepository;
+			_documentApprovalHistoryRepository = documentApprovalHistoryRepository;
+			_documentCodeReservationRepository = documentCodeReservationRepository;
+		}
 
-        public async Task<DocumentCreateResponseDTO> CreateDocumentAsync(DocumentCreateDTO dto, int userId)
+		public async Task<DocumentCreateResponseDTO> CreateDocumentAsync(DocumentCreateDTO dto, int userId)
         {
             using var trx = await _documentRepository.BeginTransactionAsync();
 
@@ -71,43 +74,41 @@ namespace DMSAPI.Services
                     ?? throw new Exception("Category not found");
 
                 int companyId = user.CompanyId;
+                var reservation = await _documentCodeReservationRepository.GetByCodeAsync(dto.DocumentCode);
+				if (reservation == null || reservation.IsUsed || reservation.CompanyId != companyId || reservation.CategoryId != dto.CategoryId)
+					throw new Exception("Invalid or already used document code reservation");
 
-                int number = await _documentRepository.GetNextDocumentNumberAsync(companyId, dto.CategoryId);
-                string code = $"{user.Company.CompanyCode}-{category.Code}-{number:D3}";
-
-                if (await _documentRepository.DocumentCodeExistingAsync(code))
-                    throw new Exception("Document code already exists");
 				string documentType =
 			        Path.GetExtension(dto.MainFile.FileName)?.ToLower()
 			        ?? "unknown";
 				var document = new Document
                 {
-                    Title = dto.TitleTr,
-                    CategoryId = dto.CategoryId,
-                    CompanyId = companyId,
-                    DocumentCode = code,
-					DocumentType = documentType,
+					Title = dto.TitleTr,
+					CategoryId = dto.CategoryId,
+					CompanyId = user.CompanyId,
+					DocumentCode = reservation.DocumentCode, 
+					DocumentType = Path.GetExtension(dto.MainFile?.FileName ?? "") ?? "unknown",
 					CreatedAt = DateTime.UtcNow,
-                    CreatedByUserId = userId,
-                    VersionNumber = 1,
-                    StatusId = 1,
-                    IsDeleted = false,
-                    VersionNote = dto.VersionNote,
-                    AllowedDepartments = dto.AllowedDepartmentIds != null
-                            ? JsonSerializer.Serialize(dto.AllowedDepartmentIds)
-                            : null,
-
-                                            AllowedRoles = dto.AllowedRoleIds != null
-                            ? JsonSerializer.Serialize(dto.AllowedRoleIds)
-                            : null,
-
-                                            AllowedUsers = dto.AllowedUserIds != null
-                            ? JsonSerializer.Serialize(dto.AllowedUserIds)
-                            : null,
-                };
+					CreatedByUserId = userId,
+					VersionNumber = 1,
+					StatusId = 1,
+					VersionNote = dto.VersionNote,
+					IsDeleted = false,
+					AllowedDepartments = dto.AllowedDepartmentIds != null
+			        ? JsonSerializer.Serialize(dto.AllowedDepartmentIds)
+			        : null,
+					        AllowedRoles = dto.AllowedRoleIds != null
+			        ? JsonSerializer.Serialize(dto.AllowedRoleIds)
+			        : null,
+					        AllowedUsers = dto.AllowedUserIds != null
+			        ? JsonSerializer.Serialize(dto.AllowedUserIds)
+			        : null
+				};
 
                 await _documentRepository.AddAsync(document);
-                await _documentApprovalHistoryRepository.AddAsync(new DocumentApprovalHistory
+                await _documentCodeReservationRepository.MarkAsUsedAsync(reservation.DocumentCode);
+                await trx.CommitAsync();
+				await _documentApprovalHistoryRepository.AddAsync(new DocumentApprovalHistory
                 {
                     DocumentId = document.Id,
                     ActionType = "Created",
@@ -124,7 +125,7 @@ namespace DMSAPI.Services
                         "uploads",
                         "documents",
                         category.Name,
-                        code,
+                        document.DocumentCode,
                         "main"
                     );
 
@@ -155,8 +156,8 @@ namespace DMSAPI.Services
                         OriginalFileName = dto.MainFile.FileName,
                         FileExtension = Path.GetExtension(cleanName),
                         FileSize = dto.MainFile.Length,
-                        FilePath = $"uploads/documents/{category.Name}/{code}/main/{cleanName}",
-						PdfFilePath = $"uploads/documents/{category.Name}/{code}/main/{pdfFileName}",
+                        FilePath = $"uploads/documents/{category.Name}/{document.DocumentCode}/main/{cleanName}",
+						PdfFilePath = $"uploads/documents/{category.Name}/{document.DocumentCode}/main/{pdfFileName}",
 						UploadedAt = DateTime.UtcNow,
                         UploadedByUserId = userId,
                         IsDeleted = false
@@ -172,7 +173,7 @@ namespace DMSAPI.Services
                         "uploads",
                         "documents",
                         category.Name,
-                        code,
+                        document.DocumentCode,
                         "attachments"
                     );
 
@@ -192,7 +193,7 @@ namespace DMSAPI.Services
                             FileName = cleanName,
                             OriginalFileName = file.FileName,
                             FileSize = file.Length,
-                            FilePath = $"uploads/documents/{category.Name}/{code}/attachments/{cleanName}",
+                            FilePath = $"uploads/documents/{category.Name}/{document.DocumentCode}/attachments/{cleanName}",
                             UploadedAt = DateTime.UtcNow,
                             UploadedByUserId = userId,
                             IsDeleted = false
@@ -302,28 +303,26 @@ namespace DMSAPI.Services
                     ? breadcrumbDto.FullPath
                     : category.Name;
 
-            int number = await _documentRepository
-                .GetNextDocumentNumberAsync(user.CompanyId, categoryId);
+            var reservation = await _documentCodeReservationRepository
+				.ReserveNextCodeAsync(
+					user.CompanyId,
+					categoryId,
+					user.Company.CompanyCode,
+					category.Code,
+					userId);
 
-            string code = $"{user.Company.CompanyCode}-{category.Code}-{number:D3}";
-
-            bool exists = await _documentRepository.DocumentCodeExistingAsync(code);
-
-            return new DocumentCreatePreviewDTO
+			return new DocumentCreatePreviewDTO
             {
-                DocumentCode = code,
-                CompanyName = user.Company.Name,
-                CategoryName = category.Name,
-                CategoryBreadcrumb = breadcrumbPath,
-
-                VersionNumber = 1,
-                Status = "Draft",
-
-                OwnerName = $"{user.FirstName} {user.LastName}",
-                CreatedAt = DateTime.UtcNow,
-
-                IsCodeValid = !exists
-            };
+				DocumentCode = reservation!.DocumentCode,
+				CompanyName = user.Company.Name,
+				CategoryName = category.Name,
+				CategoryBreadcrumb = breadcrumbPath,
+				VersionNumber = 1,
+				Status = "Draft",
+				OwnerName = $"{user.FirstName} {user.LastName}",
+				CreatedAt = DateTime.UtcNow,
+				IsCodeValid = true
+			};
         }
 
 		public async Task<DocumentDTO> GetDetailByIdAsync(int documentId)

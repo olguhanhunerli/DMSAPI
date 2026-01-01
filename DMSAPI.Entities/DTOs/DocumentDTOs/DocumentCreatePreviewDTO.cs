@@ -13,8 +13,7 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
         public string CompanyName { get; set; }
         public string CategoryName { get; set; }
         public string CategoryBreadcrumb { get; set; }
-
-        public int VersionNumber { get; set; }
+		public int VersionNumber { get; set; }
         public string Status { get; set; }
 
         public string OwnerName { get; set; }
