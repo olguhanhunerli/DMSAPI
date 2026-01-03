@@ -110,33 +110,44 @@ namespace DMSAPI.Services
 
 		public async Task<List<string>> GetCategoryBreadcrumbAsync(int categoryId)
 		{
-			var list = new List<string>();
-			var category = await _categoryRepository.GetByIdAsync(categoryId);
+			var categories = await _categoryRepository.GetAllAsync();
 
-			while (category != null)
+			var dict = categories
+				.Where(x => !x.IsDeleted)
+				.ToDictionary(x => x.Id);
+
+			if (!dict.TryGetValue(categoryId, out var current))
+				throw new Exception("Category not found");
+
+			var breadcrumb = new List<string>();
+
+			while (current != null)
 			{
-				list.Insert(0, category.Name);
-				if (!category.ParentId.HasValue) break;
-				category = await _categoryRepository.GetByIdAsync(category.ParentId.Value);
+				breadcrumb.Insert(0, current.Name);
+
+				if (!current.ParentId.HasValue)
+					break;
+
+				current = dict[current.ParentId.Value];
 			}
 
-			return list;
+			return breadcrumb;
 		}
 
 		public async Task<CategoryBreadcrumbDTO> GetCategoryBreadcrumbDetailedAsync(int categoryId)
 		{
-            var breadcrumb = await GetCategoryBreadcrumbAsync(categoryId);
+			var categories = await _categoryRepository.GetCategoryWithParentsAsync(categoryId);
 
-            return new CategoryBreadcrumbDTO
-            {
-                FullPath = string.Join(" / ", breadcrumb),
-                BreadcrumbList = breadcrumb.Select((x, i) => new BreadCrumbItemDTO
-                {
-                    Id = i,
-                    Name = x
-                }).ToList()
-            };
-        }
+			return new CategoryBreadcrumbDTO
+			{
+				FullPath = string.Join(" / ", categories.Select(x => x.Name)),
+				BreadcrumbList = categories.Select(x => new BreadCrumbItemDTO
+				{
+					Id = x.Id,
+					Name = x.Name
+				}).ToList()
+			};
+		}
 
 		public async Task<IEnumerable<CategorySelectListDTO>> GetCategorySelectListAsync()
 		{

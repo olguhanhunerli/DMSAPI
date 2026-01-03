@@ -51,7 +51,10 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
 		public string? RejectedByName { get; set; }
 		public DateTime? RejectedAt { get; set; }
 		public string? RejectReason { get; set; }
-
+		public bool IsLocked { get; set; }
+		public int LockedByUserId { get; set; }
+		public string LockedByUserName { get; set; }
+		public DateTime LockedAt { get; set; }
 		public MainDocumentFileDTO? MainFile { get; set; }
 		public List<DocumentAttachmentDTO>? Attachments { get; set; }
 		public List<DocumentVersionDTO>? Versions { get; set; }

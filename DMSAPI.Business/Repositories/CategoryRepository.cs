@@ -147,5 +147,28 @@ namespace DMSAPI.Business.Repositories
 				category = await _dbSet.FirstOrDefaultAsync(x => x.Id == category.ParentId);
 			return category;
 		}
+
+		public async Task<List<Category>> GetCategoryWithParentsAsync(int categoryId)
+		{
+			var result = new List<Category>();
+
+			var current = await _dbSet
+				.AsNoTracking()
+				.FirstOrDefaultAsync(x => x.Id == categoryId && !x.IsDeleted);
+
+			while (current != null)
+			{
+				result.Insert(0, current);
+
+				if (!current.ParentId.HasValue)
+					break;
+
+				current = await _dbSet
+					.AsNoTracking()
+					.FirstOrDefaultAsync(x => x.Id == current.ParentId && !x.IsDeleted);
+			}
+
+			return result;
+		}
 	}
 }

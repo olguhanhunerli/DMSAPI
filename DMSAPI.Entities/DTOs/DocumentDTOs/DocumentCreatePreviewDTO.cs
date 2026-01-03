@@ -8,17 +8,27 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
 {
     public class DocumentCreatePreviewDTO
     {
-        public string DocumentCode { get; set; }
+		public int? DocumentId { get; set; }         
+		public string DocumentCode { get; set; } = null!;
 
-        public string CompanyName { get; set; }
-        public string CategoryName { get; set; }
-        public string CategoryBreadcrumb { get; set; }
+		public int CategoryId { get; set; }
+		public string CategoryName { get; set; } 
+		public string CategoryBreadcrumb { get; set; } 
+
+		public int CompanyId { get; set; }
+		public string CompanyName { get; set; } 
+
 		public int VersionNumber { get; set; }
-        public string Status { get; set; }
+		public string? VersionNote { get; set; }
 
-        public string OwnerName { get; set; }
-        public DateTime CreatedAt { get; set; }
+		public int StatusId { get; set; }
+		public string Status { get; set; } 
 
-        public bool IsCodeValid { get; set; }
-    }
+		public int OwnerUserId { get; set; }
+		public string OwnerName { get; set; } 
+		public DateTime CreatedAt { get; set; }
+
+		public bool IsCodeValid { get; set; } = true;
+		public bool IsRevision { get; set; } = false;   
+	}
 }

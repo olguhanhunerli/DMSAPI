@@ -12,5 +12,6 @@ namespace DMSAPI.Services.IServices
     {
         Task AddAsync(DocumentVersion version);
         Task<List<DocumentVersionDTO>> GetByDocumentIdAsync(int documentId);
+        Task CreateVersionFromRevisionAsync(DocumentRevision revision, string filePath, int userId);
     }
 }

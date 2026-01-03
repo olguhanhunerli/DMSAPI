@@ -32,7 +32,11 @@ namespace DMSAPI.Entities.Models
 		public string? DocumentType { get; set; }
 
 		public bool IsPublic { get; set; }
+		public bool IsLocked { get; set; }
+		public int? LockedByUserId { get; set; }
+		public DateTime? LockedAt { get; set; }
 
+		public User? LockedByUser { get; set; }
 		public string? AllowedRoles { get; set; }
 		public string? AllowedDepartments { get; set; }
 		public string? AllowedUsers { get; set; }

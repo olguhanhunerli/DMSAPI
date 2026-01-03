@@ -29,7 +29,7 @@ namespace DMSAPI.Business.Context
         public DbSet<DocumentApproval> DocumentApprovals { get; set; }
         public DbSet<DocumentFile> DocumentFiles { get; set; }
 		public DbSet<DocumentCodeReservation> DocumentCodeReservations { get; set; }
-
+		public DbSet<DocumentRevision> DocumentRevisions { get; set; }
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

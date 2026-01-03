@@ -8,33 +8,26 @@ using System.Threading.Tasks;
 namespace DMSAPI.Entities.Models
 {
     public class DocumentVersion
-    {
-        [Key]
-        public int Id { get; set; }
+	{
+		public int Id { get; set; }
 
-        [Required]
-        public int DocumentId { get; set; }
+		public int DocumentId { get; set; }
+		public Document Document { get; set; }
 
-        public int? VersionNumber { get; set; }
+		public int VersionNumber { get; set; }
+		public bool IsLatestVersion { get; set; }
 
-        [StringLength(255)]
-        public string? FileName { get; set; }
+		public string FilePath { get; set; }
+		public string? FileName { get; set; }
+		public string? OriginalFileName { get; set; }
+		public long? FileSize { get; set; }
+		public string? FileType { get; set; }
 
-        [StringLength(255)]
-        public string? OriginalFileName { get; set; }
+		public string? VersionNote { get; set; }
 
-        public long? FileSize { get; set; }
+		public DateTime CreatedAt { get; set; }
+		public int CreatedByUserId { get; set; }
 
-        [StringLength(50)]
-        public string? FileType { get; set; }
-
-        [StringLength(500)]
-        public string? VersionNote { get; set; }
-
-        public DateTime? CreatedAt { get; set; }
-        public int? CreatedByUserId { get; set; }
-
-        // Navigation
-        public Document Document { get; set; }
-    }
+		public string FileHash { get; set; }
+	}
 }

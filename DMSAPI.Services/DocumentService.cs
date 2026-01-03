@@ -107,7 +107,6 @@ namespace DMSAPI.Services
 
                 await _documentRepository.AddAsync(document);
                 await _documentCodeReservationRepository.MarkAsUsedAsync(reservation.DocumentCode);
-                await trx.CommitAsync();
 				await _documentApprovalHistoryRepository.AddAsync(new DocumentApprovalHistory
                 {
                     DocumentId = document.Id,
@@ -541,5 +540,42 @@ namespace DMSAPI.Services
 				Items = _mapper.Map<List<DocumentDTO>>(result.Items)
 			};
 		}
+
+		public async Task<DocumentCreatePreviewDTO> GetRevisionPreviewAsync(int documentId, int userId)
+		{
+			var document = await _documentRepository.GetDetailByIdAsync(documentId)
+				?? throw new Exception("Document not found");   
+            if(!document.IsLocked || document.LockedByUserId != userId)
+			{
+                throw new Exception("Document is not locked by the user");
+			}
+            return new DocumentCreatePreviewDTO
+            {
+				DocumentId = document.Id,
+				IsRevision = true,
+
+				DocumentCode = document.DocumentCode,
+				CategoryId = document.CategoryId,
+				CategoryName = document.Category?.Name ?? "-",
+				CompanyId = document.CompanyId,
+				CompanyName = document.Company?.Name ?? "-",
+
+				VersionNumber = document.VersionNumber + 1,
+				VersionNote = document.VersionNote,
+
+				StatusId = document.StatusId,
+				Status = "Revizyon",
+
+				OwnerUserId = document.CreatedByUserId,
+				OwnerName = document.CreatedByUser != null
+			    ? document.CreatedByUser.FirstName + " " + document.CreatedByUser.LastName
+			    : "-",
+
+				CreatedAt = document.CreatedAt,
+
+				IsCodeValid = true
+			};
+		}
+
 	}
 }

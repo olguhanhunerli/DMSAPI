@@ -21,5 +21,6 @@ namespace DMSAPI.Services.IServices
 		Task<DownloadFileResultDTO> DownloadDocumentFileAsync(int documentId);
 		Task<DownloadFileResultDTO> DownloadPdfAsync(int documentId);
 		Task<PagedResultDTO<DocumentDTO>> GetPagedByCategoryAsync(int page, int pageSize, int categoryId, int userId, int roleId, int departmentId);
+		Task<DocumentCreatePreviewDTO> GetRevisionPreviewAsync(int documentId, int userId);
 	}
 }

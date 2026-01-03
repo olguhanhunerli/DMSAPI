@@ -179,6 +179,8 @@ namespace DMSAPI.Services.Mapping
                 .ForMember(d => d.AllowedDepartments, opt => opt.Ignore())
 				.ForMember(d => d.AllowedRoles, opt => opt.Ignore())
 				.ForMember(d => d.AllowedUsers, opt => opt.Ignore())
+				.ForMember(d => d.LockedByUserName, o => o.MapFrom(x => x.LockedByUser !=null ? x.LockedByUser.FirstName + " " +x.LockedByUser.LastName: null))
+				.ForMember(d => d.IsLocked, opt => opt.MapFrom(x => x.IsLocked))
                 .ForMember(d => d.RejectReason, o => o.MapFrom(s =>
 								s.Approvals
 									.Where(a => a.IsRejected)
