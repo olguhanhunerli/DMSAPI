@@ -9,7 +9,7 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
     public class DownloadFileResultDTO
     {
 		public byte[] FileBytes { get; set; }
-		public string OriginalFileName { get; set; }
+		public string DownloadFileName { get; set; }
 		public string ContentType { get; set; }
 	}
 }

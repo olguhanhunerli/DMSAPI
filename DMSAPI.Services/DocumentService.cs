@@ -4,6 +4,7 @@ using DMSAPI.Business.Repositories.IRepositories;
 using DMSAPI.Entities.DTOs.Common;
 using DMSAPI.Entities.DTOs.DepartmentDTOs;
 using DMSAPI.Entities.DTOs.DocumentDTOs;
+using DMSAPI.Entities.DTOs.Revision;
 using DMSAPI.Entities.DTOs.RoleDTOs;
 using DMSAPI.Entities.DTOs.UserDTOs;
 using DMSAPI.Entities.Models;
@@ -257,10 +258,12 @@ namespace DMSAPI.Services
 				?? throw new Exception("Document not found");
             var file = document.Files.First();
             var bytes = await File.ReadAllBytesAsync(file.FilePath);
+            var originalNameWithoutExt = Path.GetFileNameWithoutExtension(file.OriginalFileName).Replace(" ", "_").Replace("/", "-").Replace("\\", "-");
+            var downloadFileName = $"{originalNameWithoutExt}_v{document.VersionNumber + 1}{file.FileExtension}";
 			return new DownloadFileResultDTO
 			{
 				FileBytes = bytes,
-				OriginalFileName = file.OriginalFileName,
+				DownloadFileName = downloadFileName,
 				ContentType = GetContentType(file.FilePath)
 			};
 		}
@@ -275,7 +278,7 @@ namespace DMSAPI.Services
 			return new DownloadFileResultDTO
 			{
 				FileBytes = bytes,
-				OriginalFileName = Path.GetFileName(file.PdfFilePath), 
+				DownloadFileName = Path.GetFileName(file.PdfFilePath), 
 				ContentType = "application/pdf"                        
 			};
 
@@ -541,7 +544,7 @@ namespace DMSAPI.Services
 			};
 		}
 
-		public async Task<DocumentCreatePreviewDTO> GetRevisionPreviewAsync(int documentId, int userId)
+		public async Task<RevisionPreviewDTO> GetRevisionPreviewAsync(int documentId, int userId)
 		{
 			var document = await _documentRepository.GetDetailByIdAsync(documentId)
 				?? throw new Exception("Document not found");   
@@ -549,31 +552,40 @@ namespace DMSAPI.Services
 			{
                 throw new Exception("Document is not locked by the user");
 			}
-            return new DocumentCreatePreviewDTO
-            {
+            return new RevisionPreviewDTO
+			{
 				DocumentId = document.Id,
-				IsRevision = true,
-
 				DocumentCode = document.DocumentCode,
-				CategoryId = document.CategoryId,
-				CategoryName = document.Category?.Name ?? "-",
-				CompanyId = document.CompanyId,
-				CompanyName = document.Company?.Name ?? "-",
 
-				VersionNumber = document.VersionNumber + 1,
+				CategoryId = document.CategoryId,
+				CategoryName = document.Category.Name,
+
+				CompanyId = document.CompanyId,
+				CompanyName = document.Company.Name,
+
+				VersionNumber = document.VersionNumber,
 				VersionNote = document.VersionNote,
 
 				StatusId = document.StatusId,
-				Status = "Revizyon",
+				Status = document.StatusId == 2 ? "Revizyon" : "Aktif",
 
 				OwnerUserId = document.CreatedByUserId,
-				OwnerName = document.CreatedByUser != null
-			    ? document.CreatedByUser.FirstName + " " + document.CreatedByUser.LastName
-			    : "-",
-
+				OwnerName = document.CreatedByUser.FirstName + "" + document.CreatedByUser.LastName,
 				CreatedAt = document.CreatedAt,
 
-				IsCodeValid = true
+				IsCodeValid = true,
+				IsRevision = true,
+
+				Attachments = document.Attachments
+		        .Where(x => !x.IsDeleted)
+		        .Select(x => new RevisionAttachmentDTO
+		        {
+			        Id = x.Id,
+			        FileName = x.FileName,
+			        ContentType = x.FileType,
+		        })
+		        .OrderByDescending(x => x.UploadedAt)
+		        .ToList()
 			};
 		}
 

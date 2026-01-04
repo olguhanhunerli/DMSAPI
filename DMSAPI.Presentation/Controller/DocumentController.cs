@@ -208,7 +208,8 @@ public class DocumentController : BaseApiController
 		return File(
 			result.FileBytes,
 			result.ContentType,
-			result.OriginalFileName
+			result.DownloadFileName
+
 		);
 	}
 	[AllowAnonymous]
@@ -227,7 +228,8 @@ public class DocumentController : BaseApiController
 		return File(
 			result.FileBytes,
 			"application/pdf",
-			result.OriginalFileName
+			result.DownloadFileName
+
 		);
 	}
 	[AllowAnonymous]
@@ -250,7 +252,7 @@ public class DocumentController : BaseApiController
 		await _revisionService.StartRevisionAsync(documentId, UserId, dto.RevisionNote);
 		return Ok(new { message = "Revizyon Başlatıldı." });
 	}
-	[HttpPost("{documentId}/cancel-revisition")]
+	[HttpPost("{documentId}/cancel-revision")]
 	public async Task<IActionResult> CancelRevision(int documentId, [FromBody] CancelRevisionDTO dto)
 	{
 		await _revisionService.CancelRevisiyonAsync(documentId, UserId, dto.Reason);
@@ -291,7 +293,7 @@ public class DocumentController : BaseApiController
 		}
 		catch (Exception ex)
 		{
-			return StatusCode(500, new
+			return StatusCode(409, new
 			{
 				message = ex.Message,
 				detail = ex.InnerException?.Message

@@ -48,7 +48,7 @@ namespace DMSAPI.Services
 			return new DownloadFileResultDTO
 			{
 				FileBytes = bytes,
-				OriginalFileName = attachment.OriginalFileName,
+				DownloadFileName = attachment.OriginalFileName,
 				ContentType = GetContentType(attachment.OriginalFileName)
 			};
 		}

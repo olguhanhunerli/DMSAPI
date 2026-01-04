@@ -21,7 +21,6 @@ namespace DMSAPI.Business.Repositories
 		public async Task<DocumentRevision?> GetActiveByDocumentIdAsync(int documentId)
 		{
 			return await _dbSet
-				.AsNoTracking()
 				.FirstOrDefaultAsync(r =>
 				r.DocumentId == documentId &&
 				r.IsActive &&

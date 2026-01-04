@@ -1,5 +1,6 @@
 ﻿using DMSAPI.Entities.DTOs.Common;
 using DMSAPI.Entities.DTOs.DocumentDTOs;
+using DMSAPI.Entities.DTOs.Revision;
 using DMSAPI.Entities.Models;
 
 namespace DMSAPI.Services.IServices
@@ -21,6 +22,6 @@ namespace DMSAPI.Services.IServices
 		Task<DownloadFileResultDTO> DownloadDocumentFileAsync(int documentId);
 		Task<DownloadFileResultDTO> DownloadPdfAsync(int documentId);
 		Task<PagedResultDTO<DocumentDTO>> GetPagedByCategoryAsync(int page, int pageSize, int categoryId, int userId, int roleId, int departmentId);
-		Task<DocumentCreatePreviewDTO> GetRevisionPreviewAsync(int documentId, int userId);
+		Task<RevisionPreviewDTO> GetRevisionPreviewAsync(int documentId, int userId);
 	}
 }

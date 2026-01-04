@@ -34,7 +34,7 @@ namespace DMSAPI.Presentation.Controller
 			return File(
 				result.FileBytes,
 				result.ContentType,
-				result.OriginalFileName
+				result.DownloadFileName
 			);
 		}
 	}
