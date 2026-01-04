@@ -1,6 +1,8 @@
 ﻿using DMSAPI.Business.Context;
 using DMSAPI.Business.Repositories.IRepositories;
+using DMSAPI.Entities.DTOs.Common;
 using DMSAPI.Entities.DTOs.DocumentDTOs;
+using DMSAPI.Entities.DTOs.Revision;
 using DMSAPI.Entities.Models;
 using DMSAPI.Services.IServices;
 using Microsoft.EntityFrameworkCore;
@@ -113,6 +115,30 @@ namespace DMSAPI.Services
 			}
 			await _context.SaveChangesAsync();
 			await trx.CommitAsync();
+		}
+
+		public async Task<PagedResultDTO<MyActiveRevisionDTO>> GetMyActiveRevisionAsync(int userId, int page, int pageSize)
+		{
+			var (items, totalCount) = await _repository.GetMyActiveRevisionAsync(userId, page, pageSize);
+			var dtoItems = items.Select(r => new MyActiveRevisionDTO
+			{
+				RevisionId = r.Id,
+				DocumentId = r.DocumentId,
+				DocumentTitle = r.Document.Title,
+				CategoryName = r.Document.Category.Name,
+				StartedAt = r.StartedAt,
+				DocumentCode = r.Document.DocumentCode,
+				CurrentVersion = r.Document.VersionNumber,
+				NewVersionNumber = r.Document.VersionNumber +1,
+				
+			}).ToList();
+			return new PagedResultDTO<MyActiveRevisionDTO>
+			{
+				Items = dtoItems,
+				TotalCount = totalCount,
+				Page = page,
+				PageSize = pageSize
+			};
 		}
 
 		public async Task StartRevisionAsync(int documentId, int userId, string revisionNote)

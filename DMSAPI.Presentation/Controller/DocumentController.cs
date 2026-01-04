@@ -300,5 +300,11 @@ public class DocumentController : BaseApiController
 			});
 		}
 	}
+	[HttpGet("my-active-revision")]
+	public async Task<IActionResult> GetMyActiveRevision(int page=1, int pageSize=10)
+	{
+		var result = await _revisionService.GetMyActiveRevisionAsync(UserId, page, pageSize);
+		return Ok(result);
+	}
 
 }

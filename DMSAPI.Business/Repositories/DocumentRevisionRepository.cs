@@ -27,5 +27,25 @@ namespace DMSAPI.Business.Repositories
 				r.Status == "In Progress"
 				);
 		}
+
+		public async Task<(List<DocumentRevision>Items, int TotalCount)> GetMyActiveRevisionAsync(int userId, int page, int p)
+		{
+			var query = _dbSet
+				.Include(r => r.Document)
+				.ThenInclude(d => d.Category)
+				.Where(r =>
+					r.IsActive &&
+					r.Status == "In Progress" &&
+					r.StartedByUserId == userId
+				)
+				.OrderByDescending(r => r.StartedAt);
+			var totalCount = await query.CountAsync();
+			var items = await query
+				.OrderByDescending(r => r.StartedAt)
+				.Skip((page - 1) * p)
+				.Take(p)
+				.ToListAsync();
+			return (items, totalCount);
+		}
 	}
 }

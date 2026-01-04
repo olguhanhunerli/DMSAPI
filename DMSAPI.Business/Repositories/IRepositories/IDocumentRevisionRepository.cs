@@ -12,5 +12,6 @@ namespace DMSAPI.Business.Repositories.IRepositories
     {
         
         Task<DocumentRevision?> GetActiveByDocumentIdAsync(int documentId);
+        Task<(List<DocumentRevision>Items, int TotalCount)> GetMyActiveRevisionAsync(int userId, int page, int pageSize);
 	}
 }
