@@ -323,8 +323,8 @@ namespace DMSAPI.Services
 				Status = "Draft",
 				OwnerName = $"{user.FirstName} {user.LastName}",
 				CreatedAt = DateTime.UtcNow,
-				IsCodeValid = true
-			};
+				IsCodeValid = true,
+            };
         }
 
 		public async Task<DocumentDTO> GetDetailByIdAsync(int documentId)

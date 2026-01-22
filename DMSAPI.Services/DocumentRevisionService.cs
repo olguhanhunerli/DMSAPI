@@ -79,8 +79,8 @@ namespace DMSAPI.Services
 			revision.IsActive = false;
 			revision.Status = "Completed";
 			revision.CompletedAt = DateTime.UtcNow;
-
-			await _documentVersionService.CreateVersionFromRevisionAsync(revision, filePath, userId);
+            await _repository.UpdateAsync(revision);
+            await _documentVersionService.CreateVersionFromRevisionAsync(revision, filePath, userId);
 			document.VersionNumber = revision.NewVersionNumber;
 			document.IsLocked = false;
 			document.LockedByUserId = null;
@@ -113,7 +113,7 @@ namespace DMSAPI.Services
 					ActionNote = "Revision Sonrası Yeni Approval Flow Oluşturuldu"
 				});
 			}
-			await _context.SaveChangesAsync();
+			await _documentRepository.UpdateAsync(document);
 			await trx.CommitAsync();
 		}
 
@@ -160,8 +160,12 @@ namespace DMSAPI.Services
 				StartedAt = DateTime.UtcNow,
 				RevisionNote = revisionNote,
 				IsActive = true,
-				Status = "In Progress"
-			};
+				Status = "In Progress",
+
+
+                OldVersionNumber = document.VersionNumber,
+                NewVersionNumber = document.VersionNumber + 1
+            };
 
 			await _repository.AddAsync(revision);
 			document.IsLocked = true;

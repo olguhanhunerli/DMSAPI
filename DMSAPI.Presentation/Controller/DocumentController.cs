@@ -260,7 +260,7 @@ public class DocumentController : BaseApiController
 	}
 	[HttpPost("{documentId}/finish-reservation")]
 	[Consumes("multipart/form-data")]
-	public async Task<IActionResult> FinishReservation(int documentId, [FromBody] FinishRevisionDTO dto)
+	public async Task<IActionResult> FinishReservation(int documentId, [FromForm] FinishRevisionDTO dto)
 	{
 		var folder = Path.Combine(
 

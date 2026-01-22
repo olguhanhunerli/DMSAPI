@@ -14,14 +14,15 @@ namespace DMSAPI.Entities.Models
 		public int CategoryId { get; set; }
 
 		public string DocumentCode { get; set; } = null!;
-		public int SequenceNumber { get; set; }
+        public int ReservedByUserId { get; set; }
+        public DateTime ReservedAt { get; set; }
+        public DateTime ExpiresAt { get; set; }
+        public bool IsUsed { get; set; } = false;
+        public DateTime? UsedAt { get; set; }
+        public int RootCategoryId { get; set; }
 
-		public bool IsUsed { get; set; } = false;
+        public int SequenceNumber { get; set; }
 
-		public int ReservedByUserId { get; set; }
-		public int RootCategoryId { get; set; }
-		public DateTime ReservedAt { get; set; }
 
-		public DateTime? UsedAt { get; set; }
 	}
 }

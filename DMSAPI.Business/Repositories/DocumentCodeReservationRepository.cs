@@ -66,8 +66,9 @@ namespace DMSAPI.Business.Repositories
 				DocumentCode = code,
 				ReservedByUserId = userId,
 				ReservedAt = DateTime.UtcNow,
-				IsUsed = false
-			};
+				IsUsed = false,
+				ExpiresAt = DateTime.UtcNow.AddMinutes(20),
+            };
 			await _dbSet.AddAsync(reservation);
 			await _context.SaveChangesAsync();
 			await trx.CommitAsync();
