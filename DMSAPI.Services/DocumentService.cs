@@ -423,26 +423,62 @@ namespace DMSAPI.Services
 				Items = _mapper.Map<List<DocumentDTO>>(pagedDocs.Items)
 			};
 		}
+        private static readonly SemaphoreSlim _loLock = new(1, 1);
+        private async Task ConvertToPdf(string inputFilePath, string outputFolder)
+        {
+            Directory.CreateDirectory(outputFolder);
 
-		private void ConvertToPdf(string inputFilePath, string outputFolder)
-		{
-			var process = new Process
-			{
-				StartInfo = new ProcessStartInfo
-				{
-					FileName = @"C:\Program Files\LibreOffice\program\soffice.exe",
-					Arguments = $"--headless --convert-to pdf \"{inputFilePath}\" --outdir \"{outputFolder}\"",
-					RedirectStandardOutput = true,
-					RedirectStandardError = true,
-					UseShellExecute = false,
-					CreateNoWindow = true
-				}
-			};
+            var profileDir = Path.Combine(outputFolder, "lo_profile");
+            Directory.CreateDirectory(profileDir);
 
-			process.Start();
-			process.WaitForExit();
-		}
-		private static string GetContentType(string path)
+            await _loLock.WaitAsync(); // paralel çalışmasın
+            try
+            {
+                using var process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = @"C:\Program Files\LibreOffice\program\soffice.com",
+                        Arguments =
+                            $"-env:UserInstallation=file:///{profileDir.Replace("\\", "/")} " +
+                            $"--headless --nologo --nofirststartwizard --norestore " +
+                            $"--convert-to pdf --outdir \"{outputFolder}\" \"{inputFilePath}\"",
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                        WorkingDirectory = outputFolder
+                    }
+                };
+
+                process.Start();
+
+                var stdoutTask = process.StandardOutput.ReadToEndAsync();
+                var stderrTask = process.StandardError.ReadToEndAsync();
+
+                if (!process.WaitForExit(180_000))
+                {
+                    try { process.Kill(entireProcessTree: true); } catch { }
+                    throw new TimeoutException("LibreOffice dönüşümü zaman aşımına uğradı.");
+                }
+
+                await Task.WhenAll(stdoutTask, stderrTask);
+
+                if (process.ExitCode != 0)
+                    throw new Exception($"LibreOffice hata. ExitCode={process.ExitCode}. STDERR={stderrTask.Result}");
+
+                var expectedPdf = Path.Combine(outputFolder,
+                    Path.GetFileNameWithoutExtension(inputFilePath) + ".pdf");
+
+                if (!File.Exists(expectedPdf))
+                    throw new Exception("PDF oluşturulamadı: çıktı dosyası bulunamadı.");
+            }
+            finally
+            {
+                _loLock.Release();
+            }
+        }
+        private static string GetContentType(string path)
 		{
 			var provider = new FileExtensionContentTypeProvider();
 

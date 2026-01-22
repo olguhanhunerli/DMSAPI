@@ -55,7 +55,8 @@ public class DocumentController : BaseApiController
 				.ToList();
 
 			var result = await _service.CreateDocumentAsync(dto, UserId);
-			return Ok(result);
+			Console.WriteLine(result);
+            return Ok(result);
 
 		}
 		catch (Exception ex)
