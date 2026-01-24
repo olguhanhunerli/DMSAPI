@@ -45,6 +45,9 @@ namespace DMSAPI.Services
 			entity.Updated_At = DateTime.UtcNow;
 			entity.IsActive = true;
 			entity.IsDeleted = false;
+			entity.DeletedAt = null;
+			entity.DeletedBy = null;
+			entity.Status = "Oluşturuldu";
 			await _instrumentRepository.AddAsync(entity);
 			return _mapper.Map<InstrumentDTO>(entity);
 		}
