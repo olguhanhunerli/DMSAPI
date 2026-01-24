@@ -31,6 +31,8 @@ namespace DMSAPI.Business.Context
 		public DbSet<DocumentCodeReservation> DocumentCodeReservations { get; set; }
 		public DbSet<DocumentRevision> DocumentRevisions { get; set; }
 		public DbSet<Instrument> Instruments { get; set; }
+		public DbSet<InstrumentCalibration> InstrumentCalibrations { get; set; }
+		public DbSet<InstrumentCalibrationFile> InstrumentCalibrationFiles { get; set; }
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

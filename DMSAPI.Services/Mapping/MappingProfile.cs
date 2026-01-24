@@ -4,6 +4,7 @@ using DMSAPI.Entities.DTOs.CategoryDTOs;
 using DMSAPI.Entities.DTOs.CompanyDTOs;
 using DMSAPI.Entities.DTOs.DepartmentDTOs;
 using DMSAPI.Entities.DTOs.DocumentDTOs;
+using DMSAPI.Entities.DTOs.InstrumentCalibrationDTOs;
 using DMSAPI.Entities.DTOs.InstrumentDTO;
 using DMSAPI.Entities.DTOs.PositionDTOs;
 using DMSAPI.Entities.DTOs.RoleDTOs;
@@ -344,6 +345,15 @@ namespace DMSAPI.Services.Mapping
 			CreateMap<CreateInstrumentDTO, Instrument>();
 			CreateMap<UpdateInstrumentDTO, Instrument>()
 				.ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+			CreateMap<InstrumentCalibration, InstrumentCalibrationDTO>()
+			.ForMember(d => d.AssetCode, opt => opt.MapFrom(s => s.InstrumentName.Asset_Code))
+			.ForMember(d => d.InstrumentName, opt => opt.MapFrom(s => s.InstrumentName.Name))
+			.ForMember(d => d.SerialNo, opt => opt.MapFrom(s => s.InstrumentName.Serial_No))
+			.ForMember(d => d.Location, opt => opt.MapFrom(s => s.InstrumentName.Location))
+			.ForMember(d => d.CompanyName, opt => opt.MapFrom(s => s.CompanyName.Name)) // Company entity’de alan adı neyse
+			.ForMember(d => d.CreatedByName, opt => opt.MapFrom(s => s.CreatedByName.FirstName + " " + s.CreatedByName.LastName))
+			.ForMember(d => d.UpdatedByName, opt => opt.MapFrom(s => s.UpdatedByName.FirstName + " " + s.UpdatedByName.LastName));
+
 		}
 		private static List<int> SafeParseJson(string? json)
 		{

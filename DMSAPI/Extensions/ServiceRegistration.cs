@@ -74,6 +74,8 @@ public static class ServiceRegistration
 		services.AddScoped<IInstrumentRepository, InstrumentRepository>();
 		services.AddScoped<IInstrumentServices, InstrumentServices>();
 
+		services.AddScoped<IInstrumentCalibrationRepository, InstrumentCalibrationRepository>();
+		services.AddScoped<IInstrumentCalibrationService, InstrumentCalibrationService>();
 		services.AddSingleton<ITokenService, TokenService>();
 
 		services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
