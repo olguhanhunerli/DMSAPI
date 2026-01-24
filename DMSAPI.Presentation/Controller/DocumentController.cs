@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.Metadata;
 
-[ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class DocumentController : BaseApiController
 {

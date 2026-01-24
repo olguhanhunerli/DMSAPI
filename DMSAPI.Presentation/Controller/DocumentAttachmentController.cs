@@ -1,5 +1,6 @@
 ﻿using DMSAPI.Entities.DTOs.DocumentAttachmentDTO.cs;
 using DMSAPI.Services.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -9,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Presentation.Controller
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class DocumentAttachmentController : BaseApiController
+	[Authorize]
+	[Route("api/[controller]")]
+	public class DocumentAttachmentController : BaseApiController
     {
         private readonly IDocumentAttachmentService _documentAttachmentService;
 

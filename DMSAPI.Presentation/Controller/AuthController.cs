@@ -4,6 +4,7 @@ using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+[Authorize]
 [Route("api/[controller]")]
 public class AuthController : BaseApiController
 {

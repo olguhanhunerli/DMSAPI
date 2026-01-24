@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 namespace DMSAPI.Presentation.Controller
 {
 
-    [ApiController]
-    [Route("api/[controller]")]
-    public class DocumentApprovalController: BaseApiController
+	[Authorize]
+	[Route("api/[controller]")]
+	public class DocumentApprovalController: BaseApiController
     {
         private readonly IDocumentApprovalService _service;
 
