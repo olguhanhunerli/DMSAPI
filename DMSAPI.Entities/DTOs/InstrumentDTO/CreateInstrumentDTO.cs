@@ -6,12 +6,9 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Entities.DTOs.InstrumentDTO
 {
-    public class InstrumentDTO
+    public class CreateInstrumentDTO
     {
-		public ulong Instrument_Id { get; set; }
 		public int CompanyId { get; set; }
-		public string CompanyName { get; set; }
-
 		public string Asset_Code { get; set; } = null!;
 		public string Name { get; set; } = null!;
 
@@ -22,21 +19,7 @@ namespace DMSAPI.Entities.DTOs.InstrumentDTO
 		public string? Measurement_Range { get; set; }
 		public string? Resolution { get; set; }
 		public string? Unit { get; set; }
-		public string Status { get; set; }
-
 		public string? Location { get; set; }
 		public string? Owner_Person { get; set; }
-		public int CreatedBy { get; set; }
-		public string CreatedByName { get; set; }
-		public int UpdatedBy { get; set; }
-		public string UpdatedByName { get; set; }
-		public bool IsActive { get; set; }
-		public bool IsDeleted { get; set; }
-		public int? DeletedBy { get; set; }
-		public string? DeletedByUser { get; set; }
-		public DateTime DeletedAt { get; set; }
-		public DateTime Created_At { get; set; }
-		public DateTime Updated_At { get; set; }
-
 	}
 }

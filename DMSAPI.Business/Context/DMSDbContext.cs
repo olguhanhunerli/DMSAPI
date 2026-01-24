@@ -255,6 +255,26 @@ namespace DMSAPI.Business.Context
 					  .HasForeignKey(i => i.CompanyId)
 					  .OnDelete(DeleteBehavior.Restrict);
 			});
+			modelBuilder.Entity<Instrument>(entity =>
+			{
+				entity.HasOne(i => i.CreatedByName)
+					  .WithMany()
+					  .HasForeignKey(i => i.CreatedBy)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(i => i.UpdatedByName)
+					  .WithMany()
+					  .HasForeignKey(i => i.UpdatedBy)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+			});
+			modelBuilder.Entity<Instrument>(entity =>
+			{
+				entity.HasOne(i => i.DeletedByUser)
+					  .WithMany()
+					  .HasForeignKey(i => i.DeletedBy)
+					  .OnDelete(DeleteBehavior.Restrict);
+			});
 
 		}
 	}

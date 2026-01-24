@@ -11,7 +11,7 @@ namespace DMSAPI.Entities.Models
     public class Instrument
     {
 		[Key]
-		public ulong Instrument_Id { get; set; }
+		public int Instrument_Id { get; set; }
 		public int CompanyId { get; set; }
 		[ForeignKey(nameof(CompanyId))]
 		public Company Company { get; set; }
@@ -42,10 +42,18 @@ namespace DMSAPI.Entities.Models
 
 		[MaxLength(120)]
 		public string? Location { get; set; }
-
+		public string Status { get; set; }
 		[MaxLength(120)]
 		public string? Owner_Person { get; set; }
-
+		public int CreatedBy { get; set; }
+		public User CreatedByName { get; set; }
+		public int? UpdatedBy { get; set; }
+		public User? UpdatedByName { get; set; }
+		public bool IsActive { get; set; }
+		public bool IsDeleted { get; set; }
+		public int? DeletedBy { get; set; }
+		public User? DeletedByUser { get; set; }
+		public DateTime? DeletedAt { get; set; }
 		public DateTime Created_At { get; set; }
 		public DateTime Updated_At { get; set; }
 	}

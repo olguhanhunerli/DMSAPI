@@ -18,7 +18,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 			? cid : null;
 
 	protected bool IsGlobalAdmin =>
-		_http.HttpContext?.User?.FindFirst("role")?.Value == "GLOBAL_ADMIN";
+		_http.HttpContext?.User?.FindFirst("role")?.Value == "SUPER_ADMIN";
 
 	public GenericRepository(DMSDbContext context, IHttpContextAccessor http)
 	{

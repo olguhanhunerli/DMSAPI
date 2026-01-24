@@ -18,7 +18,7 @@ namespace DMSAPI.Presentation.Controller
 			int.Parse(User.FindFirst("companyId")!.Value);
 
 		protected bool IsGlobalAdmin =>
-			User.FindFirst("role")?.Value == "GLOBAL_ADMIN";
+			User.FindFirst("role")?.Value == "SUPER_ADMIN";
         protected int RoleId =>
             int.Parse(User.FindFirst("roleId")!.Value);
 

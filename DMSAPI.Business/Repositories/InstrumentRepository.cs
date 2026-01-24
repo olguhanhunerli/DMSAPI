@@ -23,8 +23,10 @@ namespace DMSAPI.Business.Repositories
 			if(pageSize <= 0) pageSize = 10;
 
 			var query = _dbSet
-				.Where(x => x.CompanyId == CompanyId)
+				.Where(x => x.CompanyId == CompanyId && x.IsDeleted == false)
 				.Include(x => x.Company)
+				.Include(x => x.CreatedByName)
+				.Include(x => x.UpdatedByName)
 				.OrderBy(x => x.Asset_Code);
 			var totalCount = await query.CountAsync();
 			var items = await query
@@ -39,6 +41,50 @@ namespace DMSAPI.Business.Repositories
 				PageSize = pageSize
 			};
 		
+		}
+		public async Task<Instrument?> GetByIdAsync(int id)
+		{
+			var instrument = await _dbSet
+				.Include(x => x.Company)
+				.Include(x => x.CreatedByName)
+				.Include(x => x.UpdatedByName)
+				.FirstOrDefaultAsync(x => x.Instrument_Id == id && x.CompanyId == CompanyId && x.IsDeleted == false);
+			return instrument;
+		}
+
+		public async Task<PagedResultDTO<Instrument>> GetDeletedByPagedAsync(int page, int pageSize)
+		{
+			if (page <= 0) page = 1;
+			if (pageSize <= 0) pageSize = 10;
+
+			var query = _dbSet
+				.Where(x => x.CompanyId == CompanyId && x.IsDeleted == true)
+				.Include(x => x.Company)
+				.Include(x => x.CreatedByName)
+				.Include(x => x.UpdatedByName)
+				.OrderBy(x => x.Asset_Code);
+			var totalCount = await query.CountAsync();
+			var items = await query
+				.Skip((page - 1) * pageSize)
+				.Take(pageSize)
+				.ToListAsync();
+			return new PagedResultDTO<Instrument>
+			{
+				Items = items,
+				TotalCount = totalCount,
+				Page = page,
+				PageSize = pageSize
+			};
+		}
+
+		public async Task<Instrument?> GetDeletedByIdAsync(int id)
+		{
+			var instrument = await _dbSet
+				.Include(x => x.Company)
+				.Include(x => x.CreatedByName)
+				.Include(x => x.UpdatedByName)
+				.FirstOrDefaultAsync(x => x.Instrument_Id == id && x.CompanyId == CompanyId && x.IsDeleted == true);
+			return instrument;
 		}
 	}
 }

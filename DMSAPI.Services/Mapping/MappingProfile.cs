@@ -131,7 +131,7 @@ namespace DMSAPI.Services.Mapping
 			CreateMap<DocumentAttachment, DocumentAttachmentDTO>();
 			CreateMap<DocumentVersion, DocumentVersionDTO>();
 			CreateMap<DocumentApprovalHistory, DocumentApprovalHistoryDTO>()
-                .ForMember(d => d.ActionByName,
+				.ForMember(d => d.ActionByName,
 				o => o.MapFrom(s =>
 					s.ActionByUser != null
 						? s.ActionByUser.FirstName + " " + s.ActionByUser.LastName
@@ -145,7 +145,7 @@ namespace DMSAPI.Services.Mapping
 					s.ActionAt.HasValue
 						? s.ActionAt.Value.ToString("dd.MM.yyyy HH:mm")
 						: "-"));
-            CreateMap<DocumentAccessLog, DocumentAccessLogDTO>()
+			CreateMap<DocumentAccessLog, DocumentAccessLogDTO>()
 					 .ForMember(d => d.UserName,
 						 o => o.MapFrom(x =>
 							 x.User != null
@@ -157,7 +157,7 @@ namespace DMSAPI.Services.Mapping
 								 ? x.AccessAt.Value.ToString("dd.MM.yyyy HH:mm")
 								 : "-"));
 
-            CreateMap<Document, DocumentCreateResponseDTO>()
+			CreateMap<Document, DocumentCreateResponseDTO>()
 				.ForMember(d => d.FileName, o => o.Ignore())
 				.ForMember(d => d.OriginalFileName, o => o.Ignore())
 				.ForMember(d => d.FileSize, o => o.Ignore())
@@ -177,12 +177,12 @@ namespace DMSAPI.Services.Mapping
 				.ForMember(d => d.VersionNote, o => o.MapFrom(s => s.VersionNote))
 				.ForMember(d => d.DocumentType, o => o.MapFrom(s => s.DocumentType))
 				.ForMember(d => d.IsLatestVersion, o => o.MapFrom(s => s.IsLatestVersion))
-                .ForMember(d => d.AllowedDepartments, opt => opt.Ignore())
+				.ForMember(d => d.AllowedDepartments, opt => opt.Ignore())
 				.ForMember(d => d.AllowedRoles, opt => opt.Ignore())
 				.ForMember(d => d.AllowedUsers, opt => opt.Ignore())
-				.ForMember(d => d.LockedByUserName, o => o.MapFrom(x => x.LockedByUser !=null ? x.LockedByUser.FirstName + " " +x.LockedByUser.LastName: null))
+				.ForMember(d => d.LockedByUserName, o => o.MapFrom(x => x.LockedByUser != null ? x.LockedByUser.FirstName + " " + x.LockedByUser.LastName : null))
 				.ForMember(d => d.IsLocked, opt => opt.MapFrom(x => x.IsLocked))
-                .ForMember(d => d.RejectReason, o => o.MapFrom(s =>
+				.ForMember(d => d.RejectReason, o => o.MapFrom(s =>
 								s.Approvals
 									.Where(a => a.IsRejected)
 									.Select(a => a.RejectReason)
@@ -328,8 +328,22 @@ namespace DMSAPI.Services.Mapping
 					s.CreatedByUser != null
 						? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
 						: null));
-			CreateMap<Instrument, InstrumentDTO>().ForMember(d => d.CompanyName, opt => opt.MapFrom(s => s.Company.Name)); ;
-
+			CreateMap<Instrument, InstrumentDTO>()
+				.ForMember(
+					d => d.CompanyName,
+					opt => opt.MapFrom(s => s.Company.Name)
+				)
+				.ForMember(
+					d => d.CreatedByName,
+					opt => opt.MapFrom(s =>
+						s.CreatedByName.FirstName + " " + s.CreatedByName.LastName
+						)
+					)
+				.ForMember( d=> d.UpdatedByName, opt => opt.MapFrom(s => s.UpdatedByName.FirstName + " " + s.UpdatedByName.LastName))
+				.ForMember(d => d.DeletedByUser, opt => opt.MapFrom(s => s.DeletedByUser.FirstName +" " +s.DeletedByUser.LastName));
+			CreateMap<CreateInstrumentDTO, Instrument>();
+			CreateMap<UpdateInstrumentDTO, Instrument>()
+				.ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 		}
 		private static List<int> SafeParseJson(string? json)
 		{
