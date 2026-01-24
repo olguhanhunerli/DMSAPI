@@ -4,6 +4,7 @@ using DMSAPI.Entities.DTOs.CategoryDTOs;
 using DMSAPI.Entities.DTOs.CompanyDTOs;
 using DMSAPI.Entities.DTOs.DepartmentDTOs;
 using DMSAPI.Entities.DTOs.DocumentDTOs;
+using DMSAPI.Entities.DTOs.InstrumentDTO;
 using DMSAPI.Entities.DTOs.PositionDTOs;
 using DMSAPI.Entities.DTOs.RoleDTOs;
 using DMSAPI.Entities.DTOs.UserDTOs;
@@ -327,7 +328,7 @@ namespace DMSAPI.Services.Mapping
 					s.CreatedByUser != null
 						? s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName
 						: null));
-				
+			CreateMap<Instrument, InstrumentDTO>().ForMember(d => d.CompanyName, opt => opt.MapFrom(s => s.Company.Name)); ;
 
 		}
 		private static List<int> SafeParseJson(string? json)

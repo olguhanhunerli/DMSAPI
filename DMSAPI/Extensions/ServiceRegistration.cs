@@ -71,6 +71,9 @@ public static class ServiceRegistration
 		services.AddScoped<IDocumentRevisionRepository, DocumentRevisionRepository>();
 		services.AddScoped<IDocumentRevisionService, DocumentRevisionService>();
 
+		services.AddScoped<IInstrumentRepository, InstrumentRepository>();
+		services.AddScoped<IInstrumentServices, InstrumentServices>();
+
 		services.AddSingleton<ITokenService, TokenService>();
 
 		services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));

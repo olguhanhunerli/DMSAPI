@@ -30,6 +30,7 @@ namespace DMSAPI.Business.Context
         public DbSet<DocumentFile> DocumentFiles { get; set; }
 		public DbSet<DocumentCodeReservation> DocumentCodeReservations { get; set; }
 		public DbSet<DocumentRevision> DocumentRevisions { get; set; }
+		public DbSet<Instrument> Instruments { get; set; }
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -243,6 +244,18 @@ namespace DMSAPI.Business.Context
 			modelBuilder.Entity<DocumentCodeReservation>()
 				.HasIndex(x => x.DocumentCode)
 				.IsUnique();
+			modelBuilder.Entity<Instrument>(entity =>
+			{
+				entity.HasIndex(e => e.Asset_Code).IsUnique();
+				entity.HasIndex(e => e.Serial_No).IsUnique();
+				entity.HasIndex(e => e.Location);
+
+				entity.HasOne(i => i.Company)
+					  .WithMany() 
+					  .HasForeignKey(i => i.CompanyId)
+					  .OnDelete(DeleteBehavior.Restrict);
+			});
+
 		}
-    }
+	}
 }
