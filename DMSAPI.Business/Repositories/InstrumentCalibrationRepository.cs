@@ -43,5 +43,17 @@ namespace DMSAPI.Business.Repositories
 				PageSize = pageSize
 			};
 		}
+		public async Task<InstrumentCalibration?> GetByIdAsync(ulong id)
+		{
+			var calibration = await _dbSet
+				.AsNoTracking()
+				.Include(x => x.InstrumentName)
+				.Include(x => x.CompanyName)
+				.Include(x => x.CreatedByName)
+				.Include(x => x.UpdatedByName)
+				.Include(x => x.Files)
+				.FirstOrDefaultAsync(x => x.CalibrationId == (ulong)id && x.CompanyId == CompanyId && x.IsDeleted == false);
+			return calibration;
+		}
 	}
 }

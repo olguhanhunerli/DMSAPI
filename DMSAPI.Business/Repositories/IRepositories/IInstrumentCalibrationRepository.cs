@@ -12,5 +12,6 @@ namespace DMSAPI.Business.Repositories.IRepositories
     public interface IInstrumentCalibrationRepository: IGenericRepository<InstrumentCalibration>
 	{
         Task<PagedResultDTO<InstrumentCalibration>> GetInstrumentCalibrationsAsync(int pageNumber, int pageSize);
+		Task <InstrumentCalibration> GetByIdAsync(ulong id);
 	}
 }
