@@ -11,7 +11,7 @@ namespace DMSAPI.Entities.Models
     public class InstrumentCalibration
 	{
 		[Key]
-		public int CalibrationId { get; set; }   
+		public ulong CalibrationId { get; set; }   
 
 		[Required]
 		public int InstrumentId { get; set; }

@@ -350,9 +350,10 @@ namespace DMSAPI.Services.Mapping
 			.ForMember(d => d.InstrumentName, opt => opt.MapFrom(s => s.InstrumentName.Name))
 			.ForMember(d => d.SerialNo, opt => opt.MapFrom(s => s.InstrumentName.Serial_No))
 			.ForMember(d => d.Location, opt => opt.MapFrom(s => s.InstrumentName.Location))
-			.ForMember(d => d.CompanyName, opt => opt.MapFrom(s => s.CompanyName.Name)) // Company entity’de alan adı neyse
+			.ForMember(d => d.CompanyName, opt => opt.MapFrom(s => s.CompanyName.Name)) 
 			.ForMember(d => d.CreatedByName, opt => opt.MapFrom(s => s.CreatedByName.FirstName + " " + s.CreatedByName.LastName))
-			.ForMember(d => d.UpdatedByName, opt => opt.MapFrom(s => s.UpdatedByName.FirstName + " " + s.UpdatedByName.LastName));
+			.ForMember(d => d.UpdatedByName, opt => opt.MapFrom(s => s.UpdatedByName.FirstName + " " + s.UpdatedByName.LastName))
+			.ForMember(d=> d.RemainingDays, opt => opt.MapFrom(s => s.DueDate.HasValue ? (int)(s.DueDate.Value.Date - DateTime.UtcNow.Date).TotalDays: (int?) null));
 
 		}
 		private static List<int> SafeParseJson(string? json)

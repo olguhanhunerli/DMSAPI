@@ -277,6 +277,67 @@ namespace DMSAPI.Business.Context
 					  .HasForeignKey(i => i.DeletedBy)
 					  .OnDelete(DeleteBehavior.Restrict);
 			});
+			modelBuilder.Entity<InstrumentCalibration>(entity =>
+			{
+				entity.HasKey(x => x.CalibrationId);
+
+				entity.HasOne(x => x.InstrumentName)
+					  .WithMany() 
+					  .HasForeignKey(x => x.InstrumentId)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(x => x.CompanyName)
+					  .WithMany()
+					  .HasForeignKey(x => x.CompanyId)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(x => x.CreatedByName)
+					  .WithMany()
+					  .HasForeignKey(x => x.CreatedBy)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(x => x.UpdatedByName)
+					  .WithMany()
+					  .HasForeignKey(x => x.UpdatedBy)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(x => x.DeletedByUser)
+					  .WithMany()
+					  .HasForeignKey(x => x.DeletedBy)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasMany(x => x.Files)
+					  .WithOne(f => f.Calibration)     
+					  .HasForeignKey(f => f.CalibrationId)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasIndex(x => x.CompanyId);
+				entity.HasIndex(x => x.InstrumentId);
+				entity.HasIndex(x => x.IsDeleted);
+			});
+			modelBuilder.Entity<InstrumentCalibrationFile>(entity =>
+			{
+				entity.HasKey(x => x.FileId);
+
+				entity.HasOne(x => x.Calibration)
+					  .WithMany(c => c.Files)
+					  .HasForeignKey(x => x.CalibrationId)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(x => x.CreatedByName)
+					  .WithMany()
+					  .HasForeignKey(x => x.CreatedBy)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(x => x.UpdatedByName)
+					  .WithMany()
+					  .HasForeignKey(x => x.UpdatedBy)
+					  .OnDelete(DeleteBehavior.Restrict);
+				entity.HasIndex(x => x.CompanyId);
+				entity.HasIndex(x => x.CalibrationId);
+				entity.HasIndex(x => x.IsDeleted);
+			});
+
 
 		}
 	}

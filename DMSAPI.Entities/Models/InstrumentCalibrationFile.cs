@@ -38,18 +38,18 @@ namespace DMSAPI.Entities.Models
 		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
 		[Required]
-		public ulong CompanyId { get; set; }
+		public int CompanyId { get; set; }
 
-		public ulong? CreatedBy { get; set; }
+		public int? CreatedBy { get; set; }
 		public User CreatedByName { get; set; }
-		public ulong? UpdatedBy { get; set; }
+		public int? UpdatedBy { get; set; }
 		public User? UpdatedByName { get; set; }
 
 		public bool IsActive { get; set; } = true;
 		public bool IsDeleted { get; set; } = false;
 
 		public DateTime? DeletedAt { get; set; }
-		public ulong? DeletedBy { get; set; }
+		public int? DeletedBy { get; set; }
 
 		public InstrumentCalibration? Calibration { get; set; }
 	}

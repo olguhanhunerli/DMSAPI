@@ -28,12 +28,13 @@ namespace DMSAPI.Business.Repositories
 				.Include(x => x.CompanyName)
 				.Include(x => x.CreatedByName)
 				.Include(x => x.UpdatedByName)
+				.Include(x => x.Files)
 				.OrderByDescending(x => x.CalibrationDate);
 			var totalCount = await query.CountAsync();
-			var items = query
+			var items = await query
 				.Skip((pageNumber - 1) * pageSize)
 				.Take(pageSize)
-				.ToList();
+				.ToListAsync();
 			return new PagedResultDTO<InstrumentCalibration>
 			{
 				Items = items,
