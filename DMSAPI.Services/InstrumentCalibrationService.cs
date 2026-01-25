@@ -92,7 +92,6 @@ namespace DMSAPI.Services
 
 			await _instrumentCalibrationRepository.UpdateAsync(existing);
 
-			// ✅ Response: detail include’lu tekrar çek
 			var refreshed = await _instrumentCalibrationRepository.GetByIdAsync(updateCalibrationDTO.CalibrationId)
 				?? throw new Exception("Calibration not found");
 
