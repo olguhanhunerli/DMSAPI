@@ -13,5 +13,6 @@ namespace DMSAPI.Business.Repositories.IRepositories
 	{
         Task<PagedResultDTO<InstrumentCalibration>> GetInstrumentCalibrationsAsync(int pageNumber, int pageSize);
 		Task <InstrumentCalibration> GetByIdAsync(ulong id);
+		Task<InstrumentCalibration?> GetForUpdateAsync(ulong id);
 	}
 }

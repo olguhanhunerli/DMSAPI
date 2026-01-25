@@ -52,8 +52,20 @@ namespace DMSAPI.Business.Repositories
 				.Include(x => x.CreatedByName)
 				.Include(x => x.UpdatedByName)
 				.Include(x => x.Files.Where(x => x.IsDeleted == false))
+				.ThenInclude(x => x.UpdatedByName)
+				.Include(x => x.Files.Where(x => x.IsDeleted == false))
+				.ThenInclude (x => x.CreatedByName)
 				.FirstOrDefaultAsync(x => x.CalibrationId == (ulong)id && x.CompanyId == CompanyId && x.IsDeleted == false);
 			return calibration;
+		}
+
+		public async Task<InstrumentCalibration?> GetForUpdateAsync(ulong id)
+		{
+			return await _dbSet
+			   .FirstOrDefaultAsync(x =>
+				   x.CalibrationId == id &&
+				   x.CompanyId == CompanyId &&
+				   x.IsDeleted == false);
 		}
 	}
 }

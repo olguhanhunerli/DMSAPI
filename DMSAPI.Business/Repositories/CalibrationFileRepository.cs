@@ -21,6 +21,8 @@ namespace DMSAPI.Business.Repositories
 		public async Task<InstrumentCalibrationFile?> GetCalibrationFileByIdAsync(ulong fileId)
 		{
 			return await _dbSet.AsNoTracking()
+				.Include(x => x.CreatedByName)
+				.Include(x => x.UpdatedByName)
 				.FirstOrDefaultAsync(x => x.CompanyId == CompanyId && x.FileId == fileId && x.IsDeleted == false);
 		}
 
@@ -36,6 +38,8 @@ namespace DMSAPI.Business.Repositories
 			}
 			var query = _dbSet.AsNoTracking()
 				.Where(x => x.CompanyId == CompanyId &&x.IsDeleted == false)
+				.Include(x => x.CreatedByName)
+				.Include(x => x.UpdatedByName)
 				.OrderByDescending(x => x.CreatedAt);
 			var totalRecords = await query.CountAsync();
 			var items = await query

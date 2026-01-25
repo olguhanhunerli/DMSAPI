@@ -355,9 +355,23 @@ namespace DMSAPI.Services.Mapping
 			.ForMember(d => d.UpdatedByName, opt => opt.MapFrom(s => s.UpdatedByName.FirstName + " " + s.UpdatedByName.LastName))
 			.ForMember(d=> d.RemainingDays, opt => opt.MapFrom(s => s.DueDate.HasValue ? (int)(s.DueDate.Value.Date - DateTime.UtcNow.Date).TotalDays: (int?) null));
 			CreateMap<CreateCalibrationDTO, InstrumentCalibration>();
-			CreateMap<UpdateCalibrationDTO, InstrumentCalibration>();
+			CreateMap<UpdateCalibrationDTO, InstrumentCalibration>()
+			.ForMember(x => x.CreatedByName, opt => opt.Ignore())
+			.ForMember(x => x.UpdatedByName, opt => opt.Ignore())
+			.ForMember(x => x.DeletedByUser, opt => opt.Ignore());
 			CreateMap<InstrumentCalibrationFileDTO, InstrumentCalibrationFile>();
-			CreateMap<InstrumentCalibrationFile, InstrumentCalibrationFileDTO>();
+			CreateMap<InstrumentCalibrationFile, InstrumentCalibrationFileDTO>()
+				.ForMember(d => d.CreatedByName,
+					opt => opt.MapFrom(s =>
+						s.CreatedByName != null
+							? (s.CreatedByName.FirstName + " " + s.CreatedByName.LastName)
+							: null))
+				.ForMember(d => d.UploadedByName,
+					opt => opt.MapFrom(s =>
+						s.UpdatedByName != null
+							? (s.UpdatedByName.FirstName + " " + s.UpdatedByName.LastName)
+							: null))
+				.ForMember(d => d.UpdatedAt, opt => opt.MapFrom(s => s.UpdatedAt));
 			CreateMap<CreateCalibrationFileDTO, InstrumentCalibrationFile>();
 			CreateMap<UploadCalibrationFileDTO, InstrumentCalibrationFile>();
 

@@ -19,7 +19,9 @@ namespace DMSAPI.Entities.DTOs.InstrumentCalibrationDTOs
 		public long? FileSize { get; set; }
 		public string? FileType { get; set; }
 		public string? Description { get; set; }
-
+		public string CreatedByName { get; set; }
+		public string UploadedByName { get; set; }
 		public DateTime CreatedAt { get; set; }
+		public DateTime? UpdatedAt { get; set; } 
 	}
 }

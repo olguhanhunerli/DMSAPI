@@ -80,17 +80,23 @@ namespace DMSAPI.Services
 
 		public async Task<InstrumentCalibrationDTO> UpdateCalibrationAsync(UpdateCalibrationDTO updateCalibrationDTO, int userId)
 		{
-			var existingCalibration = await _instrumentCalibrationRepository.GetByIdAsync(updateCalibrationDTO.CalibrationId);
-			if (existingCalibration == null)
-			{
+			var existing = await _instrumentCalibrationRepository.GetForUpdateAsync(updateCalibrationDTO.CalibrationId);
+			if (existing == null)
 				throw new Exception("Calibration not found");
-			}
-			_mapper.Map(updateCalibrationDTO, existingCalibration);
-			existingCalibration.UpdatedBy = userId;
-			existingCalibration.UpdatedAt = DateTime.UtcNow;
-			existingCalibration.DueDate = existingCalibration.CalibrationDate.AddMonths(updateCalibrationDTO.IntervalMonths);
-			await _instrumentCalibrationRepository.UpdateAsync(existingCalibration);
-			return _mapper.Map<InstrumentCalibrationDTO>(existingCalibration);
+
+			_mapper.Map(updateCalibrationDTO, existing);
+
+			existing.UpdatedBy = userId;
+			existing.UpdatedAt = DateTime.UtcNow;
+			existing.DueDate = existing.CalibrationDate.AddMonths(updateCalibrationDTO.IntervalMonths);
+
+			await _instrumentCalibrationRepository.UpdateAsync(existing);
+
+			// ✅ Response: detail include’lu tekrar çek
+			var refreshed = await _instrumentCalibrationRepository.GetByIdAsync(updateCalibrationDTO.CalibrationId)
+				?? throw new Exception("Calibration not found");
+
+			return _mapper.Map<InstrumentCalibrationDTO>(refreshed);
 		}
 	}
 }

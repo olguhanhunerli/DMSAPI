@@ -174,6 +174,7 @@ namespace DMSAPI.Services
 				CreatedBy = userId,
 				CreatedAt = DateTime.UtcNow,
 				UpdatedAt = DateTime.UtcNow,
+				UpdatedBy = userId,
 				IsActive = true,
 				IsDeleted = false
 			};
