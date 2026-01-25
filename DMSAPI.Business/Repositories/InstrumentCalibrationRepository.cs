@@ -28,7 +28,7 @@ namespace DMSAPI.Business.Repositories
 				.Include(x => x.CompanyName)
 				.Include(x => x.CreatedByName)
 				.Include(x => x.UpdatedByName)
-				.Include(x => x.Files)
+				.Include(x => x.Files.Where(x => x.IsDeleted == false))
 				.OrderByDescending(x => x.CalibrationDate);
 			var totalCount = await query.CountAsync();
 			var items = await query
@@ -51,7 +51,7 @@ namespace DMSAPI.Business.Repositories
 				.Include(x => x.CompanyName)
 				.Include(x => x.CreatedByName)
 				.Include(x => x.UpdatedByName)
-				.Include(x => x.Files)
+				.Include(x => x.Files.Where(x => x.IsDeleted == false))
 				.FirstOrDefaultAsync(x => x.CalibrationId == (ulong)id && x.CompanyId == CompanyId && x.IsDeleted == false);
 			return calibration;
 		}

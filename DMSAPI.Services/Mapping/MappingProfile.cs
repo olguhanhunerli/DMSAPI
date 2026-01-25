@@ -356,6 +356,11 @@ namespace DMSAPI.Services.Mapping
 			.ForMember(d=> d.RemainingDays, opt => opt.MapFrom(s => s.DueDate.HasValue ? (int)(s.DueDate.Value.Date - DateTime.UtcNow.Date).TotalDays: (int?) null));
 			CreateMap<CreateCalibrationDTO, InstrumentCalibration>();
 			CreateMap<UpdateCalibrationDTO, InstrumentCalibration>();
+			CreateMap<InstrumentCalibrationFileDTO, InstrumentCalibrationFile>();
+			CreateMap<InstrumentCalibrationFile, InstrumentCalibrationFileDTO>();
+			CreateMap<CreateCalibrationFileDTO, InstrumentCalibrationFile>();
+			CreateMap<UploadCalibrationFileDTO, InstrumentCalibrationFile>();
+
 		}
 		private static List<int> SafeParseJson(string? json)
 		{

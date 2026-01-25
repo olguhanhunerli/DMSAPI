@@ -22,7 +22,7 @@ namespace DMSAPI.Entities.Models
 		[Required]
 		[MaxLength(500)]
 		public string FilePath { get; set; } = default!;
-
+		public string PdfFilePath { get; set; }
 		[MaxLength(100)]
 		public string? FileMime { get; set; }
 
