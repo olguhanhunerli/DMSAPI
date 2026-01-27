@@ -3,6 +3,13 @@
 <item oor:path="/org.openoffice.Office.Calc/Formula/Calculation"><prop oor:name="OpenCLMinimumDataSize" oor:op="fuse"><value>100</value></prop></item>
 <item oor:path="/org.openoffice.Office.Common/Misc"><prop oor:name="FirstRun" oor:op="fuse"><value>true</value></prop></item>
 <item oor:path="/org.openoffice.Office.Common/Misc"><prop oor:name="SelectedOpenCLDeviceIdentifier" oor:op="fuse"><value>NVIDIA Corporation 581.42--25.8.3.2--1556953008</value></prop></item>
+<item oor:path="/org.openoffice.Office.Common/Misc"><prop oor:name="UseOpenCL" oor:op="fuse"><value>false</value></prop></item>
+<item oor:path="/org.openoffice.Office.Impress/MultiPaneGUI/SlideSorterBar/Visible"><prop oor:name="DrawView" oor:op="fuse"><value>true</value></prop></item>
+<item oor:path="/org.openoffice.Office.Impress/MultiPaneGUI/SlideSorterBar/Visible"><prop oor:name="HandoutView" oor:op="fuse"><value>false</value></prop></item>
+<item oor:path="/org.openoffice.Office.Impress/MultiPaneGUI/SlideSorterBar/Visible"><prop oor:name="ImpressView" oor:op="fuse"><value>true</value></prop></item>
+<item oor:path="/org.openoffice.Office.Impress/MultiPaneGUI/SlideSorterBar/Visible"><prop oor:name="NotesView" oor:op="fuse"><value>true</value></prop></item>
+<item oor:path="/org.openoffice.Office.Impress/MultiPaneGUI/SlideSorterBar/Visible"><prop oor:name="OutlineView" oor:op="fuse"><value>true</value></prop></item>
+<item oor:path="/org.openoffice.Office.Impress/MultiPaneGUI/SlideSorterBar/Visible"><prop oor:name="SlideSorterView" oor:op="fuse"><value>false</value></prop></item>
 <item oor:path="/org.openoffice.Office.Linguistic/ServiceManager/GrammarCheckerList"><prop oor:name="en-AU" oor:op="fuse" oor:type="oor:string-list"><value><it>org.libreoffice.comp.pyuno.Lightproof.en</it></value></prop></item>
 <item oor:path="/org.openoffice.Office.Linguistic/ServiceManager/GrammarCheckerList"><prop oor:name="en-BS" oor:op="fuse" oor:type="oor:string-list"><value><it>org.libreoffice.comp.pyuno.Lightproof.en</it></value></prop></item>
 <item oor:path="/org.openoffice.Office.Linguistic/ServiceManager/GrammarCheckerList"><prop oor:name="en-BZ" oor:op="fuse" oor:type="oor:string-list"><value><it>org.libreoffice.comp.pyuno.Lightproof.en</it></value></prop></item>
@@ -365,9 +372,10 @@
 <item oor:path="/org.openoffice.Office.Writer/Content/Zoom"><prop oor:name="ZoomValue" oor:op="fuse"><value>100</value></prop></item>
 <item oor:path="/org.openoffice.Office.Writer/FmtAidsAutocomplete"><prop oor:name="EncloseWithCharacters" oor:op="fuse"><value>false</value></prop></item>
 <item oor:path="/org.openoffice.Setup/L10N"><prop oor:name="ooLocale" oor:op="fuse"><value>tr</value></prop></item>
+<item oor:path="/org.openoffice.Setup/Office/Factories/org.openoffice.Setup:Factory['com.sun.star.drawing.DrawingDocument']"><prop oor:name="ooSetupFactoryWindowAttributes" oor:op="fuse"><value>0,29,1024,739;1;,,,;</value></prop></item>
 <item oor:path="/org.openoffice.Setup/Office/Factories/org.openoffice.Setup:Factory['com.sun.star.sheet.SpreadsheetDocument']"><prop oor:name="ooSetupFactoryWindowAttributes" oor:op="fuse"><value>0,23,1024,745;1;,,,;</value></prop></item>
 <item oor:path="/org.openoffice.Setup/Office/Factories/org.openoffice.Setup:Factory['com.sun.star.text.TextDocument']"><prop oor:name="ooSetupFactoryWindowAttributes" oor:op="fuse"><value>0,23,1024,745;1;,,,;</value></prop></item>
-<item oor:path="/org.openoffice.Setup/Office"><prop oor:name="LastCompatibilityCheckID" oor:op="fuse"><value>8ca8d55c161d602844f5428fa4b58097424e324e</value></prop></item>
+<item oor:path="/org.openoffice.Setup/Office"><prop oor:name="LastCompatibilityCheckID" oor:op="fuse"><value>290daaa01b999472f0c7a3890eb6a550fd74c6df</value></prop></item>
 <item oor:path="/org.openoffice.Setup/Office"><prop oor:name="OfficeRestartInProgress" oor:op="fuse"><value>true</value></prop></item>
 <item oor:path="/org.openoffice.Setup/Office"><prop oor:name="ooSetupInstCompleted" oor:op="fuse"><value>true</value></prop></item>
 <item oor:path="/org.openoffice.Setup/Product"><prop oor:name="ooSetupLastVersion" oor:op="fuse"><value>25.8</value></prop></item>

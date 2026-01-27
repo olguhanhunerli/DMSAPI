@@ -3,14 +3,14 @@
  <version>LibreOffice v1</version>
  <device>
   <type>opencl</type>
-  <name>NVIDIA GeForce RTX 4060 Ti</name>
-  <driver>581.42</driver>
-  <time>14370</time>
+  <name>Intel(R) Iris(R) Xe Graphics</name>
+  <driver>32.0.101.7077</driver>
+  <time>max</time>
   <errors>false</errors>
  </device>
  <device>
   <type>native</type>
-  <time>1855488</time>
+  <time>3044352</time>
   <errors>false</errors>
  </device>
 </profile>

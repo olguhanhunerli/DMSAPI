@@ -40,14 +40,14 @@ namespace DMSAPI.Presentation.Controller
 		{
 
 			var result = await _calibrationFileService.CreateAsync(createCalibrationFileDTO, UserId);
-			return Ok(result);
+			return Ok();
 		}
 		[HttpPost("upload")]
 		[Consumes("multipart/form-data")]
 		public async Task<IActionResult> UploadCalibrationFile([FromForm] Entities.DTOs.InstrumentCalibrationDTOs.UploadCalibrationFileDTO uploadCalibrationFileDTO)
 		{
 			var result = await _calibrationFileService.UploadAsync(uploadCalibrationFileDTO, UserId);
-			return Ok(result);
+			return Ok();
 		}
 	}
 }
