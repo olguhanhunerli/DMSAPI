@@ -9,23 +9,28 @@ namespace DMSAPI.Entities.DTOs.InstrumentDTO
 {
     public class UpdateInstrumentDTO
     {
-		public string Name { get; set; } = null!;
+        [MaxLength(120)]
+        public string? Name { get; set; }
 
-		public string? Brand { get; set; }
+        public string? Brand { get; set; }
+        public string? Model { get; set; }
+        public string? Serial_No { get; set; }
 
-		public string? Model { get; set; }
+        public string? Measurement_Range { get; set; }
+        public string? Resolution { get; set; }
+        public string? Unit { get; set; }
 
-		public string? Serial_No { get; set; }
+        public string? Instrument_Type { get; set; }
+        public string? Measurement_Discipline { get; set; }
+        public bool? Is_Critical { get; set; }
+        public string? Risk_Level { get; set; }
+        public string? Measurement_Uncertainty { get; set; }
+        public bool? Environment_Required { get; set; }
+        public string? Environment_Notes { get; set; }
 
-		public string? Measurement_Range { get; set; }
+        public string? Location { get; set; }
 
-		public string? Resolution { get; set; }
-
-		public string? Unit { get; set; }
-
-		public string? Location { get; set; }
-
-		[MaxLength(120)]
-		public string? Owner_Person { get; set; }
-	}
+        [MaxLength(120)]
+        public string? Owner_Person { get; set; }
+    }
 }

@@ -10,51 +10,80 @@ namespace DMSAPI.Entities.Models
 {
     public class Instrument
     {
-		[Key]
-		public int Instrument_Id { get; set; }
-		public int CompanyId { get; set; }
-		[ForeignKey(nameof(CompanyId))]
-		public Company Company { get; set; }
+        [Key]
+        public int Instrument_Id { get; set; }
 
-		[Required, MaxLength(50)]
-		public string Asset_Code { get; set; } = null!;
+        public int CompanyId { get; set; }
 
-		[Required, MaxLength(120)]
-		public string Name { get; set; } = null!;
+        [ForeignKey(nameof(CompanyId))]
+        public Company Company { get; set; } = null!;
 
-		[MaxLength(80)]
-		public string? Brand { get; set; }
+        [Required, MaxLength(50)]
+        public string Asset_Code { get; set; } = null!;
 
-		[MaxLength(80)]
-		public string? Model { get; set; }
+        [Required, MaxLength(120)]
+        public string Name { get; set; } = null!;
 
-		[MaxLength(80)]
-		public string? Serial_No { get; set; }
+        [MaxLength(80)]
+        public string? Brand { get; set; }
 
-		[MaxLength(80)]
-		public string? Measurement_Range { get; set; }
+        [MaxLength(80)]
+        public string? Model { get; set; }
 
-		[MaxLength(40)]
-		public string? Resolution { get; set; }
+        [MaxLength(80)]
+        public string? Serial_No { get; set; }
 
-		[MaxLength(20)]
-		public string? Unit { get; set; }
+        [MaxLength(80)]
+        public string? Measurement_Range { get; set; }
 
-		[MaxLength(120)]
-		public string? Location { get; set; }
-		public string Status { get; set; }
-		[MaxLength(120)]
-		public string? Owner_Person { get; set; }
-		public int CreatedBy { get; set; }
-		public User CreatedByName { get; set; }
-		public int? UpdatedBy { get; set; }
-		public User? UpdatedByName { get; set; }
-		public bool IsActive { get; set; }
-		public bool IsDeleted { get; set; }
-		public int? DeletedBy { get; set; }
-		public User? DeletedByUser { get; set; }
-		public DateTime? DeletedAt { get; set; }
-		public DateTime Created_At { get; set; }
-		public DateTime Updated_At { get; set; }
-	}
+        [MaxLength(40)]
+        public string? Resolution { get; set; }
+
+        [MaxLength(20)]
+        public string? Unit { get; set; }
+
+        [MaxLength(50)]
+        public string? Instrument_Type { get; set; }
+
+        [MaxLength(50)]
+        public string? Measurement_Discipline { get; set; }
+
+        public bool Is_Critical { get; set; } = false;
+
+        [MaxLength(10)]
+        public string? Risk_Level { get; set; }
+
+        [MaxLength(50)]
+        public string? Measurement_Uncertainty { get; set; }
+
+        public bool Environment_Required { get; set; } = false;
+
+        [MaxLength(255)]
+        public string? Environment_Notes { get; set; }
+
+        [MaxLength(120)]
+        public string? Location { get; set; }
+
+        [Required, MaxLength(50)]
+        public string Status { get; set; } = "Aktif";
+
+        [MaxLength(120)]
+        public string? Owner_Person { get; set; }
+
+        public int CreatedBy { get; set; }
+        public User CreatedByName { get; set; } = null!;
+
+        public int? UpdatedBy { get; set; }
+        public User? UpdatedByName { get; set; }
+
+        public bool IsActive { get; set; }
+        public bool IsDeleted { get; set; }
+
+        public int? DeletedBy { get; set; }
+        public User? DeletedByUser { get; set; }
+
+        public DateTime? DeletedAt { get; set; }
+        public DateTime Created_At { get; set; }
+        public DateTime Updated_At { get; set; }
+    }
 }

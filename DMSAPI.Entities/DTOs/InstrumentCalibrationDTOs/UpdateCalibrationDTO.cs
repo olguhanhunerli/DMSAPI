@@ -9,32 +9,36 @@ namespace DMSAPI.Entities.DTOs.InstrumentCalibrationDTOs
 {
     public class UpdateCalibrationDTO
     {
-		[Required]
-		public ulong CalibrationId { get; set; }
+        [Required]
+        public ulong CalibrationId { get; set; }
 
-		[Required]
-		public ulong InstrumentId { get; set; }
+        [Required]
+        public ulong InstrumentId { get; set; }
 
-		[Required]
-		public DateTime CalibrationDate { get; set; }
+        [Required]
+        public DateTime CalibrationDate { get; set; }
 
-		[Range(1, 120)]
-		public int IntervalMonths { get; set; }
+        [Range(1, 120)]
+        public int IntervalMonths { get; set; }
 
-		[Required]
-		[MaxLength(20)]
-		public string Result { get; set; } = default!;  
+        [Required]
+        [MaxLength(20)]
+        public string Result { get; set; } = default!;
 
-		[MaxLength(255)]
-		public string? CalibrationCompany { get; set; }
+        [MaxLength(255)]
+        public string? CalibrationCompany { get; set; }
 
-		[MaxLength(100)]
-		public string? CertificateNo { get; set; }
+        [MaxLength(100)]
+        public string? CertificateNo { get; set; }
 
-		[Required]
-		public int CompanyId { get; set; }
+        [Required]
+        public int CompanyId { get; set; }
 
-		[MaxLength(150)]
-		public string? Location { get; set; }
-	}
+        [MaxLength(150)]
+        public string? Location { get; set; }
+
+        public string? Notes { get; set; }
+
+       
+    }
 }

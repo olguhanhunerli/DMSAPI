@@ -29,7 +29,10 @@ namespace DMSAPI.Business.Repositories
 				.Include(x => x.CreatedByName)
 				.Include(x => x.UpdatedByName)
 				.Include(x => x.Files.Where(x => x.IsDeleted == false))
-				.OrderByDescending(x => x.CalibrationDate);
+				.ThenInclude(x => x.CreatedByName)
+                .Include(x => x.Files.Where(x => x.IsDeleted == false))
+				.ThenInclude(x => x.UpdatedByName)
+                .OrderByDescending(x => x.CalibrationDate);
 			var totalCount = await query.CountAsync();
 			var items = await query
 				.Skip((pageNumber - 1) * pageSize)

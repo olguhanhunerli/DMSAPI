@@ -315,30 +315,30 @@ namespace DMSAPI.Business.Context
 				entity.HasIndex(x => x.InstrumentId);
 				entity.HasIndex(x => x.IsDeleted);
 			});
-			modelBuilder.Entity<InstrumentCalibrationFile>(entity =>
-			{
-				entity.HasKey(x => x.FileId);
+            modelBuilder.Entity<InstrumentCalibrationFile>(entity =>
+            {
+                entity.HasKey(x => x.FileId);
 
-				entity.HasOne(x => x.Calibration)
-					  .WithMany(c => c.Files)
-					  .HasForeignKey(x => x.CalibrationId)
-					  .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(x => x.Calibration)
+                      .WithMany(c => c.Files)
+                      .HasForeignKey(x => x.CalibrationId)
+                      .OnDelete(DeleteBehavior.Restrict);
 
-				entity.HasOne(x => x.CreatedByName)
-					  .WithMany()
-					  .HasForeignKey(x => x.CreatedBy)
-					  .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(x => x.CreatedByName)
+                      .WithMany()
+                      .HasForeignKey(x => x.CreatedBy)
+                      .OnDelete(DeleteBehavior.Restrict);
 
-				entity.HasOne(x => x.UpdatedByName)
-					  .WithMany()
-					  .HasForeignKey(x => x.UpdatedBy)
-					  .OnDelete(DeleteBehavior.Restrict);
-				entity.HasIndex(x => x.CompanyId);
-				entity.HasIndex(x => x.CalibrationId);
-				entity.HasIndex(x => x.IsDeleted);
-			});
+                entity.HasOne(x => x.UpdatedByName)
+                      .WithMany()
+                      .HasForeignKey(x => x.UpdatedBy)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasIndex(x => x.CompanyId);
+                entity.HasIndex(x => x.CalibrationId);
+                entity.HasIndex(x => x.IsDeleted);
+            });
 
 
-		}
+        }
 	}
 }

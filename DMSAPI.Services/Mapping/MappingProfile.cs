@@ -349,7 +349,7 @@ namespace DMSAPI.Services.Mapping
 			.ForMember(d => d.AssetCode, opt => opt.MapFrom(s => s.InstrumentName.Asset_Code))
 			.ForMember(d => d.InstrumentName, opt => opt.MapFrom(s => s.InstrumentName.Name))
 			.ForMember(d => d.SerialNo, opt => opt.MapFrom(s => s.InstrumentName.Serial_No))
-			.ForMember(d => d.Location, opt => opt.MapFrom(s => s.InstrumentName.Location))
+			.ForMember(d => d.InstrumentLocation, opt => opt.MapFrom(s => s.InstrumentName.Location))
 			.ForMember(d => d.CompanyName, opt => opt.MapFrom(s => s.CompanyName.Name)) 
 			.ForMember(d => d.CreatedByName, opt => opt.MapFrom(s => s.CreatedByName.FirstName + " " + s.CreatedByName.LastName))
 			.ForMember(d => d.UpdatedByName, opt => opt.MapFrom(s => s.UpdatedByName.FirstName + " " + s.UpdatedByName.LastName))
@@ -366,7 +366,7 @@ namespace DMSAPI.Services.Mapping
 						s.CreatedByName != null
 							? (s.CreatedByName.FirstName + " " + s.CreatedByName.LastName)
 							: null))
-				.ForMember(d => d.UploadedByName,
+				.ForMember(d => d.UpdatedByName,
 					opt => opt.MapFrom(s =>
 						s.UpdatedByName != null
 							? (s.UpdatedByName.FirstName + " " + s.UpdatedByName.LastName)

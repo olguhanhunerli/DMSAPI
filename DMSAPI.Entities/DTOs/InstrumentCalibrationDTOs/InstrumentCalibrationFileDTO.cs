@@ -9,19 +9,24 @@ namespace DMSAPI.Entities.DTOs.InstrumentCalibrationDTOs
 {
     public class InstrumentCalibrationFileDTO
     {
-		[Key]
-		public int FileId { get; set; }
-		public ulong CalibrationId { get; set; }
+        public ulong FileId { get; set; }
+        public ulong CalibrationId { get; set; }
 
-		public string FileOriginalName { get; set; } = default!;
-		public string FilePath { get; set; } = default!;
-		public string? FileMime { get; set; }
-		public long? FileSize { get; set; }
-		public string? FileType { get; set; }
-		public string? Description { get; set; }
-		public string CreatedByName { get; set; }
-		public string UploadedByName { get; set; }
-		public DateTime CreatedAt { get; set; }
-		public DateTime? UpdatedAt { get; set; } 
-	}
+        public string FileOriginalName { get; set; } = default!;
+        public string FilePath { get; set; } = default!;
+        public string? PdfFilePath { get; set; }
+
+        public string? FileMime { get; set; }
+        public long? FileSize { get; set; }
+        public string? FileType { get; set; }
+        public string? Description { get; set; }
+
+        public string? FileHash { get; set; }
+
+        public string? CreatedByName { get; set; }
+        public string? UpdatedByName { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
 }
