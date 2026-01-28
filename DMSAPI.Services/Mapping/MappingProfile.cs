@@ -2,6 +2,7 @@
 using DMSAPI.Entities.DTOs;
 using DMSAPI.Entities.DTOs.CategoryDTOs;
 using DMSAPI.Entities.DTOs.CompanyDTOs;
+using DMSAPI.Entities.DTOs.ComplaintDTO;
 using DMSAPI.Entities.DTOs.CustomerDTO;
 using DMSAPI.Entities.DTOs.DepartmentDTOs;
 using DMSAPI.Entities.DTOs.DocumentDTOs;
@@ -377,11 +378,24 @@ namespace DMSAPI.Services.Mapping
 			CreateMap<UploadCalibrationFileDTO, InstrumentCalibrationFile>();
 
 			CreateMap<Customer, CustomerDTO>()
-				.ForMember(d => d.CompanyName, opt => opt.MapFrom(s => s.Company.Name));
+				.ForMember(d => d.CompanyName, opt => opt.MapFrom(s => s.Company.Name))
+				.ForMember(d => d.DeletedByName, opt => opt.MapFrom(s => s.DeletedByUser.FirstName + " " + s.DeletedByUser.LastName ));
 			CreateMap<CreateCustomerDTO, Customer>();
 			CreateMap<CreateCustomerDTO, Customer>();
 			CreateMap<UpdateCustomerDTO, Customer>();
 
+			CreateMap<Complaint, ComplaintDTO>()
+				.ForMember(x => x.CompanyName, opt => opt.MapFrom(s => s.Company.Name))
+				.ForMember(x => x.CustomerName, opt => opt.MapFrom(s => s.Customer.Name))
+				.ForMember(x => x.CreatedByName, opt => opt.MapFrom(s => s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName))
+				.ForMember(x => x.AssignedToName, opt => opt.MapFrom(s => s.AssignedToUser.FirstName + " " + s.AssignedToUser.LastName))
+				.ForMember(x => x.UpdateByName, opt => opt.MapFrom(s => s.UpdateByUser.FirstName + " " + s.UpdateByUser.LastName))
+				.ForMember(x => x.DeletedByName, opt => opt.MapFrom(s => s.DeleteByUser.FirstName + " " + s.UpdateByUser.LastName))
+				.ForMember(x => x.ClosedByName, opt => opt.MapFrom(s => s.ClosedByUser.FirstName + " " + s.ClosedByUser.LastName));
+
+            CreateMap<ComplaintDTO, Complaint>();	
+			CreateMap<CreateComplaintDTO, Complaint>();
+			CreateMap<UpdateComplaintDTO, Complaint>();
         }
 		private static List<int> SafeParseJson(string? json)
 		{

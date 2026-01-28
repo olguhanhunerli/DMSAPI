@@ -14,6 +14,6 @@ namespace DMSAPI.Services.IServices
         Task<CustomerDTO?> GetCustomerByIdAsync(int id);
         Task<CustomerDTO> CreateCustomerAsync(CreateCustomerDTO createCustomerDTO);
         Task<CustomerDTO?> UpdateCustomerAsync(int id, UpdateCustomerDTO updateCustomerDTO);
-        Task<bool> DeleteCustomerAsync(int id);
+        Task<bool> DeleteCustomerAsync(int id, int userId);
     }
 }

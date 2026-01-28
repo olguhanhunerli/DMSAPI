@@ -16,5 +16,9 @@ namespace DMSAPI.Entities.Models
         public DateTime CreatedAt { get; set; }
         public int CompanyId { get; set; }
         public Company Company { get; set; }
+        public int? DeletedBy { get; set; }
+        public User? DeletedByUser { get; set; }
+        public DateTime? DeleteAt { get; set; }
+        public bool? IsDelete { get; set; }
     }
 }

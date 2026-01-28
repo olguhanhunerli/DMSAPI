@@ -17,5 +17,8 @@ namespace DMSAPI.Entities.DTOs.CustomerDTO
         public DateTime CreatedAt { get; set; }
         public int CompanyId { get; set; }
         public string CompanyName { get; set; }
+        public string? DeletedByName { get; set; }
+        public DateTime? DeleteAt { get; set; }
+        public bool? IsDelete { get; set; }
     }
 }

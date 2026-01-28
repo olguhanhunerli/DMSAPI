@@ -34,9 +34,10 @@ namespace DMSAPI.Business.Context
 		public DbSet<InstrumentCalibration> InstrumentCalibrations { get; set; }
 		public DbSet<InstrumentCalibrationFile> InstrumentCalibrationFiles { get; set; }
 		public DbSet<Customer> Customers { get; set; }
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
+		public DbSet<Complaint> Complaints { get; set; }
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		{
+			base.OnModelCreating(modelBuilder);
 			modelBuilder.Entity<Company>()
 					.HasKey(c => c.Id);
 
@@ -101,7 +102,7 @@ namespace DMSAPI.Business.Context
 				.WithMany()
 				.HasForeignKey(p => p.UploadedBy)
 				.OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<Department>()
+			modelBuilder.Entity<Department>()
 				.HasOne(d => d.Manager)
 				.WithMany()
 				.HasForeignKey(d => d.ManagerId)
@@ -235,7 +236,7 @@ namespace DMSAPI.Business.Context
 				.WithMany(d => d.AccessLogs)
 				.HasForeignKey(x => x.DocumentId)
 				.OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<DocumentAccessLog>()
+			modelBuilder.Entity<DocumentAccessLog>()
 				.HasOne(x => x.User)
 				.WithMany()
 				.HasForeignKey(x => x.UserId)
@@ -254,7 +255,7 @@ namespace DMSAPI.Business.Context
 				entity.HasIndex(e => e.Location);
 
 				entity.HasOne(i => i.Company)
-					  .WithMany() 
+					  .WithMany()
 					  .HasForeignKey(i => i.CompanyId)
 					  .OnDelete(DeleteBehavior.Restrict);
 			});
@@ -283,7 +284,7 @@ namespace DMSAPI.Business.Context
 				entity.HasKey(x => x.CalibrationId);
 
 				entity.HasOne(x => x.InstrumentName)
-					  .WithMany() 
+					  .WithMany()
 					  .HasForeignKey(x => x.InstrumentId)
 					  .OnDelete(DeleteBehavior.Restrict);
 
@@ -308,7 +309,7 @@ namespace DMSAPI.Business.Context
 					  .OnDelete(DeleteBehavior.Restrict);
 
 				entity.HasMany(x => x.Files)
-					  .WithOne(f => f.Calibration)     
+					  .WithOne(f => f.Calibration)
 					  .HasForeignKey(f => f.CalibrationId)
 					  .OnDelete(DeleteBehavior.Restrict);
 
@@ -316,28 +317,28 @@ namespace DMSAPI.Business.Context
 				entity.HasIndex(x => x.InstrumentId);
 				entity.HasIndex(x => x.IsDeleted);
 			});
-            modelBuilder.Entity<InstrumentCalibrationFile>(entity =>
-            {
-                entity.HasKey(x => x.FileId);
+			modelBuilder.Entity<InstrumentCalibrationFile>(entity =>
+			{
+				entity.HasKey(x => x.FileId);
 
-                entity.HasOne(x => x.Calibration)
-                      .WithMany(c => c.Files)
-                      .HasForeignKey(x => x.CalibrationId)
-                      .OnDelete(DeleteBehavior.Restrict);
+				entity.HasOne(x => x.Calibration)
+					  .WithMany(c => c.Files)
+					  .HasForeignKey(x => x.CalibrationId)
+					  .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(x => x.CreatedByName)
-                      .WithMany()
-                      .HasForeignKey(x => x.CreatedBy)
-                      .OnDelete(DeleteBehavior.Restrict);
+				entity.HasOne(x => x.CreatedByName)
+					  .WithMany()
+					  .HasForeignKey(x => x.CreatedBy)
+					  .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(x => x.UpdatedByName)
-                      .WithMany()
-                      .HasForeignKey(x => x.UpdatedBy)
-                      .OnDelete(DeleteBehavior.Restrict);
-                entity.HasIndex(x => x.CompanyId);
-                entity.HasIndex(x => x.CalibrationId);
-                entity.HasIndex(x => x.IsDeleted);
-            });
+				entity.HasOne(x => x.UpdatedByName)
+					  .WithMany()
+					  .HasForeignKey(x => x.UpdatedBy)
+					  .OnDelete(DeleteBehavior.Restrict);
+				entity.HasIndex(x => x.CompanyId);
+				entity.HasIndex(x => x.CalibrationId);
+				entity.HasIndex(x => x.IsDeleted);
+			});
 			modelBuilder.Entity<Customer>(entity =>
 			{
 				entity.HasKey(c => c.Id);
@@ -345,8 +346,45 @@ namespace DMSAPI.Business.Context
 						.WithMany()
 						.HasForeignKey(c => c.CompanyId)
 						.OnDelete(DeleteBehavior.Restrict);
+				entity.HasOne(x => x.DeletedByUser)
+				.WithMany()
+				.HasForeignKey(x => x.DeletedBy)
+				.OnDelete(DeleteBehavior.Restrict);
+			});
+			modelBuilder.Entity<Complaint>(entity =>
+			{ 
+				entity.HasKey(c => c.Id);
+				entity.HasIndex(c => c.ComplaintNo).IsUnique();
+				entity.HasOne(c => c.Company)
+						.WithMany()
+						.HasForeignKey(c => c.CompanyId)
+						.OnDelete(DeleteBehavior.Restrict);
+				entity.HasOne(c => c.Customer)
+						.WithMany()
+						.HasForeignKey(c => c.CustomerId)
+						.OnDelete(DeleteBehavior.Restrict);
+				entity.HasOne(c => c.CreatedByUser)
+						.WithMany()
+						.HasForeignKey(c => c.CreatedBy)
+						.OnDelete(DeleteBehavior.Restrict);
+				entity.HasOne(c => c.AssignedToUser)
+						.WithMany()
+						.HasForeignKey(c => c.AssignedTo)
+						.OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(c => c.UpdateByUser)
+                        .WithMany()
+                        .HasForeignKey(c => c.UpdateBy)
+                        .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(c => c.DeleteByUser)
+                        .WithMany()
+                        .HasForeignKey(c => c.DeletedBy)
+                        .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(c => c.ClosedByUser)
+                      .WithMany()
+                      .HasForeignKey(c => c.ClosedBy)
+                      .OnDelete(DeleteBehavior.Restrict);
+
             });
-				
 
         }
 	}

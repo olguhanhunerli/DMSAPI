@@ -23,7 +23,7 @@ namespace DMSAPI.Business.Repositories
            if (page <= 0) page = 1;
            if (pageSize <= 0) pageSize = 10;
             var query = _dbSet
-                  .Where(x => x.CompanyId == CompanyId)
+                  .Where(x => x.CompanyId == CompanyId && x.IsDelete != true)
                   .Include(x => x.Company)
                   .OrderBy(x => x.Name);
 
@@ -45,7 +45,7 @@ namespace DMSAPI.Business.Repositories
         {
             var query = _dbSet
                 .Include(x => x.Company)
-                .FirstOrDefaultAsync(x => x.Id == id && x.CompanyId == CompanyId);
+                .FirstOrDefaultAsync(x => x.Id == id && x.CompanyId == CompanyId && x.IsDelete != true);
             return query;
         }
     }

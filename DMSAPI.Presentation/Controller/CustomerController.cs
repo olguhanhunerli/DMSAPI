@@ -55,7 +55,7 @@ namespace DMSAPI.Presentation.Controller
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(int id)
         {
-            var result = await _customerService.DeleteCustomerAsync(id);
+            var result = await _customerService.DeleteCustomerAsync(id, UserId);
             if (!result)
                 return NotFound();
             return NoContent();

@@ -29,12 +29,15 @@ namespace DMSAPI.Services
             return _mapper.Map<CustomerDTO>(entity);
         }
 
-        public async Task<bool> DeleteCustomerAsync(int id)
+        public async Task<bool> DeleteCustomerAsync(int id, int userId)
         {
             var entity = await _customerRepository.GetCustomerByIdAsync(id);
             if (entity == null)
                 return false;
-            await _customerRepository.DeleteAsync(entity);
+            entity.IsDelete = true;
+            entity.DeletedBy = userId;
+            entity.DeleteAt = DateTime.Now;
+            await _customerRepository.UpdateAsync(entity);
             return true;
         }
 
