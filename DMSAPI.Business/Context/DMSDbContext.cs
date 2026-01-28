@@ -33,7 +33,8 @@ namespace DMSAPI.Business.Context
 		public DbSet<Instrument> Instruments { get; set; }
 		public DbSet<InstrumentCalibration> InstrumentCalibrations { get; set; }
 		public DbSet<InstrumentCalibrationFile> InstrumentCalibrationFiles { get; set; }
-		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		public DbSet<Customer> Customers { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 			modelBuilder.Entity<Company>()
@@ -337,7 +338,15 @@ namespace DMSAPI.Business.Context
                 entity.HasIndex(x => x.CalibrationId);
                 entity.HasIndex(x => x.IsDeleted);
             });
-
+			modelBuilder.Entity<Customer>(entity =>
+			{
+				entity.HasKey(c => c.Id);
+				entity.HasOne(c => c.Company)
+						.WithMany()
+						.HasForeignKey(c => c.CompanyId)
+						.OnDelete(DeleteBehavior.Restrict);
+            });
+				
 
         }
 	}

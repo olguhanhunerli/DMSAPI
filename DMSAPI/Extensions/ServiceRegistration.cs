@@ -80,7 +80,10 @@ public static class ServiceRegistration
 		services.AddScoped<ICalibrationFileRepository, CalibrationFileRepository>();
 		services.AddScoped<ICalibrationFileService, CalibrationFileService>();
 
-		services.AddSingleton<ITokenService, TokenService>();
+		services.AddScoped<ICustomerRepository, CustomerRepository>();
+		services.AddScoped<ICustomerService, CustomerService>();
+
+        services.AddSingleton<ITokenService, TokenService>();
 
 		services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 		var jwt = configuration.GetSection("JwtSettings").Get<JwtSettings>();

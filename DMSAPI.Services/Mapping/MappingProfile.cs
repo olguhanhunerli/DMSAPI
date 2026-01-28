@@ -2,6 +2,7 @@
 using DMSAPI.Entities.DTOs;
 using DMSAPI.Entities.DTOs.CategoryDTOs;
 using DMSAPI.Entities.DTOs.CompanyDTOs;
+using DMSAPI.Entities.DTOs.CustomerDTO;
 using DMSAPI.Entities.DTOs.DepartmentDTOs;
 using DMSAPI.Entities.DTOs.DocumentDTOs;
 using DMSAPI.Entities.DTOs.InstrumentCalibrationDTOs;
@@ -375,7 +376,13 @@ namespace DMSAPI.Services.Mapping
 			CreateMap<CreateCalibrationFileDTO, InstrumentCalibrationFile>();
 			CreateMap<UploadCalibrationFileDTO, InstrumentCalibrationFile>();
 
-		}
+			CreateMap<Customer, CustomerDTO>()
+				.ForMember(d => d.CompanyName, opt => opt.MapFrom(s => s.Company.Name));
+			CreateMap<CreateCustomerDTO, Customer>();
+			CreateMap<CreateCustomerDTO, Customer>();
+			CreateMap<UpdateCustomerDTO, Customer>();
+
+        }
 		private static List<int> SafeParseJson(string? json)
 		{
 			if (string.IsNullOrWhiteSpace(json))
