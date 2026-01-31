@@ -46,19 +46,22 @@ namespace DMSAPI.Business.Repositories
             };
         }
 
-        public Task<Complaint?> GetComplaintByIdAsync(long id)
+        public Task<Complaint?> GetByComplaintNoAsync(string complaintNo)
         {
-            var query = _dbSet
-                .Where(x => x.CompanyId == CompanyId && x.Id == id && x.IsDeleted != true)
-                .Include(c => c.Customer)
-                .Include(c => c.AssignedToUser)
-                .Include(c => c.CreatedByUser)
-                .Include(c => c.DeleteByUser)
-                .Include(c => c.UpdateByUser)
-                .Include(x => x.Company)
-                .Include(x => x.ClosedByUser)
-                .AsNoTracking();
-            return query.FirstOrDefaultAsync();
-        }
+			return _dbSet
+		  .Where(x =>
+			  x.CompanyId == CompanyId &&
+			  x.ComplaintNo == complaintNo &&
+			  x.IsDeleted != true)
+		  .Include(c => c.Customer)
+		  .Include(c => c.AssignedToUser)
+		  .Include(c => c.CreatedByUser)
+		  .Include(c => c.DeleteByUser)
+		  .Include(c => c.UpdateByUser)
+		  .Include(c => c.Company)
+		  .Include(c => c.ClosedByUser)
+		  .AsNoTracking()
+		  .FirstOrDefaultAsync();
+		}
     }
 }

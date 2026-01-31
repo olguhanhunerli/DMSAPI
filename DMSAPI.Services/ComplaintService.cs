@@ -50,9 +50,9 @@ namespace DMSAPI.Services
 
 		}
 
-        public async Task DeleteComplaintAsync(int id, int userId)
+        public async Task DeleteComplaintAsync(string complaintNo, int userId)
         {
-            var entity = await _complaintRepository.GetComplaintByIdAsync(id);
+            var entity = await _complaintRepository.GetByComplaintNoAsync(complaintNo);
             if (entity == null)
                 throw new KeyNotFoundException("Complaint not found");
             entity.DeletedBy = userId;
@@ -74,17 +74,17 @@ namespace DMSAPI.Services
             };
         }
 
-        public async Task<ComplaintDTO?> GetComplaintByIdAsync(long id)
+        public async Task<ComplaintDTO?> GetComplaintByNoAsync(string complaintNo)
         {
-            var entity = await _complaintRepository.GetComplaintByIdAsync(id);
+            var entity = await _complaintRepository.GetByComplaintNoAsync(complaintNo);
             if (entity == null)
                 return null;
             return _mapper.Map<ComplaintDTO>(entity);
         }
 
-        public async Task UpdateClosedAsync(int id,int userId)
+        public async Task UpdateClosedAsync(string complaintNo,int userId)
         {
-            var entity = await _complaintRepository.GetComplaintByIdAsync(id);
+            var entity = await _complaintRepository.GetByComplaintNoAsync(complaintNo);
             if (entity == null)
                 throw new KeyNotFoundException("Complaint not found");
             entity.IsClosed = true;
@@ -95,9 +95,9 @@ namespace DMSAPI.Services
 
         }
 
-        public async Task<ComplaintDTO> UpdateComplaintAsync(int id, UpdateComplaintDTO updateComplaintDTO, int userId, int companyId)
+        public async Task<ComplaintDTO> UpdateComplaintByNoAsync(string complaintNo, UpdateComplaintDTO updateComplaintDTO, int userId, int companyId)
         {
-			var entity = await _complaintRepository.GetComplaintByIdAsync(id);
+			var entity = await _complaintRepository.GetByComplaintNoAsync(complaintNo);
 			if (entity == null)
 				throw new KeyNotFoundException("Complaint not found");
 
@@ -112,7 +112,6 @@ namespace DMSAPI.Services
 			entity.UpdatedAt = DateTime.UtcNow;
 			entity.Status = "GÜNCELLENDİ";
 
-			// update sonrası NeedsCapa yeniden hesaplanabilir
 			entity.NeedsCapa = entity.SeverityId >= 3 || entity.IsRepeat;
 
 			await _complaintRepository.UpdateAsync(entity);

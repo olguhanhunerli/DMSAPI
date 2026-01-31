@@ -12,6 +12,6 @@ namespace DMSAPI.Business.Repositories.IRepositories
     public interface IComplaintRepository: IGenericRepository<Complaint>
     {
         Task<PagedResultDTO<Complaint>> GetAllComplaintsAsync(int pageNumber, int pageSize);
-        Task<Complaint?> GetComplaintByIdAsync(long id);
+        Task<Complaint?> GetByComplaintNoAsync(string complaintNo);
     }
 }
