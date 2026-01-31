@@ -383,7 +383,8 @@ namespace DMSAPI.Services.Mapping
 			CreateMap<CreateCustomerDTO, Customer>();
 			CreateMap<CreateCustomerDTO, Customer>();
 			CreateMap<UpdateCustomerDTO, Customer>();
-
+			CreateMap<CustomerMiniDTO, Customer>();
+			CreateMap<Customer, CustomerMiniDTO>();
 			CreateMap<Complaint, ComplaintDTO>()
 				.ForMember(d => d.CompanyName,
 					o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
@@ -402,7 +403,7 @@ namespace DMSAPI.Services.Mapping
 
 			CreateMap<CreateComplaintDTO, Complaint>();
 			CreateMap<UpdateComplaintDTO, Complaint>();
-        }
+		}
 		private static List<int> SafeParseJson(string? json)
 		{
 			if (string.IsNullOrWhiteSpace(json))

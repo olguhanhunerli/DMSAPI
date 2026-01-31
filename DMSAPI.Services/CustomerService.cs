@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Services
 {
-    public class CustomerService : ICustomerService
+	public class CustomerService : ICustomerService
     {
         private readonly ICustomerRepository _customerRepository;
         private readonly IMapper _mapper;
@@ -54,7 +54,15 @@ namespace DMSAPI.Services
                 };
         }
 
-        public async Task<CustomerDTO?> GetCustomerByIdAsync(int id)
+		public async Task<List<CustomerMiniDTO?>> GetCustomerByCompanyId(int id)
+		{
+			var entity = await _customerRepository.GetCustomerByCompanyId(id);
+			if (entity == null)
+				return null;
+			return _mapper.Map<List<CustomerMiniDTO>>(entity);
+		}
+
+		public async Task<CustomerDTO?> GetCustomerByIdAsync(int id)
         {
             var entity = await _customerRepository.GetCustomerByIdAsync(id);
             if (entity == null)

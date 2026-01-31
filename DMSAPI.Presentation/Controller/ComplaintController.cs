@@ -65,5 +65,6 @@ namespace DMSAPI.Presentation.Controller
 			var complaint = await _complaintService.UpdateComplaintAsync(id, dto, UserId, CompanyId);
 			return Ok(complaint);
 		}
+        
 	}
 }

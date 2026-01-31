@@ -34,7 +34,15 @@ namespace DMSAPI.Presentation.Controller
                 return NotFound();
             return Ok(customer);
         }
-        [HttpPost]
+        [HttpGet("lookup{id}")]
+		public async Task<IActionResult> GetCustomerByCompanyId(int id)
+		{
+			var customer = await _customerService.GetCustomerByCompanyId(id);
+			if (customer == null)
+				return NotFound();
+			return Ok(customer);
+		}
+		[HttpPost]
         public async Task<IActionResult> CreateCustomer([FromBody] CreateCustomerDTO customerCreateDto)
         {
             if (!ModelState.IsValid)

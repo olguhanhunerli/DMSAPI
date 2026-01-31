@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Business.Repositories
 {
-    public class CustomerRepository: GenericRepository<Customer>, ICustomerRepository
+	public class CustomerRepository : GenericRepository<Customer>, ICustomerRepository
     {
         public CustomerRepository(DMSDbContext context, IHttpContextAccessor accessor) : base(context, accessor)
         {
@@ -41,7 +41,16 @@ namespace DMSAPI.Business.Repositories
             };
         }
 
-        public Task<Customer?> GetCustomerByIdAsync(int id)
+		public async Task<List<Customer?>> GetCustomerByCompanyId(int id)
+		{
+            var query = await _dbSet
+                .Where(x => x.CompanyId == id && x.IsDelete != true)
+                .Include(x => x.Company)
+                .ToListAsync();
+			return query;
+		}
+
+		public Task<Customer?> GetCustomerByIdAsync(int id)
         {
             var query = _dbSet
                 .Include(x => x.Company)

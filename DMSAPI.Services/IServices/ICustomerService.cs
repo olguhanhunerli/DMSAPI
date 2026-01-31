@@ -1,5 +1,6 @@
 ﻿using DMSAPI.Entities.DTOs.Common;
 using DMSAPI.Entities.DTOs.CustomerDTO;
+using DMSAPI.Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,9 @@ namespace DMSAPI.Services.IServices
     {
         Task<PagedResultDTO<CustomerDTO>> GetAllCustomerAsync(int page, int pageSize);
         Task<CustomerDTO?> GetCustomerByIdAsync(int id);
-        Task<CustomerDTO> CreateCustomerAsync(CreateCustomerDTO createCustomerDTO);
+		Task<List<CustomerMiniDTO?>> GetCustomerByCompanyId(int id);
+
+		Task<CustomerDTO> CreateCustomerAsync(CreateCustomerDTO createCustomerDTO);
         Task<CustomerDTO?> UpdateCustomerAsync(int id, UpdateCustomerDTO updateCustomerDTO);
         Task<bool> DeleteCustomerAsync(int id, int userId);
     }

@@ -13,5 +13,6 @@ namespace DMSAPI.Business.Repositories.IRepositories
     {
         Task<PagedResultDTO<Customer>> GetAllCustomerAsync(int page, int pageSize);
         Task <Customer?> GetCustomerByIdAsync(int id);
+        Task<List<Customer?>> GetCustomerByCompanyId(int id);
     }
 }
