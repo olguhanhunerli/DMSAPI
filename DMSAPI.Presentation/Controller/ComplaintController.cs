@@ -35,13 +35,16 @@ namespace DMSAPI.Presentation.Controller
             }
             return Ok(complaint);
         }
-        [HttpPost]
-        public async Task<IActionResult> CreateComplaint([FromBody] CreateComplaintDTO createComplaintDTO)
-        {
-            var complaint = await _complaintService.CreateComplaintAsync(createComplaintDTO, UserId);
-            return Ok(complaint);
-        }
-        [HttpPost("close")]
+		[HttpPost]
+		public async Task<IActionResult> CreateComplaint([FromBody] CreateComplaintDTO dto)
+		{
+			if (UserId == 0 || CompanyId == 0) return Unauthorized();
+			dto.CompanyId = CompanyId;
+
+			var complaint = await _complaintService.CreateComplaintAsync(dto, UserId, CompanyId);
+			return Ok(complaint);
+		}
+		[HttpPost("close")]
         public async Task<IActionResult> UpdateIsClosed(int id)
         {
             await _complaintService.UpdateClosedAsync(id, UserId);
@@ -53,11 +56,14 @@ namespace DMSAPI.Presentation.Controller
             await _complaintService.DeleteComplaintAsync(id, UserId);
             return Ok();
         }
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateComplaint(int id, [FromBody] UpdateComplaintDTO updateComplaintDTO)
-        {
-            var complaint = await _complaintService.UpdateComplaintAsync(id, updateComplaintDTO, UserId);
-            return Ok(complaint);
-        }
-    }
+		[HttpPut("{id:int}")]
+		public async Task<IActionResult> UpdateComplaint(int id, [FromBody] UpdateComplaintDTO dto)
+		{
+			if (UserId == 0 || CompanyId == 0) return Unauthorized();
+
+			dto.CompanyId = CompanyId; 
+			var complaint = await _complaintService.UpdateComplaintAsync(id, dto, UserId, CompanyId);
+			return Ok(complaint);
+		}
+	}
 }

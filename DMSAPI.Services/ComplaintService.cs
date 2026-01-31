@@ -23,30 +23,32 @@ namespace DMSAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<ComplaintDTO> CreateComplaintAsync(CreateComplaintDTO createComplaintDTO, int userId)
+        public async Task<ComplaintDTO> CreateComplaintAsync(CreateComplaintDTO createComplaintDTO, int userId, int companyId)
         {
 
 
-            var entity = _mapper.Map<Complaint>(createComplaintDTO);
+			var entity = _mapper.Map<Complaint>(createComplaintDTO);
 
-            if (entity.AssignedTo.HasValue && entity.AssignedTo.Value == 0)
-                entity.AssignedTo = null;
+			entity.CompanyId = companyId;
 
-            entity.CreatedBy = userId;
-            entity.ReportedAt = DateTime.UtcNow;
-            entity.CreatedAt = DateTime.UtcNow;
-            entity.UpdatedAt = DateTime.UtcNow;
-            entity.Status = "AÇIK";
+			if (entity.AssignedTo.HasValue && entity.AssignedTo.Value == 0)
+				entity.AssignedTo = null;
 
-            entity.NeedsCapa = entity.SeverityId >= 3 || entity.IsRepeat;
+			entity.CreatedBy = userId;
+			entity.ReportedAt = DateTime.UtcNow;
+			entity.CreatedAt = DateTime.UtcNow;
+			entity.UpdatedAt = DateTime.UtcNow;
+			entity.Status = "AÇIK";
 
-            entity.ComplaintNo = await GenerateComplaintNoAsync(entity.CompanyId);
+			entity.NeedsCapa = entity.SeverityId >= 3 || entity.IsRepeat;
 
-            await _complaintRepository.AddAsync(entity);
+			entity.ComplaintNo = await GenerateComplaintNoAsync(entity.CompanyId);
 
-            return _mapper.Map<ComplaintDTO>(entity);
+			await _complaintRepository.AddAsync(entity);
 
-        }
+			return _mapper.Map<ComplaintDTO>(entity);
+
+		}
 
         public async Task DeleteComplaintAsync(int id, int userId)
         {
@@ -93,20 +95,30 @@ namespace DMSAPI.Services
 
         }
 
-        public async Task<ComplaintDTO> UpdateComplaintAsync(int id, UpdateComplaintDTO updateComplaintDTO, int userId)
+        public async Task<ComplaintDTO> UpdateComplaintAsync(int id, UpdateComplaintDTO updateComplaintDTO, int userId, int companyId)
         {
-            var entity = await _complaintRepository.GetComplaintByIdAsync(id);
-            if (entity == null)
-                throw new KeyNotFoundException("Complaint not found");
-            _mapper.Map(updateComplaintDTO, entity);
-            if (entity.AssignedTo.HasValue && entity.AssignedTo.Value == 0)
-                entity.AssignedTo = null;
-            entity.UpdateBy = userId;
-            entity.UpdatedAt = DateTime.UtcNow;
-            entity.Status = "GÜNCELLENDİ";
-            await _complaintRepository.UpdateAsync(entity);
-            return _mapper.Map<ComplaintDTO>(entity);
-        }
+			var entity = await _complaintRepository.GetComplaintByIdAsync(id);
+			if (entity == null)
+				throw new KeyNotFoundException("Complaint not found");
+
+			updateComplaintDTO.CompanyId = companyId;
+
+			_mapper.Map(updateComplaintDTO, entity);
+
+			if (entity.AssignedTo.HasValue && entity.AssignedTo.Value == 0)
+				entity.AssignedTo = null;
+
+			entity.UpdateBy = userId;
+			entity.UpdatedAt = DateTime.UtcNow;
+			entity.Status = "GÜNCELLENDİ";
+
+			// update sonrası NeedsCapa yeniden hesaplanabilir
+			entity.NeedsCapa = entity.SeverityId >= 3 || entity.IsRepeat;
+
+			await _complaintRepository.UpdateAsync(entity);
+
+			return _mapper.Map<ComplaintDTO>(entity);
+		}
 
         private Task<string> GenerateComplaintNoAsync(int companyId)
         {

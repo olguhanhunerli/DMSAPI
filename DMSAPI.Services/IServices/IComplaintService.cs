@@ -13,9 +13,9 @@ namespace DMSAPI.Services.IServices
     {
         Task<PagedResultDTO<ComplaintDTO>> GetAllComplaintsAsync(int pageNumber, int pageSize);
         Task<ComplaintDTO?> GetComplaintByIdAsync(long id);
-        Task<ComplaintDTO> CreateComplaintAsync(CreateComplaintDTO createComplaintDTO, int userId);
+        Task<ComplaintDTO> CreateComplaintAsync(CreateComplaintDTO createComplaintDTO, int userId, int companyId);
         Task UpdateClosedAsync(int id, int userId);
         Task DeleteComplaintAsync(int id, int userId);
-        Task <ComplaintDTO> UpdateComplaintAsync(int id, UpdateComplaintDTO updateComplaintDTO, int userId);
+        Task <ComplaintDTO> UpdateComplaintAsync(int id, UpdateComplaintDTO updateComplaintDTO, int userId, int companyId);
     }
 }

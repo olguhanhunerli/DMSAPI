@@ -385,15 +385,21 @@ namespace DMSAPI.Services.Mapping
 			CreateMap<UpdateCustomerDTO, Customer>();
 
 			CreateMap<Complaint, ComplaintDTO>()
-				.ForMember(x => x.CompanyName, opt => opt.MapFrom(s => s.Company.Name))
-				.ForMember(x => x.CustomerName, opt => opt.MapFrom(s => s.Customer.Name))
-				.ForMember(x => x.CreatedByName, opt => opt.MapFrom(s => s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName))
-				.ForMember(x => x.AssignedToName, opt => opt.MapFrom(s => s.AssignedToUser.FirstName + " " + s.AssignedToUser.LastName))
-				.ForMember(x => x.UpdateByName, opt => opt.MapFrom(s => s.UpdateByUser.FirstName + " " + s.UpdateByUser.LastName))
-				.ForMember(x => x.DeletedByName, opt => opt.MapFrom(s => s.DeleteByUser.FirstName + " " + s.UpdateByUser.LastName))
-				.ForMember(x => x.ClosedByName, opt => opt.MapFrom(s => s.ClosedByUser.FirstName + " " + s.ClosedByUser.LastName));
+				.ForMember(d => d.CompanyName,
+					o => o.MapFrom(s => s.Company != null ? s.Company.Name : null))
+				.ForMember(d => d.CustomerName,
+					o => o.MapFrom(s => s.Customer != null ? s.Customer.Name : null))
+				.ForMember(d => d.CreatedByName,
+					o => o.MapFrom(s => s.CreatedByUser != null ? (s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName) : null))
+				.ForMember(d => d.AssignedToName,
+					o => o.MapFrom(s => s.AssignedToUser != null ? (s.AssignedToUser.FirstName + " " + s.AssignedToUser.LastName) : null))
+				.ForMember(d => d.UpdateByName,
+					o => o.MapFrom(s => s.UpdateByUser != null ? (s.UpdateByUser.FirstName + " " + s.UpdateByUser.LastName) : null))
+				.ForMember(d => d.DeletedByName,
+					o => o.MapFrom(s => s.DeleteByUser != null ? (s.DeleteByUser.FirstName + " " + s.DeleteByUser.LastName) : null))
+				.ForMember(d => d.ClosedByName,
+					o => o.MapFrom(s => s.ClosedByUser != null ? (s.ClosedByUser.FirstName + " " + s.ClosedByUser.LastName) : null));
 
-            CreateMap<ComplaintDTO, Complaint>();	
 			CreateMap<CreateComplaintDTO, Complaint>();
 			CreateMap<UpdateComplaintDTO, Complaint>();
         }

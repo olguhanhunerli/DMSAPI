@@ -22,8 +22,20 @@ namespace DMSAPI.Entities.DTOs.ComplaintDTO
 
         public string Title { get; set; } = null!;
         public string Description { get; set; } = null!;
+		public string? PartNumber { get; set; }
+		public string? PartRevision { get; set; }
+		public string? LotNumber { get; set; }
+		public string? SerialNumber { get; set; }
+		public DateTime? ProductionDate { get; set; }
+		public string? ProductionLine { get; set; }
 
-        public bool IsRepeat { get; set; }
+		public string? CustomerComplaintNo { get; set; }
+		public string? CustomerPO { get; set; }
+		public string? DeliveryNoteNo { get; set; }
+
+		public int? QuantityAffected { get; set; }
+		public string? ContainmentAction { get; set; }
+		public bool IsRepeat { get; set; }
         public bool NeedsCapa { get; set; }
         public bool InterimActionRequired { get; set; }
         public string? InterimActionNote { get; set; }
