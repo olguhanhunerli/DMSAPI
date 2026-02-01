@@ -15,6 +15,8 @@ namespace DMSAPI.Services.IServices
 		Task<InstrumentCalibrationFileDTO?> GetCalibrationFileByIdAsync(ulong fileId);
 		Task<InstrumentCalibrationFileDTO> CreateAsync(CreateCalibrationFileDTO createCalibrationFileDTO, int userId);
 		Task<InstrumentCalibrationFileDTO> UploadAsync(UploadCalibrationFileDTO uploadCalibrationFileDTO, int userId);
+		Task<(Stream Stream, string ContentType, string DownloadFileName)> DownloadAsync(ulong fileId, bool asPdf = false);
+		Task<bool> DeleteAsync(ulong fileId, int userId, bool deletePhysicalFiles = false);
 
 	}
 }

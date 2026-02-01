@@ -2,6 +2,7 @@
 using DMSAPI.Entities.DTOs;
 using DMSAPI.Entities.DTOs.CategoryDTOs;
 using DMSAPI.Entities.DTOs.CompanyDTOs;
+using DMSAPI.Entities.DTOs.ComplaintAttachment;
 using DMSAPI.Entities.DTOs.ComplaintDTO;
 using DMSAPI.Entities.DTOs.CustomerDTO;
 using DMSAPI.Entities.DTOs.DepartmentDTOs;
@@ -403,6 +404,11 @@ namespace DMSAPI.Services.Mapping
 
 			CreateMap<CreateComplaintDTO, Complaint>();
 			CreateMap<UpdateComplaintDTO, Complaint>();
+
+			CreateMap<ComplaintAttachment, ComplaintAttachmentDTO>()
+				.ForMember(d => d.UploadedByName,
+					o => o.MapFrom(s => s.UploadedByUser != null ? (s.UploadedByUser.FirstName + " " + s.UploadedByUser.LastName) : null));
+			CreateMap<CreateComplaintAttachmentDTO, ComplaintAttachment>();
 		}
 		private static List<int> SafeParseJson(string? json)
 		{

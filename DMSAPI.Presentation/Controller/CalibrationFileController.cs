@@ -49,5 +49,21 @@ namespace DMSAPI.Presentation.Controller
 			var result = await _calibrationFileService.UploadAsync(uploadCalibrationFileDTO, UserId);
 			return Ok();
 		}
+		[HttpGet("download/{fileId}")]
+		public async Task<IActionResult> DownloadCalibrationFile(ulong fileId, [FromQuery] bool asPdf = false)
+		{
+			var (stream, contentType, name) = await _calibrationFileService.DownloadAsync(fileId, asPdf);
+			return File(stream, contentType, name);
+		}
+		[HttpDelete("delete/{fileId}")]
+		public async Task<IActionResult> DeleteCalibrationFile([FromRoute] ulong fileId, [FromQuery] bool deletePhysicalFiles = false)
+		{
+			var result = await _calibrationFileService.DeleteAsync(fileId, UserId, deletePhysicalFiles);
+			if (!result)
+			{
+				return NotFound();
+			}
+			return Ok();
+		}
 	}
 }

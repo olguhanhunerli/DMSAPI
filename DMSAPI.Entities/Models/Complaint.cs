@@ -60,5 +60,6 @@ namespace DMSAPI.Entities.Models
         public User? DeleteByUser { get; set; }
         public User? UpdateByUser { get; set; }
         public User? ClosedByUser { get; set; }
-    }
+		public ICollection<ComplaintAttachment> Attachments { get; set; } = new List<ComplaintAttachment>();
+	}
 }

@@ -1,0 +1,20 @@
+﻿using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DMSAPI.Entities.DTOs.ComplaintAttachment
+{
+	public class CreateComplaintAttachmentDTO
+	{
+		[Required]
+		public string ComplaintNo { get; set; } = null!;
+
+		[Required]
+		public IFormFile File { get; set; } = null!;
+
+	}
+}

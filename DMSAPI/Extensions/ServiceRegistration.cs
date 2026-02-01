@@ -86,7 +86,10 @@ public static class ServiceRegistration
 		services.AddScoped<IComplaintRepository, ComplaintRepository>();
 		services.AddScoped<IComplaintService, ComplaintService>();
 
-        services.AddSingleton<ITokenService, TokenService>();
+		services.AddScoped<IComplaintAttachmentRepository, ComplaintAttachmentRepository>();
+		services.AddScoped<IComplaintAttachmentService, ComplaintAttachmentService>();
+
+		services.AddSingleton<ITokenService, TokenService>();
 
 		services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 		var jwt = configuration.GetSection("JwtSettings").Get<JwtSettings>();

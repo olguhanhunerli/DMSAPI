@@ -155,8 +155,13 @@ namespace DMSAPI.Services
 			{
 				throw new Exception("PDF file not found after upload");
 			}
-			var originalRelPath = $"/files/calibration_files/{uploadCalibrationFileDTO.CalibrationId}/{cleanName}";
-			var pdfRelPath = $"/files/calibration_files/{uploadCalibrationFileDTO.CalibrationId}/{pdfFileNMame}";
+
+			var instrumentFolder = Path.GetFileName(uploadCalibrationFileDTO.InstrumentName);
+
+			var originalRelPath = $"/files/calibration_files/{instrumentFolder}/{cleanName}";
+			var pdfRelPath = $"/files/calibration_files/{instrumentFolder}/{pdfFileNMame}";
+
+		
 			var entity = new InstrumentCalibrationFile
 			{
 				CalibrationId = uploadCalibrationFileDTO.CalibrationId,
@@ -181,6 +186,74 @@ namespace DMSAPI.Services
 			await _calibrationFileRepository.AddAsync(entity);
 			return _mapper.Map<InstrumentCalibrationFileDTO>(entity);
 		}
+		public async Task<(Stream Stream, string ContentType, string DownloadFileName)> DownloadAsync(ulong fileId, bool asPdf = false)
+		{
+			var entity = await _calibrationFileRepository.GetCalibrationFileByIdAsync(fileId)
+				?? throw new Exception("Calibration file not found");
 
+			var relPath = asPdf ? entity.PdfFilePath : entity.FilePath;
+
+			if (string.IsNullOrWhiteSpace(relPath))
+				throw new Exception(asPdf ? "PDF path is empty" : "File path is empty");
+
+			var relative = relPath.Trim().TrimStart('/');
+			relative = relative.Replace("/", Path.DirectorySeparatorChar.ToString());
+
+			var physicalPath = Path.Combine(_env.ContentRootPath, relative);
+
+			if (!File.Exists(physicalPath))
+				throw new Exception($"Calibration file not found on disk. PhysicalPath={physicalPath}");
+
+			var stream = new FileStream(physicalPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+			var contentType = asPdf ? "application/pdf"
+									: (!string.IsNullOrWhiteSpace(entity.FileMime) ? entity.FileMime : "application/octet-stream");
+
+			var downloadName = asPdf
+				? (Path.GetFileName(entity.PdfFilePath) ?? (Path.GetFileNameWithoutExtension(entity.FileOriginalName) + ".pdf"))
+				: entity.FileOriginalName;
+
+			return (stream, contentType, downloadName);
+		}
+
+		public async Task<bool> DeleteAsync(ulong fileId, int userId, bool deletePhysicalFiles = false)
+		{
+			var entity = await _calibrationFileRepository.GetCalibrationFileByIdAsync(fileId);
+			if (entity == null)
+			{
+				throw new Exception("Calibration file not found");
+			}
+			entity.IsDeleted = true;
+			entity.DeletedAt = DateTime.UtcNow;
+			entity.DeletedBy = userId;
+			await _calibrationFileRepository.UpdateAsync(entity);
+			return true;
+		}
+		private string ToPhysicalPath(string relativeOrAbsolutePath)
+		{
+			var p = relativeOrAbsolutePath.Trim();
+			if (Path.IsPathRooted(p)) return p;
+
+			p = p.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString());
+			return Path.Combine(_env.ContentRootPath, p);
+		}
+
+		private static string GetContentType(string fileName, string? fallbackMime = null)
+		{
+			if (!string.IsNullOrWhiteSpace(fallbackMime)) return fallbackMime;
+
+			var ext = Path.GetExtension(fileName).ToLowerInvariant();
+			return ext switch
+			{
+				".pdf" => "application/pdf",
+				".jpg" or ".jpeg" => "image/jpeg",
+				".png" => "image/png",
+				".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+				".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+				_ => "application/octet-stream"
+			};
+		}
+
+		
 	}
 }

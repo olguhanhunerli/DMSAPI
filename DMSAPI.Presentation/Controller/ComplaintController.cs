@@ -1,6 +1,7 @@
 ﻿using DMSAPI.Entities.DTOs.ComplaintDTO;
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -15,9 +16,11 @@ namespace DMSAPI.Presentation.Controller
     public class ComplaintController : BaseApiController
     {
         private readonly IComplaintService _complaintService;
-        public ComplaintController(IComplaintService complaintService)
+        private readonly IComplaintAttachmentService _complaintAttachmentService;
+        public ComplaintController(IComplaintService complaintService, IComplaintAttachmentService complaintAttachmentService)
         {
             _complaintService = complaintService;
+            _complaintAttachmentService = complaintAttachmentService;
         }
         [HttpGet]
         public async Task<IActionResult> GetAllComplaints([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
@@ -35,16 +38,16 @@ namespace DMSAPI.Presentation.Controller
             }
             return Ok(complaint);
         }
-		[HttpPost]
-		public async Task<IActionResult> CreateComplaint([FromBody] CreateComplaintDTO dto)
-		{
-			if (UserId == 0 || CompanyId == 0) return Unauthorized();
-			dto.CompanyId = CompanyId;
+        [HttpPost]
+        public async Task<IActionResult> CreateComplaint([FromBody] CreateComplaintDTO dto)
+        {
+            if (UserId == 0 || CompanyId == 0) return Unauthorized();
+            dto.CompanyId = CompanyId;
 
-			var complaint = await _complaintService.CreateComplaintAsync(dto, UserId, CompanyId);
-			return Ok(complaint);
-		}
-		[HttpPost("close")]
+            var complaint = await _complaintService.CreateComplaintAsync(dto, UserId, CompanyId);
+            return Ok(complaint);
+        }
+        [HttpPost("close")]
         public async Task<IActionResult> UpdateIsClosed(string complaintNo)
         {
             await _complaintService.UpdateClosedAsync(complaintNo, UserId);
@@ -56,15 +59,43 @@ namespace DMSAPI.Presentation.Controller
             await _complaintService.DeleteComplaintAsync(complaintNo, UserId);
             return Ok();
         }
-		[HttpPut("{complaintNo}")]
-		public async Task<IActionResult> UpdateComplaint(string complaintNo, [FromBody] UpdateComplaintDTO dto)
-		{
-			if (UserId == 0 || CompanyId == 0) return Unauthorized();
+        [HttpPut("{complaintNo}")]
+        public async Task<IActionResult> UpdateComplaint(string complaintNo, [FromBody] UpdateComplaintDTO dto)
+        {
+            if (UserId == 0 || CompanyId == 0) return Unauthorized();
 
-			dto.CompanyId = CompanyId; 
-			var complaint = await _complaintService.UpdateComplaintByNoAsync(complaintNo, dto, UserId, CompanyId);
-			return Ok(complaint);
+            dto.CompanyId = CompanyId;
+            var complaint = await _complaintService.UpdateComplaintByNoAsync(complaintNo, dto, UserId, CompanyId);
+            return Ok(complaint);
+        }
+        [HttpGet("{complaintNo}/attachments")]
+        public async Task<IActionResult> GetComplaintAttachments(string complaintNo)
+        {
+            var attachments = await _complaintAttachmentService.GetByComplaintNoAsync(complaintNo);
+            return Ok(attachments);
+
+        }
+        [HttpPost("{complaintNo}/attachments")]
+        public async Task<IActionResult> UploadComplaintAttachment(string complaintNo, IFormFile file)
+        {
+            if (UserId == 0) return Unauthorized();
+            var attachment = await _complaintAttachmentService.UploadAsync(complaintNo, file, UserId);
+            return Ok(attachment);
+        }
+		[HttpDelete("attachments/{id}")]
+		public async Task<IActionResult> DeleteComplaintAttachment(long id)
+		{
+			if (UserId == 0) return Unauthorized();
+			var result = await _complaintAttachmentService.DeleteAsync(id, UserId);
+			if (!result)
+				return NotFound();
+			return Ok();
 		}
-        
+        [HttpGet("attachments/download/{id}")]
+		public async Task<IActionResult> DownloadComplaintAttachment(long id)
+		{
+			var (stream, contentType, downloadFileName) = await _complaintAttachmentService.DownloadAsync(id);
+			return File(stream, contentType, downloadFileName);
+		}
 	}
 }

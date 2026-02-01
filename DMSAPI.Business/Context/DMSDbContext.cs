@@ -20,7 +20,6 @@ namespace DMSAPI.Business.Context
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Position> Positions { get; set; }
-
         public DbSet<Document> Documents { get; set; }
         public DbSet<DocumentAttachment> DocumentAttachments { get; set; }
         public DbSet<DocumentVersion> DocumentVersions { get; set; }
@@ -35,6 +34,7 @@ namespace DMSAPI.Business.Context
 		public DbSet<InstrumentCalibrationFile> InstrumentCalibrationFiles { get; set; }
 		public DbSet<Customer> Customers { get; set; }
 		public DbSet<Complaint> Complaints { get; set; }
+		public DbSet<ComplaintAttachment> ComplaintAttachments { get; set; }
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			base.OnModelCreating(modelBuilder);
@@ -385,7 +385,34 @@ namespace DMSAPI.Business.Context
                       .OnDelete(DeleteBehavior.Restrict);
 
             });
+			modelBuilder.Entity<ComplaintAttachment>(entity =>
+			{
+				entity.HasKey(ca => ca.Id);
 
-        }
+				entity.Property(ca => ca.ComplaintNo)
+					.HasMaxLength(30)
+					.IsRequired();
+
+				entity.HasOne(ca => ca.Complaint)
+					.WithMany(c => c.Attachments)
+					.HasForeignKey(ca => ca.ComplaintNo)
+					.HasPrincipalKey(c => c.ComplaintNo) 
+					.OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasOne(ca => ca.UploadedByUser)
+					.WithMany()
+					.HasForeignKey(ca => ca.UploadedBy)
+					.OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(ca => ca.DeletedByUser)
+					.WithMany()
+					.HasForeignKey(ca => ca.DeletedBy)
+					.OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasIndex(ca => new { ca.ComplaintNo, ca.UploadedAt });
+			});
+
+
+		}
 	}
 }
