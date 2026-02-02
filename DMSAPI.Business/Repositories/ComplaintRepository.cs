@@ -1,6 +1,7 @@
 ﻿using DMSAPI.Business.Context;
 using DMSAPI.Business.Repositories.IRepositories;
 using DMSAPI.Entities.DTOs.Common;
+using DMSAPI.Entities.DTOs.ComplaintDTO;
 using DMSAPI.Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -48,20 +49,49 @@ namespace DMSAPI.Business.Repositories
 
         public Task<Complaint?> GetByComplaintNoAsync(string complaintNo)
         {
-			return _dbSet
-		  .Where(x =>
-			  x.CompanyId == CompanyId &&
-			  x.ComplaintNo == complaintNo &&
-			  x.IsDeleted != true)
-		  .Include(c => c.Customer)
-		  .Include(c => c.AssignedToUser)
-		  .Include(c => c.CreatedByUser)
-		  .Include(c => c.DeleteByUser)
-		  .Include(c => c.UpdateByUser)
-		  .Include(c => c.Company)
-		  .Include(c => c.ClosedByUser)
-		  .AsNoTracking()
-		  .FirstOrDefaultAsync();
-		}
+            return _dbSet
+          .Where(x =>
+              x.CompanyId == CompanyId &&
+              x.ComplaintNo == complaintNo &&
+              x.IsDeleted != true)
+          .Include(c => c.Customer)
+          .Include(c => c.AssignedToUser)
+          .Include(c => c.CreatedByUser)
+          .Include(c => c.DeleteByUser)
+          .Include(c => c.UpdateByUser)
+          .Include(c => c.Company)
+          .Include(c => c.ClosedByUser)
+          .AsNoTracking()
+          .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<ComplaintForCapaSelectDTO?>> GetForCapaSelectAsync(int companyId, string? search, int take)
+        {
+            var q = _dbSet.AsNoTracking()
+                 .Where(x => x.CompanyId == companyId && x.NeedsCapa && !x.IsDeleted && !x.IsClosed);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.Trim();
+                q = q.Where(x =>
+                    x.ComplaintNo.Contains(s) ||
+                    x.Title.Contains(s) ||
+                    (x.Customer != null && x.Customer.Name.Contains(s)));
+            }
+
+            return await q
+                .OrderByDescending(x => x.ReportedAt)
+                .Select(x => new ComplaintForCapaSelectDTO
+                {
+                    Id = x.Id,
+                    ComplaintNo = x.ComplaintNo,
+                    Title = x.Title,
+                    CustomerName = x.Customer != null ? x.Customer.Name : null,
+                    SeverityId = x.SeverityId,
+                    ReportedAt = x.ReportedAt
+                })
+                .Take(take)
+                .ToListAsync();
+        }
     }
 }

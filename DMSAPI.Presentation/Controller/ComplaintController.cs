@@ -97,5 +97,15 @@ namespace DMSAPI.Presentation.Controller
 			var (stream, contentType, downloadFileName) = await _complaintAttachmentService.DownloadAsync(id);
 			return File(stream, contentType, downloadFileName);
 		}
-	}
+        [HttpGet("for-capa-select")]
+        public async Task<ActionResult<List<ComplaintForCapaSelectDTO>>> GetForCapaSelect(
+            [FromQuery] string? search,
+            [FromQuery] int take = 50)
+        {
+            var companyId = CompanyId;
+
+            var result = await _complaintService.GetComplaintsForCapaSelectAsync(companyId, search, take);
+            return Ok(result);
+        }
+    }
 }

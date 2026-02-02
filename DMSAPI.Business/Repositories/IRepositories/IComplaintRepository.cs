@@ -1,5 +1,6 @@
 ﻿using DMSAPI.Business.Repositories.GenericRepository;
 using DMSAPI.Entities.DTOs.Common;
+using DMSAPI.Entities.DTOs.ComplaintDTO;
 using DMSAPI.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -13,5 +14,6 @@ namespace DMSAPI.Business.Repositories.IRepositories
     {
         Task<PagedResultDTO<Complaint>> GetAllComplaintsAsync(int pageNumber, int pageSize);
         Task<Complaint?> GetByComplaintNoAsync(string complaintNo);
+        Task<List<ComplaintForCapaSelectDTO?>> GetForCapaSelectAsync(int companyId, string? search, int take);
     }
 }

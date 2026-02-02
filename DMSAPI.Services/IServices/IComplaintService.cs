@@ -17,5 +17,6 @@ namespace DMSAPI.Services.IServices
         Task UpdateClosedAsync(string complaintNo, int userId);
         Task DeleteComplaintAsync(string complaintNo, int userId);
         Task <ComplaintDTO> UpdateComplaintByNoAsync(string complaintNo, UpdateComplaintDTO updateComplaintDTO, int userId, int companyId);
+        Task<List<ComplaintForCapaSelectDTO>> GetComplaintsForCapaSelectAsync(int companyId, string? search, int take);
     }
 }

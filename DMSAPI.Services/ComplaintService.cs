@@ -39,7 +39,8 @@ namespace DMSAPI.Services
 			entity.CreatedAt = DateTime.UtcNow;
 			entity.UpdatedAt = DateTime.UtcNow;
 			entity.Status = "AÇIK";
-
+            entity.IsClosed = false;
+            entity.IsDeleted = false;
 			entity.NeedsCapa = entity.SeverityId >= 3 || entity.IsRepeat;
 
 			entity.ComplaintNo = await GenerateComplaintNoAsync(entity.CompanyId);
@@ -82,6 +83,15 @@ namespace DMSAPI.Services
             return _mapper.Map<ComplaintDTO>(entity);
         }
 
+        public async Task<List<ComplaintForCapaSelectDTO>> GetComplaintsForCapaSelectAsync(int companyId, string? search, int take)
+        {
+            if (companyId <= 0)
+                throw new Exception("companyId must be greater than 0");
+            if (take <= 0) take = 50;
+            if (take > 200) take = 200;
+            return await _complaintRepository.GetForCapaSelectAsync(companyId, search, take);
+        }
+
         public async Task UpdateClosedAsync(string complaintNo,int userId)
         {
             var entity = await _complaintRepository.GetByComplaintNoAsync(complaintNo);
@@ -91,6 +101,7 @@ namespace DMSAPI.Services
             entity.Status = "KAPALI";
             entity.ClosedBy = userId;
             entity.ClosedAt = DateTime.UtcNow;
+            entity.IsDeleted = false;
             await _complaintRepository.UpdateAsync(entity);
 
         }
@@ -111,8 +122,9 @@ namespace DMSAPI.Services
 			entity.UpdateBy = userId;
 			entity.UpdatedAt = DateTime.UtcNow;
 			entity.Status = "GÜNCELLENDİ";
+            entity.IsClosed = false;
 
-			entity.NeedsCapa = entity.SeverityId >= 3 || entity.IsRepeat;
+            entity.NeedsCapa = entity.SeverityId >= 3 || entity.IsRepeat;
 
 			await _complaintRepository.UpdateAsync(entity);
 
