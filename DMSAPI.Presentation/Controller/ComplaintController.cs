@@ -107,5 +107,18 @@ namespace DMSAPI.Presentation.Controller
             var result = await _complaintService.GetComplaintsForCapaSelectAsync(companyId, search, take);
             return Ok(result);
         }
+        [HttpPost("iscapa/{complaintNo}")]
+        public async Task<IActionResult> IsCapa(string complaintNo)
+        {
+            if (string.IsNullOrWhiteSpace(complaintNo))
+                return BadRequest("complaintNo boş olamaz.");
+
+            var updated = await _complaintService.IsCapaAsync(complaintNo);
+
+            if (!updated)
+                return NotFound("Complaint bulunamadı.");
+
+            return Ok(new { success = true });
+        }
     }
 }

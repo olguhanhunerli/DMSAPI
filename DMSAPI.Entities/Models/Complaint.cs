@@ -49,6 +49,7 @@ namespace DMSAPI.Entities.Models
         public int? ClosedBy { get; set; }
         public bool IsClosed { get; set; }
         public bool IsDeleted { get; set; }
+        public bool IsCapa { get; set; }
         public DateTime? ClosedAt { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

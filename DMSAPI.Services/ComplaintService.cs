@@ -41,7 +41,9 @@ namespace DMSAPI.Services
 			entity.Status = "AÇIK";
             entity.IsClosed = false;
             entity.IsDeleted = false;
-			entity.NeedsCapa = entity.SeverityId >= 3 || entity.IsRepeat;
+            entity.IsCapa = false;
+
+            entity.NeedsCapa = entity.SeverityId >= 3 || entity.IsRepeat;
 
 			entity.ComplaintNo = await GenerateComplaintNoAsync(entity.CompanyId);
 
@@ -92,6 +94,15 @@ namespace DMSAPI.Services
             return await _complaintRepository.GetForCapaSelectAsync(companyId, search, take);
         }
 
+        public async Task<bool> IsCapaAsync(string complaintNo)
+        {
+            var entity = await _complaintRepository.GetByComplaintNoAsync(complaintNo);
+            if(entity == null) return false;
+            entity.IsCapa = true;
+            await _complaintRepository.UpdateAsync(entity);
+            return true;
+        }
+
         public async Task UpdateClosedAsync(string complaintNo,int userId)
         {
             var entity = await _complaintRepository.GetByComplaintNoAsync(complaintNo);
@@ -102,6 +113,7 @@ namespace DMSAPI.Services
             entity.ClosedBy = userId;
             entity.ClosedAt = DateTime.UtcNow;
             entity.IsDeleted = false;
+            entity.IsCapa = false;
             await _complaintRepository.UpdateAsync(entity);
 
         }
