@@ -27,6 +27,7 @@ public static class ServiceRegistration
 
 		services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
+
 		services.AddHttpContextAccessor();
 
 		services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
