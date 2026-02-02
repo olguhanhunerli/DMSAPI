@@ -13,7 +13,7 @@ namespace DMSAPI.Presentation.Controller
     {
 		protected int UserId =>
 			int.Parse(User.FindFirst(JwtRegisteredClaimNames.Sub)!.Value);
-
+         
 		protected int CompanyId =>
 			int.Parse(User.FindFirst("companyId")!.Value);
 
