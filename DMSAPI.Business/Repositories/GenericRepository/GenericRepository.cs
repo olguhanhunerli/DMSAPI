@@ -97,4 +97,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         return await _context.Database.BeginTransactionAsync();
     }
+
+    public Task<int> SaveChangesAsync() => _context.SaveChangesAsync();
+
 }

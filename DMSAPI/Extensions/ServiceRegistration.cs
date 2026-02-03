@@ -90,6 +90,9 @@ public static class ServiceRegistration
 		services.AddScoped<IComplaintAttachmentRepository, ComplaintAttachmentRepository>();
 		services.AddScoped<IComplaintAttachmentService, ComplaintAttachmentService>();
 
+		services.AddScoped<ICAPARepository, CAPARepository>();
+		services.AddScoped<ICAPAServices, CAPAServices>();
+
 		services.AddSingleton<ITokenService, TokenService>();
 
 		services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));

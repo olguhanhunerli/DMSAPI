@@ -14,5 +14,6 @@ namespace DMSAPI.Business.Repositories.GenericRepository
 
 		Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
         Task<IDbContextTransaction> BeginTransactionAsync();
+		Task<int> SaveChangesAsync();
     }
 }

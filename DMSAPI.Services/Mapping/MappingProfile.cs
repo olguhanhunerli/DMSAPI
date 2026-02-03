@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DMSAPI.Entities.DTOs;
+using DMSAPI.Entities.DTOs.CAPADTO;
 using DMSAPI.Entities.DTOs.CategoryDTOs;
 using DMSAPI.Entities.DTOs.CompanyDTOs;
 using DMSAPI.Entities.DTOs.ComplaintAttachment;
@@ -409,7 +410,16 @@ namespace DMSAPI.Services.Mapping
 				.ForMember(d => d.UploadedByName,
 					o => o.MapFrom(s => s.UploadedByUser != null ? (s.UploadedByUser.FirstName + " " + s.UploadedByUser.LastName) : null));
 			CreateMap<CreateComplaintAttachmentDTO, ComplaintAttachment>();
-		}
+			CreateMap<CAPA, CAPADTO>()
+				.ForMember(d => d.OwnerByName, opt => opt.MapFrom(s => s.OwnerByUser != null ? (s.OwnerByUser.FirstName + " " + s.OwnerByUser.LastName) : null))
+				.ForMember(d => d.RootCauseMethodName, opt => opt.MapFrom(s => s.RootCauseMethod != null ? (s.RootCauseMethod.NameTr): null))
+				.ForMember(d => d.EffectivenessCheckedByName, opt => opt.MapFrom(s => s.EffectivenessCheckedByUser != null ? (s.EffectivenessCheckedByUser.FirstName + " " + s.EffectivenessCheckedByUser.LastName) : null))
+				.ForMember(d=> d.RemainingDays, opt => opt.MapFrom(s => s.DueDate.HasValue ? (int)(s.DueDate.Value.Date - DateTime.UtcNow.Date).TotalDays: (int?) null));
+			CreateMap<CreateCAPADTO, CAPA>();
+			CreateMap<CAPA, CreateCapaDefaultsDTO>()
+				.ForMember(d => d.CompanyName, opt => opt.MapFrom(x => x.Company.Name))
+				.ForMember(d=> d.OwnerName, opt => opt.MapFrom(x => x.OwnerByUser.FirstName + " " + x.OwnerByUser.LastName));
+        }
 		private static List<int> SafeParseJson(string? json)
 		{
 			if (string.IsNullOrWhiteSpace(json))

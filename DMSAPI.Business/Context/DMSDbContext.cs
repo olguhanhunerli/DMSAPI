@@ -35,7 +35,10 @@ namespace DMSAPI.Business.Context
 		public DbSet<Customer> Customers { get; set; }
 		public DbSet<Complaint> Complaints { get; set; }
 		public DbSet<ComplaintAttachment> ComplaintAttachments { get; set; }
-		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		public DbSet<CAPA> Capas { get; set; }
+		public DbSet<RootCauseMethod> root_cause_methods { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			base.OnModelCreating(modelBuilder);
 			modelBuilder.Entity<Company>()
@@ -385,7 +388,10 @@ namespace DMSAPI.Business.Context
                       .OnDelete(DeleteBehavior.Restrict);
 
             });
-			modelBuilder.Entity<ComplaintAttachment>(entity =>
+            modelBuilder.Entity<Complaint>()
+						.HasIndex(x => x.ComplaintNo)
+						.IsUnique();
+            modelBuilder.Entity<ComplaintAttachment>(entity =>
 			{
 				entity.HasKey(ca => ca.Id);
 
@@ -411,7 +417,31 @@ namespace DMSAPI.Business.Context
 
 				entity.HasIndex(ca => new { ca.ComplaintNo, ca.UploadedAt });
 			});
-
+			modelBuilder.Entity<CAPA>(entity =>
+			{
+				entity.HasKey(ca => ca.Id);
+				entity.HasOne(c => c.OwnerByUser)
+					  .WithMany()
+					  .HasForeignKey(c => c.OwnerId)
+					  .OnDelete(DeleteBehavior.Restrict);
+				entity.HasOne(c => c.Company)
+				.WithMany()
+				.HasForeignKey(c => c.CompanyId)
+				.OnDelete(DeleteBehavior.Restrict);
+				entity.HasOne(c=> c.EffectivenessCheckedByUser)
+				.WithMany()
+				.HasForeignKey(c => c.EffectivenessCheckedBy)
+				.OnDelete(DeleteBehavior.Restrict);
+				entity.HasOne(c => c.Complaints)
+				.WithMany()
+				.HasForeignKey(c => c.ComplaintNo)
+                .HasPrincipalKey(x => x.ComplaintNo)
+                .OnDelete(DeleteBehavior.Restrict);
+				entity.HasOne(c => c.RootCauseMethod)
+				.WithMany()
+				.HasForeignKey(x => x.RootCauseMethodId)
+				.OnDelete(DeleteBehavior.Restrict);
+			});
 
 		}
 	}
