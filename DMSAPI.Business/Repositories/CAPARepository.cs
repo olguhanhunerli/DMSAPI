@@ -159,7 +159,7 @@ namespace DMSAPI.Business.Repositories
             })
             .FirstOrDefaultAsync();
         }
-
+         
         public async Task<List<LookupItemDTO>> GetRootCauseMethodLookupsAsync()
         {
             return await _context.root_cause_methods
