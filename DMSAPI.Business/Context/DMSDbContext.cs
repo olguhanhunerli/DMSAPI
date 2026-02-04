@@ -37,6 +37,7 @@ namespace DMSAPI.Business.Context
 		public DbSet<ComplaintAttachment> ComplaintAttachments { get; set; }
 		public DbSet<CAPA> Capas { get; set; }
 		public DbSet<RootCauseMethod> root_cause_methods { get; set; }
+        public DbSet<ComplaintAssignee> ComplaintAssignees { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -370,10 +371,6 @@ namespace DMSAPI.Business.Context
 						.WithMany()
 						.HasForeignKey(c => c.CreatedBy)
 						.OnDelete(DeleteBehavior.Restrict);
-				entity.HasOne(c => c.AssignedToUser)
-						.WithMany()
-						.HasForeignKey(c => c.AssignedTo)
-						.OnDelete(DeleteBehavior.Restrict);
                 entity.HasOne(c => c.UpdateByUser)
                         .WithMany()
                         .HasForeignKey(c => c.UpdateBy)
@@ -442,7 +439,27 @@ namespace DMSAPI.Business.Context
 				.HasForeignKey(x => x.RootCauseMethodId)
 				.OnDelete(DeleteBehavior.Restrict);
 			});
+            modelBuilder.Entity<ComplaintAssignee>(entity =>
+            {
 
-		}
+                entity.HasKey(x => x.Id);
+
+                entity.HasOne(x => x.Complaint)
+                      .WithMany(c => c.Assignees)
+                      .HasForeignKey(x => x.ComplaintId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(x => x.User)
+                      .WithMany()
+                      .HasForeignKey(x => x.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne<User>()
+                      .WithMany()
+                      .HasForeignKey(x => x.AssignedBy)
+                      .OnDelete(DeleteBehavior.SetNull);
+            });
+
+        }
 	}
 }

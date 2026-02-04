@@ -24,7 +24,7 @@ namespace DMSAPI.Entities.DTOs.CAPADTO
         public int RemainingDays { get; set; }
         public DateTime? DueDate { get; set; } = DateTime.UtcNow;
         public DateTime? EffectivenessCheckedAt { get; set; }
-        public DateTime? OpenAt { get; set; }
+        public DateTime? OpenedAt { get; set; }
         public DateTime? CloseAt { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

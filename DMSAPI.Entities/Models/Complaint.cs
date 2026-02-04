@@ -43,7 +43,6 @@ namespace DMSAPI.Entities.Models
         public Company Company { get; set; }
         public DateTime ReportedAt { get; set; }
         public int CreatedBy { get; set; }
-        public int? AssignedTo { get; set; }
         public int? UpdateBy { get; set; }
         public int? DeletedBy { get; set; }
         public int? ClosedBy { get; set; }
@@ -57,10 +56,10 @@ namespace DMSAPI.Entities.Models
 
         public Customer? Customer { get; set; }
         public User? CreatedByUser { get; set; }
-        public User? AssignedToUser { get; set; }
         public User? DeleteByUser { get; set; }
         public User? UpdateByUser { get; set; }
         public User? ClosedByUser { get; set; }
 		public ICollection<ComplaintAttachment> Attachments { get; set; } = new List<ComplaintAttachment>();
-	}
+        public ICollection<ComplaintAssignee> Assignees { get; set; } = new List<ComplaintAssignee>();
+    }
 }

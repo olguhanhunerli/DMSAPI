@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DMSAPI.Entities.DTOs;
+using DMSAPI.Entities.DTOs.AssigneeDTO;
 using DMSAPI.Entities.DTOs.CAPADTO;
 using DMSAPI.Entities.DTOs.CategoryDTOs;
 using DMSAPI.Entities.DTOs.CompanyDTOs;
@@ -394,16 +395,15 @@ namespace DMSAPI.Services.Mapping
 					o => o.MapFrom(s => s.Customer != null ? s.Customer.Name : null))
 				.ForMember(d => d.CreatedByName,
 					o => o.MapFrom(s => s.CreatedByUser != null ? (s.CreatedByUser.FirstName + " " + s.CreatedByUser.LastName) : null))
-				.ForMember(d => d.AssignedToName,
-					o => o.MapFrom(s => s.AssignedToUser != null ? (s.AssignedToUser.FirstName + " " + s.AssignedToUser.LastName) : null))
 				.ForMember(d => d.UpdateByName,
 					o => o.MapFrom(s => s.UpdateByUser != null ? (s.UpdateByUser.FirstName + " " + s.UpdateByUser.LastName) : null))
 				.ForMember(d => d.DeletedByName,
 					o => o.MapFrom(s => s.DeleteByUser != null ? (s.DeleteByUser.FirstName + " " + s.DeleteByUser.LastName) : null))
 				.ForMember(d => d.ClosedByName,
-					o => o.MapFrom(s => s.ClosedByUser != null ? (s.ClosedByUser.FirstName + " " + s.ClosedByUser.LastName) : null));
-
-			CreateMap<CreateComplaintDTO, Complaint>();
+					o => o.MapFrom(s => s.ClosedByUser != null ? (s.ClosedByUser.FirstName + " " + s.ClosedByUser.LastName) : null))
+				.ForMember(d => d.Assignees, opt => opt.MapFrom(s => s.Assignees));
+            CreateMap<ComplaintAssignee, DMSAPI.Entities.DTOs.AssigneeDTO.AssigneeDTO>();
+            CreateMap<CreateComplaintDTO, Complaint>();
 			CreateMap<UpdateComplaintDTO, Complaint>();
 
 			CreateMap<ComplaintAttachment, ComplaintAttachmentDTO>()
@@ -416,9 +416,19 @@ namespace DMSAPI.Services.Mapping
 				.ForMember(d => d.EffectivenessCheckedByName, opt => opt.MapFrom(s => s.EffectivenessCheckedByUser != null ? (s.EffectivenessCheckedByUser.FirstName + " " + s.EffectivenessCheckedByUser.LastName) : null))
 				.ForMember(d=> d.RemainingDays, opt => opt.MapFrom(s => s.DueDate.HasValue ? (int)(s.DueDate.Value.Date - DateTime.UtcNow.Date).TotalDays: (int?) null));
 			CreateMap<CreateCAPADTO, CAPA>();
-			CreateMap<CAPA, CreateCapaDefaultsDTO>()
-				.ForMember(d => d.CompanyName, opt => opt.MapFrom(x => x.Company.Name))
-				.ForMember(d=> d.OwnerName, opt => opt.MapFrom(x => x.OwnerByUser.FirstName + " " + x.OwnerByUser.LastName));
+            CreateMap<CAPA, CreateCapaDefaultsDTO>()
+				.ForMember(d => d.CompanyName,
+					opt => opt.MapFrom(x => x.Company != null ? x.Company.Name : null))
+				.ForMember(d => d.OwnerName,
+					opt => opt.MapFrom(x =>
+						x.OwnerByUser != null
+							? x.OwnerByUser.FirstName + " " + x.OwnerByUser.LastName
+							: null));
+            CreateMap<CreateComplaintDTO, Complaint>()
+				.ForMember(d => d.Assignees, opt => opt.Ignore());
+            CreateMap<ComplaintAssignee, AssigneeDTO>()
+				  .ForMember(d => d.UserName, opt => opt.MapFrom(s => s.User.FirstName + " " + s.User.LastName));
+
         }
 		private static List<int> SafeParseJson(string? json)
 		{

@@ -35,8 +35,6 @@ namespace DMSAPI.Entities.DTOs.ComplaintDTO
 		public bool InterimActionRequired { get; set; }
 		public string? InterimActionNote { get; set; }
 
-		public int? AssignedTo { get; set; }
-
 		public string? PartNumber { get; set; }
 		public string? PartRevision { get; set; }
 		public string? LotNumber { get; set; }

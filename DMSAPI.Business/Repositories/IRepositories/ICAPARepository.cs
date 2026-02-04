@@ -24,5 +24,7 @@ namespace DMSAPI.Business.Repositories.IRepositories
         Task<List<RootCauseMethod>> GetRootCouseMethodAsync();
         Task<bool> RootCauseMethodExistsAsync(int id);
         Task<bool> ComplaintExistsAsync(string complaintNo);
+        Task<string?> GetCompanyNameByIdAsync(int companyId);
+        Task<string?> GetUserFullNameByIdAsync(int userId);
     }
 }

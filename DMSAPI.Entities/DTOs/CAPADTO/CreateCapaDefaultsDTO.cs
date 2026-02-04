@@ -14,6 +14,6 @@ namespace DMSAPI.Entities.DTOs.CAPADTO
         public int OwnerId { get; set; }        
         public string OwnerName { get; set; }   
         public DateTime? DueDate { get; set; }    
-        public string Status { get; set; } = "OPEN";
+        public string Status { get; set; } = "BEKLİYOR";
     }
 }

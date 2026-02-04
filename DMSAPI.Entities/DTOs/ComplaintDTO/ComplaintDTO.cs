@@ -48,8 +48,6 @@ namespace DMSAPI.Entities.DTOs.ComplaintDTO
         public int CreatedBy { get; set; }
         public string? CreatedByName { get; set; }
         public string? ClosedByName { get; set; }
-        public int? AssignedTo { get; set; }
-        public string? AssignedToName { get; set; }
         public int? DeletedBy  { get; set; }
         public string? DeletedByName  { get; set; }
         public int? UpdateBy { get; set; }
@@ -59,5 +57,6 @@ namespace DMSAPI.Entities.DTOs.ComplaintDTO
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
+        public List<DMSAPI.Entities.DTOs.AssigneeDTO.AssigneeDTO> Assignees { get; set; } = new();
     }
 }

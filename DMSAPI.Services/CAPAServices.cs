@@ -52,7 +52,6 @@ namespace DMSAPI.Services
             entity.OpenedAt = DateTime.UtcNow;
             entity.UpdatedAt = null;
             entity.CapaNo = $"TMP-{Guid.NewGuid():N}";
-
             await _capaRepository.AddAsync(entity);
             await _capaRepository.SaveChangesAsync();
 
@@ -93,9 +92,17 @@ namespace DMSAPI.Services
 
         public async Task<CapaCreateFormInitDTO> GetCreateFormInitAsync(string complaintNo, int userId, int companyId)
         {
+            if (string.IsNullOrWhiteSpace(complaintNo))
+                throw new Exception("Şikayet numarası boş olamaz");
+
             var complaint = await _capaRepository.GetComplaintDtoByNoAsync(complaintNo);
             if (complaint == null)
                 throw new Exception("Şikayet bulunamadı");
+
+
+            var alreadyHasCapa = await _capaRepository.ComplaintExistsAsync(complaintNo);
+            if (alreadyHasCapa)
+                throw new Exception("Bu şikayet için zaten bir CAPA mevcut");
 
             var customer = await _capaRepository.GetCustomerMiniByIdAsync(complaint.CustomerId);
             if (customer == null)
@@ -103,12 +110,18 @@ namespace DMSAPI.Services
 
             var rootCauseMethods = await _capaRepository.GetRootCauseMethodLookupsAsync();
 
+            var companyName = complaint.CompanyName;
+
+            var ownerName = await _capaRepository.GetUserFullNameByIdAsync(userId);
+
             var defaults = new CreateCapaDefaultsDTO
             {
                 ComplaintNo = complaintNo,
                 CompanyId = companyId,
+                CompanyName = companyName,          
                 OwnerId = userId,
-                DueDate = DateTime.UtcNow.Date.AddDays(30), 
+                OwnerName = ownerName,   
+                DueDate = DateTime.UtcNow.Date.AddDays(30),
                 Status = "OPEN"
             };
 

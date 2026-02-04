@@ -34,8 +34,6 @@ namespace DMSAPI.Entities.DTOs.ComplaintDTO
 		public bool InterimActionRequired { get; set; } = false;
 		public string? InterimActionNote { get; set; }
 
-		public int? AssignedTo { get; set; }
-
 		public string? PartNumber { get; set; }
 		public string? PartRevision { get; set; }
 		public string? LotNumber { get; set; }
@@ -49,5 +47,6 @@ namespace DMSAPI.Entities.DTOs.ComplaintDTO
 
 		public int? QuantityAffected { get; set; }
 		public string? ContainmentAction { get; set; }
-	}
+        public List<AssigneeDTO.AssigneeDTO> Assignees { get; set; } = new();
+    }
 }

@@ -25,33 +25,58 @@ namespace DMSAPI.Services
 
         public async Task<ComplaintDTO> CreateComplaintAsync(CreateComplaintDTO createComplaintDTO, int userId, int companyId)
         {
+            var entity = _mapper.Map<Complaint>(createComplaintDTO);
 
-
-			var entity = _mapper.Map<Complaint>(createComplaintDTO);
-
-			entity.CompanyId = companyId;
-
-			if (entity.AssignedTo.HasValue && entity.AssignedTo.Value == 0)
-				entity.AssignedTo = null;
-
-			entity.CreatedBy = userId;
-			entity.ReportedAt = DateTime.UtcNow;
-			entity.CreatedAt = DateTime.UtcNow;
-			entity.UpdatedAt = DateTime.UtcNow;
-			entity.Status = "AÇIK";
+            entity.CompanyId = companyId;
+            entity.CreatedBy = userId;
+            entity.ReportedAt = DateTime.UtcNow;
+            entity.CreatedAt = DateTime.UtcNow;
+            entity.UpdatedAt = DateTime.UtcNow;
+            entity.Status = "AÇIK";
             entity.IsClosed = false;
             entity.IsDeleted = false;
             entity.IsCapa = false;
 
             entity.NeedsCapa = entity.SeverityId >= 3 || entity.IsRepeat;
+            entity.ComplaintNo = await GenerateComplaintNoAsync(entity.CompanyId);
 
-			entity.ComplaintNo = await GenerateComplaintNoAsync(entity.CompanyId);
+            await _complaintRepository.AddAsync(entity);
 
-			await _complaintRepository.AddAsync(entity);
+            if (createComplaintDTO.Assignees != null && createComplaintDTO.Assignees.Count > 0)
+            {
+                var unique = createComplaintDTO.Assignees
+                    .GroupBy(x => x.UserId)
+                    .Select(g => g.First())
+                    .ToList();
 
-			return _mapper.Map<ComplaintDTO>(entity);
+                if (!unique.Any(x => x.IsPrimary))
+                    unique[0].IsPrimary = true;
 
-		}
+                bool primarySet = false;
+                foreach (var a in unique)
+                {
+                    if (a.IsPrimary)
+                    {
+                        if (!primarySet) primarySet = true;
+                        else a.IsPrimary = false;
+                    }
+                }
+
+                entity.Assignees = unique.Select(a => new ComplaintAssignee
+                {
+                    ComplaintId = entity.Id,
+                    UserId = a.UserId,
+                    IsPrimary = a.IsPrimary,
+                    AssignedBy = userId,
+                    AssignedAt = DateTime.UtcNow
+                }).ToList();
+
+                await _complaintRepository.UpdateAsync(entity);
+            }
+
+            return _mapper.Map<ComplaintDTO>(entity);
+
+        }
 
         public async Task DeleteComplaintAsync(string complaintNo, int userId)
         {
@@ -127,9 +152,6 @@ namespace DMSAPI.Services
 			updateComplaintDTO.CompanyId = companyId;
 
 			_mapper.Map(updateComplaintDTO, entity);
-
-			if (entity.AssignedTo.HasValue && entity.AssignedTo.Value == 0)
-				entity.AssignedTo = null;
 
 			entity.UpdateBy = userId;
 			entity.UpdatedAt = DateTime.UtcNow;

@@ -25,12 +25,13 @@ namespace DMSAPI.Business.Repositories
             var query = _dbSet
                 .Where(x => x.CompanyId == CompanyId && x.IsDeleted != true)
                 .Include(c => c.Customer)
-                .Include(c => c.AssignedToUser)
                 .Include(c => c.CreatedByUser)
                 .Include(c => c.DeleteByUser)
                 .Include(c => c.UpdateByUser)
                 .Include(x => x.Company)
                 .Include(x => x.ClosedByUser)
+                .Include(c => c.Assignees)
+                    .ThenInclude(a => a.User)
                 .AsNoTracking();
             var totalRecords = await query.CountAsync();
             var complaints = await query
@@ -55,12 +56,13 @@ namespace DMSAPI.Business.Repositories
               x.ComplaintNo == complaintNo &&
               x.IsDeleted != true)
           .Include(c => c.Customer)
-          .Include(c => c.AssignedToUser)
           .Include(c => c.CreatedByUser)
           .Include(c => c.DeleteByUser)
           .Include(c => c.UpdateByUser)
           .Include(c => c.Company)
           .Include(c => c.ClosedByUser)
+          .Include(c => c.Assignees)
+            .ThenInclude(a => a.User)
           .AsNoTracking()
           .FirstOrDefaultAsync();
         }

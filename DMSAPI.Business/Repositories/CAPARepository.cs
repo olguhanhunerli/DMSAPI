@@ -21,9 +21,11 @@ namespace DMSAPI.Business.Repositories
         {
         }
 
-        public Task<bool> ComplaintExistsAsync(string complaintNo)
+        public async Task<bool> ComplaintExistsAsync(string complaintNo)
         {
-            return _context.Complaints.AnyAsync(x => x.ComplaintNo == complaintNo);
+            return await _context.Capas
+             .AsNoTracking()
+             .AnyAsync(x => x.ComplaintNo == complaintNo);
         }
 
         public async Task<PagedResultDTO<CAPA>> GetAllCAPAAsync(int page, int pageSize)
@@ -130,9 +132,6 @@ namespace DMSAPI.Business.Repositories
                 CreatedByName = x.CreatedByUser != null ? x.CreatedByUser.FirstName + " " + x.CreatedByUser.LastName : null,
                 ClosedByName = x.ClosedByUser != null ? x.ClosedByUser.FirstName + " " + x.ClosedByUser.LastName : null,
 
-                AssignedTo = x.AssignedTo,
-                AssignedToName = x.AssignedToUser != null ? x.AssignedToUser.FirstName + " " + x.AssignedToUser.LastName : null,
-
                 DeletedBy = x.DeletedBy,
                 DeletedByName = x.DeleteByUser != null ? x.DeleteByUser.FirstName + " " + x.DeleteByUser.LastName : null,
 
@@ -189,6 +188,23 @@ namespace DMSAPI.Business.Repositories
         public Task<bool> RootCauseMethodExistsAsync(int id)
         {
             return  _context.root_cause_methods.AnyAsync(x => x.Id == id);
+        }
+        public Task<string?> GetCompanyNameByIdAsync(int companyId)
+        {
+            return _context.Companies
+                .AsNoTracking()
+                .Where(x => x.Id == companyId)
+                .Select(x => x.Name)
+                .FirstOrDefaultAsync();
+        }
+
+        public Task<string?> GetUserFullNameByIdAsync(int userId)
+        {
+            return _context.Users
+                .AsNoTracking()
+                .Where(x => x.Id == userId)
+                .Select(x => x.FirstName + " " + x.LastName)
+                .FirstOrDefaultAsync();
         }
     }
 }
