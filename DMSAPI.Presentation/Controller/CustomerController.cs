@@ -1,4 +1,5 @@
 ﻿using DMSAPI.Entities.DTOs.CustomerDTO;
+using DMSAPI.Presentation.Authorization;
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,8 +11,8 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Presentation.Controller
 {
-    [Authorize]
-    [Route("api/[controller]")]
+	[Authorize(Roles = RoleGroups.InternalRead)]
+	[Route("api/[controller]")]
     public class CustomerController : BaseApiController
     {
         private readonly ICustomerService _customerService;
@@ -42,6 +43,7 @@ namespace DMSAPI.Presentation.Controller
 				return NotFound();
 			return Ok(customer);
 		}
+		[Authorize(Roles = RoleGroups.MasterDataWrite)]
 		[HttpPost]
         public async Task<IActionResult> CreateCustomer([FromBody] CreateCustomerDTO customerCreateDto)
         {
@@ -50,7 +52,8 @@ namespace DMSAPI.Presentation.Controller
             var createdCustomer = await _customerService.CreateCustomerAsync(customerCreateDto);
             return CreatedAtAction(nameof(GetCustomerById), new { id = createdCustomer.Id }, createdCustomer);
         }
-        [HttpPut("{id}")]
+		[Authorize(Roles = RoleGroups.MasterDataWrite)]
+		[HttpPut("{id}")]
         public async Task<IActionResult> UpdateCustomer(int id, [FromBody] UpdateCustomerDTO customerUpdateDto)
         {
             if (!ModelState.IsValid)
@@ -60,7 +63,8 @@ namespace DMSAPI.Presentation.Controller
                 return NotFound();
             return Ok(updatedCustomer);
         }
-        [HttpDelete("{id}")]
+		[Authorize(Roles = RoleGroups.MasterDataWrite)]
+		[HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(int id)
         {
             var result = await _customerService.DeleteCustomerAsync(id, UserId);

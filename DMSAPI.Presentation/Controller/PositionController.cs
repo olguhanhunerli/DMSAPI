@@ -1,10 +1,11 @@
 ﻿using DMSAPI.Entities.DTOs.PositionDTOs;
+using DMSAPI.Presentation.Authorization;
 using DMSAPI.Presentation.Controller;
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[Authorize(Roles = "Admin,SUPER_ADMIN")]
+[Authorize(Roles = RoleGroups.MasterDataWrite)]
 [Route("api/[controller]")]
 public class PositionController : BaseApiController
 {

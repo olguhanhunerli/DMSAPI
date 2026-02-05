@@ -1,10 +1,11 @@
 ﻿using DMSAPI.Entities.DTOs.DepartmentDTOs;
+using DMSAPI.Presentation.Authorization;
 using DMSAPI.Presentation.Controller;
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[Authorize(Roles = "Admin,SUPER_ADMIN")]
+[Authorize(Roles = RoleGroups.InternalRead)]
 [Route("api/[controller]")]
 public class DepartmentController : BaseApiController
 {
@@ -30,14 +31,15 @@ public class DepartmentController : BaseApiController
         var result = await _service.GetPagedAsync(page, pageSize);
         return Ok(result);
     }
-    [HttpPost("create")]
+	[Authorize(Roles = RoleGroups.MasterDataWrite)]
+	[HttpPost("create")]
 	public async Task<IActionResult> Create(CreateDepartmentDTO dto)
 		=> Ok(await _service.CreateDepartmentAsync(dto, UserId));
-
+	[Authorize(Roles = RoleGroups.MasterDataWrite)]
 	[HttpPut("update")]
 	public async Task<IActionResult> Update(UpdateDepartmentDTO dto)
 		=> Ok(await _service.UpdateDepartmentAsync(dto, UserId));
-	[Authorize(Roles = "GLOBAL ADMIN,SUPER ADMIN")]
+	[Authorize(Roles = RoleGroups.MasterDataWrite)]
 	[HttpDelete("delete/{id}")]
 	public async Task<IActionResult> Delete(int id)
 	{

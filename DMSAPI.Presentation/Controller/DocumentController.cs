@@ -2,6 +2,7 @@
 using DMSAPI.Entities.DTOs.DocumentDTOs;
 using DMSAPI.Entities.DTOs.Revision;
 using DMSAPI.Entities.Models;
+using DMSAPI.Presentation.Authorization;
 using DMSAPI.Presentation.Controller;
 using DMSAPI.Services;
 using DMSAPI.Services.IServices;
@@ -9,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.Metadata;
 
-[Authorize]
+[Authorize(Roles = RoleGroups.InternalRead)]
 [Route("api/[controller]")]
 public class DocumentController : BaseApiController
 {
@@ -23,6 +24,7 @@ public class DocumentController : BaseApiController
 		_documentAccessLogService = documentAccessLogService;
 		_revisionService = revisionService;
 	}
+	[Authorize(Roles = RoleGroups.ContentWrite)]
 
 	[HttpPost("create")]
 	[Consumes("multipart/form-data")]
@@ -193,7 +195,6 @@ public class DocumentController : BaseApiController
 
 		return Ok(result);
 	}
-	[AllowAnonymous]
 	[HttpGet("download/{documentId}")]
 	public async Task<IActionResult> Download(int documentId)
 	{
@@ -233,7 +234,6 @@ public class DocumentController : BaseApiController
 
 		);
 	}
-	[AllowAnonymous]
 	[HttpGet("get-paged-by-category")]
 	public async Task<IActionResult> GetPagedByCategory(
 		int categoryId,
@@ -247,18 +247,24 @@ public class DocumentController : BaseApiController
 			.GetPagedByCategoryAsync(page, pageSize, categoryId, userId, roleId, departmentId);
 		return Ok(result);
 	}
+	[Authorize(Roles = RoleGroups.ContentWrite)]
+
 	[HttpPost("{documentId}/start-revision")]
 	public async Task<IActionResult> StartRevision(int documentId, [FromBody] StartRevisionDTO dto)
 	{
 		await _revisionService.StartRevisionAsync(documentId, UserId, dto.RevisionNote);
 		return Ok(new { message = "Revizyon Başlatıldı." });
 	}
+	[Authorize(Roles = RoleGroups.ContentWrite)]
+
 	[HttpPost("{documentId}/cancel-revision")]
 	public async Task<IActionResult> CancelRevision(int documentId, [FromBody] CancelRevisionDTO dto)
 	{
 		await _revisionService.CancelRevisiyonAsync(documentId, UserId, dto.Reason);
 		return Ok(new { message = "Revizyon İptal Edildi." });
 	}
+	[Authorize(Roles = RoleGroups.ContentWrite)]
+
 	[HttpPost("{documentId}/finish-reservation")]
 	[Consumes("multipart/form-data")]
 	public async Task<IActionResult> FinishReservation(int documentId, [FromForm] FinishRevisionDTO dto)

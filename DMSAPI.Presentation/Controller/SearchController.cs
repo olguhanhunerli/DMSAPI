@@ -1,4 +1,5 @@
-﻿using DMSAPI.Services.IServices;
+﻿using DMSAPI.Presentation.Authorization;
+using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Presentation.Controller
 {
-	[Authorize]
+	[Authorize(Roles = RoleGroups.InternalRead)]
 	[Route("api/[controller]")]
 	public class SearchController: BaseApiController
     {

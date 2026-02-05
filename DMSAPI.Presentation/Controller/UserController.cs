@@ -1,9 +1,12 @@
 ﻿using DMSAPI.Entities.DTOs.UserDTOs;
+using DMSAPI.Presentation.Authorization;
 using DMSAPI.Presentation.Controller;
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-[Authorize(Roles = "Admin,SUPER_ADMIN")]
+
+
+[Authorize(Roles = RoleGroups.Admins)]
 [Route("api/[controller]")]
 public class UserController : BaseApiController
 {
@@ -29,6 +32,8 @@ public class UserController : BaseApiController
 	[HttpGet("get-by-manager/{managerId}")]
 	public async Task<IActionResult> GetEmployees(int managerId)
 		=> Ok(await _service.GetEmployeesByManagerIdAsync(managerId));
+	[Authorize(Roles = RoleGroups.InternalRead)]
+
 	[HttpGet("approvers")]
 	public async Task<IActionResult> GetApprovers() 
 		=>Ok(await _service.GetApproversAsync(CompanyId));

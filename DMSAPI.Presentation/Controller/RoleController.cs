@@ -1,11 +1,12 @@
 ﻿using DMSAPI.Entities.DTOs.RoleDTOs;
+using DMSAPI.Presentation.Authorization;
 using DMSAPI.Presentation.Controller;
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
-[Authorize(Roles = "Admin,SUPER_ADMIN")]
+[Authorize(Roles = RoleGroups.MasterDataWrite)]
 [Route("api/[controller]")]
 public class RoleController : BaseApiController
 {
@@ -31,21 +32,18 @@ public class RoleController : BaseApiController
         var result = await _service.GetPagedAsync(page, pageSize);
         return Ok(result);
     }
-    [Authorize(Roles = "GLOBAL ADMIN,SUPER ADMIN")]
     [HttpPost("create")]
     public async Task<IActionResult> Create(AddRoleDTO dto)
     {
         await _service.AddAsync(dto, UserId);
         return Ok();
     }
-    [Authorize(Roles = "GLOBAL ADMIN,SUPER ADMIN")]
     [HttpPut("update/{id}")]
     public async Task<IActionResult> Update(int id, UpdateRoleDTO dto)
     {
         await _service.UpdateAsync(id, dto, UserId);
         return Ok();
     }
-    [Authorize(Roles = "GLOBAL ADMIN,SUPER ADMIN")]
     [HttpDelete("delete/{id}")]
     public async Task<IActionResult> Delete(int id)
     {

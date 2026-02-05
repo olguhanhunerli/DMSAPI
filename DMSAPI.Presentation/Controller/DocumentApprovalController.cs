@@ -1,4 +1,5 @@
 ﻿using DMSAPI.Entities.DTOs.DocumentDTOs;
+using DMSAPI.Presentation.Authorization;
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 namespace DMSAPI.Presentation.Controller
 {
 
-	[Authorize]
+	[Authorize(Roles = RoleGroups.InternalRead)]
 	[Route("api/[controller]")]
 	public class DocumentApprovalController: BaseApiController
     {
@@ -21,21 +22,22 @@ namespace DMSAPI.Presentation.Controller
         {
             _service = service;
         }
-        [HttpPost("init-approval")]
+		[Authorize(Roles = RoleGroups.ContentWrite)]
+		[HttpPost("init-approval")]
         public async Task<IActionResult> InitApproval([FromBody] CreateDocumentApprovalDTO dto)
         {
             await _service.CreateApprovalFlowAsync(dto, UserId);
             return Ok();
         }
-
-        [HttpPost("approve")]
+		[Authorize(Roles = RoleGroups.Approval)]
+		[HttpPost("approve")]
         public async Task<IActionResult> Approve(int documentId)
         {
             await _service.ApproveAsync(documentId, UserId);
             return Ok();
         }
-
-        [HttpPost("reject")]
+		[Authorize(Roles = RoleGroups.Approval)]
+		[HttpPost("reject")]
         public async Task<IActionResult> Reject(int documentId, string reason)
         {
             await _service.RejectAsync(documentId, UserId, reason);

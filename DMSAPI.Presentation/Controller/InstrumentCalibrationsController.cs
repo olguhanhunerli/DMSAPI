@@ -1,4 +1,5 @@
 ﻿using DMSAPI.Entities.DTOs.InstrumentCalibrationDTOs;
+using DMSAPI.Presentation.Authorization;
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,9 +11,8 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Presentation.Controller
 {
-    [Authorize(Roles = "Admin,SUPER_ADMIN")]
-
-    [Route("api/[controller]")]
+	[Authorize(Roles = RoleGroups.MasterDataWrite)]
+	[Route("api/[controller]")]
 	public class InstrumentCalibrationsController: BaseApiController
     {
         private readonly IInstrumentCalibrationService _instrumentCalibrationService;

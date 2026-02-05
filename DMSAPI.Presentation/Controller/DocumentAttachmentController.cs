@@ -1,4 +1,5 @@
 ﻿using DMSAPI.Entities.DTOs.DocumentAttachmentDTO.cs;
+using DMSAPI.Presentation.Authorization;
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Presentation.Controller
 {
-	[Authorize]
+	[Authorize(Roles = RoleGroups.InternalRead)]
 	[Route("api/[controller]")]
 	public class DocumentAttachmentController : BaseApiController
     {
@@ -20,8 +21,8 @@ namespace DMSAPI.Presentation.Controller
         {
             _documentAttachmentService = documentAttachmentService;
         }
-
-        [HttpPost("upload-multiple")]
+		[Authorize(Roles = RoleGroups.ContentWrite)]
+		[HttpPost("upload-multiple")]
         public async Task<IActionResult> UploadMultiple([FromForm] CreateDocumentAttachmentDTO dto)
         {
             await _documentAttachmentService.UploadMultipleAsync(dto, UserId);

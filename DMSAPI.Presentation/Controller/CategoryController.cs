@@ -1,10 +1,11 @@
 ﻿using DMSAPI.Entities.DTOs.CategoryDTOs;
+using DMSAPI.Presentation.Authorization;
 using DMSAPI.Presentation.Controller;
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[Authorize]
+[Authorize(Roles = RoleGroups.InternalRead)]
 [Route("api/[controller]")]
 public class CategoryController : BaseApiController
 {
@@ -38,6 +39,7 @@ public class CategoryController : BaseApiController
     [HttpPost("search")]
 	public async Task<IActionResult> Search(CategorySearchDTO dto)
 		=> Ok(await _service.SearchCategoryTreeAsync(dto.Keyword, CompanyId));
+	[Authorize(Roles = RoleGroups.Admins)]
 
 	[HttpPost("create")]
 	public async Task<IActionResult> Create(CreateCategoryDTO dto)
@@ -45,14 +47,17 @@ public class CategoryController : BaseApiController
 		dto.CompanyId = CompanyId;
 		return Ok(await _service.CreateCategoryAsync(dto, UserId));
 	}
+	[Authorize(Roles = RoleGroups.Admins)]
 
 	[HttpPut("update")]
 	public async Task<IActionResult> Update(UpdateCategoryDTO dto)
 		=> Ok(await _service.UpdateCategoryByIdAsync(dto, UserId));
+	[Authorize(Roles = RoleGroups.Admins)]
 
 	[HttpDelete("delete")]
 	public async Task<IActionResult> SoftDelete([FromBody] CategoryDeleteDTO dto)
 		=> Ok(await _service.SoftDeleteCategoryAsync(dto, UserId));
+	[Authorize(Roles = RoleGroups.Admins)]
 
 	[HttpPut("restore")]
 	public async Task<IActionResult> Restore(CategoryRestoreDTO dto)

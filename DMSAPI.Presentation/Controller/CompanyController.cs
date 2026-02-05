@@ -1,12 +1,12 @@
 ﻿using DMSAPI.Entities.DTOs.CompanyDTOs;
+using DMSAPI.Presentation.Authorization;
 using DMSAPI.Presentation.Controller;
 using DMSAPI.Services;
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[Authorize(Roles = "Admin,SUPER_ADMIN")]
-
+[Authorize(Roles = RoleGroups.MasterDataWrite)]
 [Route("api/[controller]")]
 public class CompanyController : BaseApiController
 {
@@ -23,7 +23,7 @@ public class CompanyController : BaseApiController
 		var role = User.Claims.FirstOrDefault(x => x.Type == "role")?.Value;
 		var companyIdClaim = User.Claims.FirstOrDefault(x => x.Type == "companyId")?.Value;
 
-		if (role == "GLOBAL ADMIN")
+		if (role == "SUPER_ADMIN")
 		{
 			var allCompanies = await _service.GetAllCompaniesAsync();
 			return Ok(allCompanies);

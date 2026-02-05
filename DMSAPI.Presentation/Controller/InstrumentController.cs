@@ -1,4 +1,5 @@
-﻿using DMSAPI.Services.IServices;
+﻿using DMSAPI.Presentation.Authorization;
+using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Presentation.Controller
 {
-	[Authorize]
+	[Authorize(Roles = RoleGroups.InternalRead)]
 	[Route("api/[controller]")]
 	public class InstrumentController: BaseApiController
     {
@@ -46,30 +47,35 @@ namespace DMSAPI.Presentation.Controller
 				return NotFound();
 			return Ok(instrument);
 		}
+		[Authorize(Roles = RoleGroups.MasterDataWrite)]
 		[HttpPost("create-instrument")]
 		public async Task<IActionResult> CreateInstrument([FromBody] Entities.DTOs.InstrumentDTO.CreateInstrumentDTO createInstrumentDTO)
 		{
 			await _instrumentServices.CreateAsync(createInstrumentDTO, UserId);
 			return Ok(createInstrumentDTO);
 		}
+		[Authorize(Roles = RoleGroups.MasterDataWrite)]
 		[HttpPut("update-instrument/{id}")]
 		public async Task<IActionResult> UpdateInstrument(int id, [FromBody] Entities.DTOs.InstrumentDTO.UpdateInstrumentDTO updateInstrumentDTO)
 		{
 			var updatedInstrument = await _instrumentServices.UpdateAsync(id, updateInstrumentDTO, UserId);
 			return Ok(updatedInstrument);
 		}
+		[Authorize(Roles = RoleGroups.MasterDataWrite)]
 		[HttpPatch("toggle-instrument-active/{id}")]
 		public async Task<IActionResult> ToggleInstrumentActive(int id, [FromQuery] bool isActive)
 		{
 			await _instrumentServices.ToggleIsActiveAsync(id, isActive, UserId);
 			return NoContent();
 		}
+		[Authorize(Roles = RoleGroups.MasterDataWrite)]
 		[HttpDelete("delete-instrument/{id}")]
 		public async Task<IActionResult> DeleteInstrument(int id)
 		{
 			await _instrumentServices.DeleteAsync(id, UserId);
 			return NoContent();
 		}
+		[Authorize(Roles = RoleGroups.MasterDataWrite)]
 		[HttpPost("backup-delete-instrument/{id}")]
 		public async Task<IActionResult> BackupDeleteInstrument(int id)
 		{

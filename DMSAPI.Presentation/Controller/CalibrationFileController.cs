@@ -1,4 +1,5 @@
-﻿using DMSAPI.Services.IServices;
+﻿using DMSAPI.Presentation.Authorization;
+using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -9,9 +10,8 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Presentation.Controller
 {
-    [Authorize(Roles = "Admin,SUPER_ADMIN")]
-
-    [Route("api/[controller]")]
+	[Authorize(Roles = RoleGroups.InternalRead)]
+	[Route("api/[controller]")]
 	public class CalibrationFileController : BaseApiController
 	{
 		private readonly ICalibrationFileService _calibrationFileService;
@@ -36,6 +36,7 @@ namespace DMSAPI.Presentation.Controller
 			}
 			return Ok(result);
 		}
+		[Authorize(Roles = RoleGroups.ContentWrite)]
 		[HttpPost("CreateCalibrationFile")]
 		public async Task<IActionResult> CreateCalibrationFile([FromBody] Entities.DTOs.InstrumentCalibrationDTOs.CreateCalibrationFileDTO createCalibrationFileDTO)
 		{
@@ -43,6 +44,7 @@ namespace DMSAPI.Presentation.Controller
 			var result = await _calibrationFileService.CreateAsync(createCalibrationFileDTO, UserId);
 			return Ok();
 		}
+		[Authorize(Roles = RoleGroups.ContentWrite)]
 		[HttpPost("upload")]
 		[Consumes("multipart/form-data")]
 		public async Task<IActionResult> UploadCalibrationFile([FromForm] Entities.DTOs.InstrumentCalibrationDTOs.UploadCalibrationFileDTO uploadCalibrationFileDTO)
@@ -56,6 +58,7 @@ namespace DMSAPI.Presentation.Controller
 			var (stream, contentType, name) = await _calibrationFileService.DownloadAsync(fileId, asPdf);
 			return File(stream, contentType, name);
 		}
+		[Authorize(Roles = RoleGroups.ContentWrite)]
 		[HttpDelete("delete/{fileId}")]
 		public async Task<IActionResult> DeleteCalibrationFile([FromRoute] ulong fileId, [FromQuery] bool deletePhysicalFiles = false)
 		{

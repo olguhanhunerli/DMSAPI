@@ -1,4 +1,5 @@
 ﻿using DMSAPI.Entities.DTOs.CAPADTO;
+using DMSAPI.Presentation.Authorization;
 using DMSAPI.Services;
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
@@ -11,8 +12,8 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Presentation.Controller
 {
-    [Authorize]
-    [Route("api/[controller]")]
+	[Authorize(Roles = RoleGroups.InternalRead)]
+	[Route("api/[controller]")]
     public class CAPAController : BaseApiController
     {
         private readonly ICAPAServices _capaServices;
@@ -58,7 +59,8 @@ namespace DMSAPI.Presentation.Controller
             {  return NotFound(); }
             return Ok(entity);
         }
-        [HttpPost]
+		[Authorize(Roles = DmsRoles.User + "," + DmsRoles.Editor + "," + DmsRoles.Admin + "," + DmsRoles.SUPER_ADMIN + "," + DmsRoles.Approver)]
+		[HttpPost]
         public async Task<IActionResult> CreateCAPA(CreateCAPADTO dto)
         {
             var result = await _capaServices.CreateCapaAsync(dto, UserId, CompanyId);

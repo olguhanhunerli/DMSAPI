@@ -1,4 +1,5 @@
 ﻿using DMSAPI.Entities.DTOs.DocumentDTOs;
+using DMSAPI.Presentation.Authorization;
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,8 +11,8 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Presentation.Controller
 {
-    [Authorize(Roles = "Admin,SUPER_ADMIN")]
-    [Route("api/[controller]")]
+	[Authorize(Roles = RoleGroups.AuditRead)]
+	[Route("api/[controller]")]
     public class AuditController: BaseApiController
     {
         private readonly IDocumentAccessLogService _documentAccessLogService;
