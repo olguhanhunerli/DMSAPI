@@ -10,8 +10,9 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Presentation.Controller
 {
-	[Authorize]
-	[Route("api/[controller]")]
+    [Authorize(Roles = "Admin,SUPER_ADMIN")]
+
+    [Route("api/[controller]")]
 	public class InstrumentCalibrationsController: BaseApiController
     {
         private readonly IInstrumentCalibrationService _instrumentCalibrationService;

@@ -128,7 +128,14 @@ public static class ServiceRegistration
 				RoleClaimType = "role"
 			};
 		});
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("AdminOnly", policy =>
+                policy.RequireRole("Admin", "SUPER_ADMIN"));
 
-		return services;
+            options.AddPolicy("SuperAdminOnly", policy =>
+                policy.RequireRole("SUPER_ADMIN"));
+        });
+        return services;
 	}
 }

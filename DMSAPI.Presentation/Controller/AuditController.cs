@@ -10,8 +10,7 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Presentation.Controller
 {
-    [Authorize(Roles = "ADMIN,SUPER ADMIN")]
-    [ApiController]
+    [Authorize(Roles = "Admin,SUPER_ADMIN")]
     [Route("api/[controller]")]
     public class AuditController: BaseApiController
     {

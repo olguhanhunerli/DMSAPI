@@ -9,8 +9,9 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Presentation.Controller
 {
-	[Authorize]
-	[Route("api/[controller]")]
+    [Authorize(Roles = "Admin,SUPER_ADMIN")]
+
+    [Route("api/[controller]")]
 	public class CalibrationFileController : BaseApiController
 	{
 		private readonly ICalibrationFileService _calibrationFileService;

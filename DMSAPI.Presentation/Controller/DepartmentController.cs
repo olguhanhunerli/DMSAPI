@@ -4,7 +4,7 @@ using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[Authorize]
+[Authorize(Roles = "Admin,SUPER_ADMIN")]
 [Route("api/[controller]")]
 public class DepartmentController : BaseApiController
 {

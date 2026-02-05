@@ -4,7 +4,7 @@ using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[Authorize]
+[Authorize(Roles = "Admin,SUPER_ADMIN")]
 [Route("api/[controller]")]
 public class PositionController : BaseApiController
 {
@@ -18,7 +18,6 @@ public class PositionController : BaseApiController
 	[HttpGet("get-all")]
 	public async Task<IActionResult> GetAll()
 		=> Ok(await _service.GetAllPositionsAsync());
-	[Authorize(Roles = "GLOBAL ADMIN,SUPER ADMIN")]
 	[HttpGet("get-by-id/{id}")]
 	public async Task<IActionResult> GetById(int id)
 		=> Ok(await _service.GetPositionByIdAsync(id));
@@ -30,7 +29,6 @@ public class PositionController : BaseApiController
         var result = await _service.GetPagedAsync(page, pageSize);
         return Ok(result);
     }
-    [Authorize(Roles = "GLOBAL ADMIN,SUPER ADMIN")]
 	[HttpPost("create")]
 	public async Task<IActionResult> Create(CreatePositionDTO dto)
 	{
@@ -43,7 +41,6 @@ public class PositionController : BaseApiController
 		var response = await _service.UpdatePositionAsync(dto, UserId);
 		return Ok(response);
 	}
-    [Authorize(Roles = "GLOBAL ADMIN,SUPER ADMIN")]
     [HttpDelete("delete/{id}")]
     public async Task<IActionResult> Delete(int id)
     {
