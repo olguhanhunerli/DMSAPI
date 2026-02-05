@@ -31,13 +31,6 @@ namespace DMSAPI.Services
             if (!rootCauseMethodOk)
                 throw new Exception("Geçersiz Method");
 
-            if (!string.IsNullOrWhiteSpace(createCAPADTO.ComplaintNo))
-            {
-                var complaintOk = await _capaRepository.ComplaintExistsAsync(createCAPADTO.ComplaintNo);
-                if (!complaintOk)
-                    throw new Exception("Geçersiz Şikayet");
-            }
-
             var companyCode = await _capaRepository.GetCompanyCodeAsync(companyId);
             if (string.IsNullOrWhiteSpace(companyCode))
                 throw new Exception("CompanyCode tanımlı değil.");
