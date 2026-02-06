@@ -162,7 +162,7 @@ namespace DMSAPI.Services
                 OwnerId = userId,
                 OwnerName = ownerName,   
                 DueDate = DateTime.UtcNow.Date.AddDays(30),
-                Status = "BEKLİYOR"
+                Status = "AÇIK"
             };
 
             var lookups = new CapaCreateLookupsDTO

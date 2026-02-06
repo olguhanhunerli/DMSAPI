@@ -418,7 +418,8 @@ namespace DMSAPI.Business.Context
 			modelBuilder.Entity<CAPA>(entity =>
 			{
 				entity.HasKey(ca => ca.Id);
-				entity.HasOne(c => c.OwnerByUser)
+                entity.HasIndex(ca => ca.CapaNo).IsUnique();
+                entity.HasOne(c => c.OwnerByUser)
 					  .WithMany()
 					  .HasForeignKey(c => c.OwnerId)
 					  .OnDelete(DeleteBehavior.Restrict);
@@ -460,31 +461,25 @@ namespace DMSAPI.Business.Context
                       .HasForeignKey(x => x.AssignedBy)
                       .OnDelete(DeleteBehavior.SetNull);
             });
-			modelBuilder.Entity<CAPAACTION>(entity =>
-			{
-				entity.HasKey(x => x.Id);
-				entity.HasOne(x => x.CAPA)
-				.WithMany()
-				.HasForeignKey(x => x.CapaNo)
-                .HasPrincipalKey(c => c.CapaNo)
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<CAPAACTION>(entity =>
+            {
+                entity.HasKey(x => x.Id);
 
-				entity.HasOne(x => x.OwnerByUser)
-				.WithMany()
-				.HasForeignKey(x => x.OwnerId)
-				.OnDelete(DeleteBehavior.Cascade);
-
-				entity.HasOne(x => x.CompletedByUser)
-				.WithMany()
-				.HasForeignKey(x => x.CompletedBy)
-				.OnDelete(DeleteBehavior.Cascade);
                 entity.HasOne(x => x.CAPA)
-				  .WithMany(c => c.Actions)               
-				  .HasForeignKey(x => x.CapaNo)
-				  .HasPrincipalKey(c => c.CapaNo)
-				  .OnDelete(DeleteBehavior.Cascade);
-            });
+                      .WithMany(c => c.Actions)
+                      .HasForeignKey(x => x.Id)
+                      .OnDelete(DeleteBehavior.Cascade); 
 
+                entity.HasOne(x => x.OwnerByUser)
+                      .WithMany()
+                      .HasForeignKey(x => x.OwnerId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(x => x.CompletedByUser)
+                      .WithMany()
+                      .HasForeignKey(x => x.CompletedBy)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
         }
 	}
 }
