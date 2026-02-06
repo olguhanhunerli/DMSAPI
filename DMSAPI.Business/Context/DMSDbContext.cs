@@ -463,12 +463,12 @@ namespace DMSAPI.Business.Context
             });
             modelBuilder.Entity<CAPAACTION>(entity =>
             {
-                entity.HasKey(x => x.Id);
 
-                entity.HasOne(x => x.CAPA)
-                      .WithMany(c => c.Actions)
-                      .HasForeignKey(x => x.Id)
-                      .OnDelete(DeleteBehavior.Cascade); 
+                modelBuilder.Entity<CAPAACTION>()
+					.HasOne(x => x.CAPA)
+					.WithMany(x => x.Actions)
+					.HasForeignKey(x => x.CapaNo)
+					.HasPrincipalKey(x => x.CapaNo);
 
                 entity.HasOne(x => x.OwnerByUser)
                       .WithMany()
