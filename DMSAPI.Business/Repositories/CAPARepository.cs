@@ -74,6 +74,7 @@ namespace DMSAPI.Business.Repositories
                 .Include(x => x.RootCauseMethod)
                 .Include(x => x.Actions)
                 .ThenInclude(x => x.OwnerByUser)
+                .Include(x => x.Company)
                 .FirstOrDefaultAsync();
             return query;
         }
