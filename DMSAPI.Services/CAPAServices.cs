@@ -84,19 +84,20 @@ namespace DMSAPI.Services
 
             companyCode = companyCode.Trim().Replace(" ", "").ToUpperInvariant();
 
+            var suffix = Guid.NewGuid().ToString("N")[..8].ToUpperInvariant();
+            var capaNo = $"{companyCode}-CAPA-{DateTime.UtcNow:yyyy}-{suffix}";
+
             var entity = _mapper.Map<CAPA>(createCAPADTO);
             entity.CompanyId = companyId;
-            entity.OwnerId = userId;                 
-            entity.CreatedAt = DateTime.UtcNow;    
+            entity.OwnerId = userId;
+            entity.CreatedAt = DateTime.UtcNow;
             entity.IsClosed = false;
             entity.OpenedAt = DateTime.UtcNow;
             entity.UpdatedAt = null;
-            entity.CapaNo = $"TMP-{Guid.NewGuid():N}";
+
+            entity.CapaNo = capaNo; 
+
             await _capaRepository.AddAsync(entity);
-            await _capaRepository.SaveChangesAsync();
-
-            entity.CapaNo = $"{companyCode}-CAPA-{DateTime.UtcNow:yyyy}-{entity.Id:D6}";
-
             await _capaRepository.SaveChangesAsync();
 
             return _mapper.Map<CAPADTO>(entity);
