@@ -16,6 +16,7 @@ namespace DMSAPI.Services.IServices
         Task<List<RootCauseMethod>> GetRootCouseMethodAsync();
         Task<CAPADTO> CreateCapaAsync(CreateCAPADTO createCAPADTO, int userId, int companyId);
         Task<CapaCreateFormInitDTO> GetCreateFormInitAsync(string complaintNo, int userId, int companyId);
-
+        Task<CAPADTO> UpdateCapaAsync(string capaNo, UpdateCAPADTO dto, int userId, int companyId);
+        Task<CAPADTO> ClosedCapaAsync(string capaNo, ClosedCAPADTO closedCAPADTO, int userId);
     }
 }

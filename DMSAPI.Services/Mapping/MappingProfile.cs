@@ -428,7 +428,11 @@ namespace DMSAPI.Services.Mapping
 				.ForMember(d => d.Assignees, opt => opt.Ignore());
             CreateMap<ComplaintAssignee, AssigneeDTO>()
 				  .ForMember(d => d.UserName, opt => opt.MapFrom(s => s.User.FirstName + " " + s.User.LastName));
-
+			CreateMap<CAPAACTION, CAPAActionDTO>()
+				.ForMember(d => d.OwnerName, opt => opt.MapFrom(s => s.OwnerByUser.FirstName + " " + s.OwnerByUser.LastName));
+			CreateMap<CAPAActionDTO, CAPAACTION>();
+			CreateMap<CreateCAPAActionDTO, CAPAACTION>();
+			CreateMap<UpdateCAPAActionDTO, CAPAACTION>();
         }
 		private static List<int> SafeParseJson(string? json)
 		{

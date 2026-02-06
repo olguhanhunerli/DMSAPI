@@ -70,7 +70,7 @@ namespace DMSAPI.Business.Repositories
         public async Task<List<ComplaintForCapaSelectDTO?>> GetForCapaSelectAsync(int companyId, string? search, int take)
         {
             var q = _dbSet.AsNoTracking()
-                 .Where(x => x.CompanyId == companyId && x.NeedsCapa && !x.IsDeleted && !x.IsClosed && !x.IsCapa);
+                 .Where(x => x.CompanyId == companyId && x.NeedsCapa && !x.IsDeleted && !x.IsClosed);
 
             if (!string.IsNullOrWhiteSpace(search))
             {

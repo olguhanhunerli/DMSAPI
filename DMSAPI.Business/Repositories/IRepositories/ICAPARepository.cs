@@ -26,5 +26,8 @@ namespace DMSAPI.Business.Repositories.IRepositories
         Task<bool> ComplaintExistsAsync(string complaintNo);
         Task<string?> GetCompanyNameByIdAsync(int companyId);
         Task<string?> GetUserFullNameByIdAsync(int userId);
+        Task<CAPA?> GetByCapaNoForUpdateAsync(string capaNo);
+        Task<CAPA?> GetByCapaNoForCloseAsync(string capaNo);
+        Task<bool> HasIncompleteActionsAsync(string capaNo);
     }
 }

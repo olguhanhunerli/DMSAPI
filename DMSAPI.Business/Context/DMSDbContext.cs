@@ -38,6 +38,7 @@ namespace DMSAPI.Business.Context
 		public DbSet<CAPA> Capas { get; set; }
 		public DbSet<RootCauseMethod> root_cause_methods { get; set; }
         public DbSet<ComplaintAssignee> ComplaintAssignees { get; set; }
+        public DbSet<CAPAACTION> CapaActions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -458,6 +459,30 @@ namespace DMSAPI.Business.Context
                       .WithMany()
                       .HasForeignKey(x => x.AssignedBy)
                       .OnDelete(DeleteBehavior.SetNull);
+            });
+			modelBuilder.Entity<CAPAACTION>(entity =>
+			{
+				entity.HasKey(x => x.Id);
+				entity.HasOne(x => x.CAPA)
+				.WithMany()
+				.HasForeignKey(x => x.CapaNo)
+                .HasPrincipalKey(c => c.CapaNo)
+                .OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasOne(x => x.OwnerByUser)
+				.WithMany()
+				.HasForeignKey(x => x.OwnerId)
+				.OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasOne(x => x.CompletedByUser)
+				.WithMany()
+				.HasForeignKey(x => x.CompletedBy)
+				.OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(x => x.CAPA)
+				  .WithMany(c => c.Actions)               
+				  .HasForeignKey(x => x.CapaNo)
+				  .HasPrincipalKey(c => c.CapaNo)
+				  .OnDelete(DeleteBehavior.Cascade);
             });
 
         }

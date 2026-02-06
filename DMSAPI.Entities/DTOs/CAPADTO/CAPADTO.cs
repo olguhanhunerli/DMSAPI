@@ -32,5 +32,6 @@ namespace DMSAPI.Entities.DTOs.CAPADTO
         public string ComplaintNumber { get; set; }
         public string OwnerByName { get; set; }
         public string? EffectivenessCheckedByName { get; set; }
+        public List<CAPAActionDTO> Actions { get; set; }
     }
 }

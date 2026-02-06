@@ -45,6 +45,7 @@ namespace DMSAPI.Business.Repositories
                 .Include(x => x.EffectivenessCheckedByUser)
                 .Include(x => x.Complaints)
                 .Include(x => x.RootCauseMethod)
+                .Include(x => x.Actions)
                 .OrderByDescending(x => x.CreatedAt);
 
             var totalRecords = await query.CountAsync();
@@ -66,11 +67,13 @@ namespace DMSAPI.Business.Repositories
         {
             var query = _dbSet
                 .AsNoTracking()
-                .Where(x => x.CompanyId == CompanyId && !x.IsClosed)
+                .Where(x => x.CompanyId == CompanyId && !x.IsClosed && x.CapaNo == capaNo)
                 .Include(x => x.OwnerByUser)
                 .Include(x => x.EffectivenessCheckedByUser)
                 .Include(x => x.Complaints)
                 .Include(x => x.RootCauseMethod)
+                .Include(x => x.Actions)
+                .ThenInclude(x => x.OwnerByUser)
                 .FirstOrDefaultAsync();
             return query;
         }
@@ -205,6 +208,30 @@ namespace DMSAPI.Business.Repositories
                 .Where(x => x.Id == userId)
                 .Select(x => x.FirstName + " " + x.LastName)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<CAPA?> GetByCapaNoForUpdateAsync(string capaNo)
+        {
+            return await _dbSet
+                .Where(x =>
+                    x.CapaNo == capaNo &&
+                    x.CompanyId == CompanyId)
+                .FirstOrDefaultAsync();
+        }
+
+        public Task<CAPA?> GetByCapaNoForCloseAsync(string capaNo)
+        {
+            return _dbSet
+              .Where(x => x.CapaNo == capaNo)
+              .Include(x => x.Actions)
+              .FirstOrDefaultAsync();
+        }
+
+        public Task<bool> HasIncompleteActionsAsync(string capaNo)
+        {
+            return _dbSet.AnyAsync(a =>
+                a.CapaNo == capaNo &&
+                (a.Status == null || !a.Status.Trim().ToUpper().Contains("TAMAM")));
         }
     }
 }

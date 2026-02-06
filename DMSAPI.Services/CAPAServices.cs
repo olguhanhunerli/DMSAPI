@@ -25,6 +25,53 @@ namespace DMSAPI.Services
             _mapper = mapper;
         }
 
+        public async Task<CAPADTO> ClosedCapaAsync(string capaNo, ClosedCAPADTO dto, int userId)
+        {
+            if (string.IsNullOrWhiteSpace(capaNo))
+                throw new Exception("CapaNo boş olamaz");
+
+            var entity = await _capaRepository.GetByCapaNoForCloseAsync(capaNo);
+            if (entity == null)
+                throw new Exception("CAPA Bulunamadı");
+
+            if (entity.IsClosed == true)
+                throw new Exception("CAPA Zaten Kapalı");
+
+            if (entity.Actions == null || entity.Actions.Count == 0)
+                throw new Exception("En Az 1 Aksiyon Girilmeli");
+
+            var notDone = entity.Actions
+                .Where(a => string.IsNullOrWhiteSpace(a.Status) ||
+                            !a.Status.Trim().ToUpper().Contains("TAMAM"))
+                .Select(a => a.Id)
+                .ToList();
+
+            if (notDone.Any())
+                throw new Exception($"Kapatılamaz. Tamamlanmamış aksiyonlar var: {string.Join(", ", notDone)}");
+
+            if (dto.EffectivenessCheck != null) entity.EffectivenessCheck = dto.EffectivenessCheck;
+            if (dto.EffectivenessResult != null) entity.EffectivenessResult = dto.EffectivenessResult;
+
+            entity.EffectivenessCheckedBy = dto.EffectivenessCheckedBy ?? userId;
+            entity.EffectivenessCheckedAt = dto.EffectivenessCheckedAt ?? DateTime.UtcNow;
+
+            if (dto.ClosureEvidence != null)
+                entity.ClosureEvidence = dto.ClosureEvidence;
+
+            entity.IsClosed = true;
+            entity.ClosedAt = DateTime.UtcNow;
+            entity.Status = "CLOSED";
+            entity.UpdatedAt = DateTime.UtcNow;
+
+            await _capaRepository.UpdateAsync(entity);
+
+            var full = await _capaRepository.GetCAPAByCapaNoAsync(capaNo);
+            if (full != null)
+                throw new Exception("CAPA bulunamadı");
+
+            return _mapper.Map<CAPADTO>(full);
+        }
+
         public async Task<CAPADTO> CreateCapaAsync(CreateCAPADTO createCAPADTO, int userId, int companyId)
         {
             var rootCauseMethodOk = await _capaRepository.RootCauseMethodExistsAsync(createCAPADTO.RootCauseMethodId);
@@ -93,9 +140,9 @@ namespace DMSAPI.Services
                 throw new Exception("Şikayet bulunamadı");
 
 
-            var alreadyHasCapa = await _capaRepository.ComplaintExistsAsync(complaintNo);
-            if (alreadyHasCapa)
-                throw new Exception("Bu şikayet için zaten bir CAPA mevcut");
+            //var alreadyHasCapa = await _capaRepository.ComplaintExistsAsync(complaintNo);
+            //if (alreadyHasCapa)
+            //    throw new Exception("Bu şikayet için zaten bir CAPA mevcut");
 
             var customer = await _capaRepository.GetCustomerMiniByIdAsync(complaint.CustomerId);
             if (customer == null)
@@ -115,7 +162,7 @@ namespace DMSAPI.Services
                 OwnerId = userId,
                 OwnerName = ownerName,   
                 DueDate = DateTime.UtcNow.Date.AddDays(30),
-                Status = "OPEN"
+                Status = "BEKLİYOR"
             };
 
             var lookups = new CapaCreateLookupsDTO
@@ -142,6 +189,51 @@ namespace DMSAPI.Services
                 Code = x.Code,
                 NameTr = x.NameTr
             }).ToList();
+        }
+
+        public async Task<CAPADTO> UpdateCapaAsync(string capaNo, UpdateCAPADTO dto, int userId, int companyId)
+        {
+            if (string.IsNullOrWhiteSpace(capaNo))
+                throw new Exception("CapaNo boş olamaz");
+
+            var entity = await _capaRepository.GetByCapaNoForUpdateAsync(capaNo);
+            if (entity == null)
+                throw new Exception("CAPA bulunamadı");
+
+            if (entity.CompanyId != companyId)
+                throw new Exception("Yetkisiz işlem");
+
+            if (entity.IsClosed == true)
+                throw new Exception("Kapalı CAPA güncellenemez");
+
+            if (dto.RootCauseMethodId.HasValue)
+            {
+                var ok = await _capaRepository.RootCauseMethodExistsAsync(dto.RootCauseMethodId.Value);
+                if (!ok) throw new Exception("Geçersiz Method");
+                entity.RootCauseMethodId = dto.RootCauseMethodId.Value;
+            }
+
+            if (dto.Nonconformity != null) entity.Nonconformity = dto.Nonconformity;
+            if (dto.RootCause != null) entity.RootCause = dto.RootCause;
+            if (dto.CorrectiveAction != null) entity.CorrectiveAction = dto.CorrectiveAction;
+            if (dto.DueDate.HasValue) entity.DueDate = dto.DueDate;
+            if (dto.OwnerId.HasValue) entity.OwnerId = dto.OwnerId.Value;
+            if (dto.Status != null) entity.Status = dto.Status;
+
+            if (dto.EffectivenessCheck != null) entity.EffectivenessCheck = dto.EffectivenessCheck;
+            if (dto.EffectivenessCheckedBy.HasValue) entity.EffectivenessCheckedBy = dto.EffectivenessCheckedBy.Value;
+            if (dto.EffectivenessCheckedAt.HasValue) entity.EffectivenessCheckedAt = dto.EffectivenessCheckedAt;
+            if (dto.EffectivenessResult != null) entity.EffectivenessResult = dto.EffectivenessResult;
+
+            entity.UpdatedAt = DateTime.UtcNow;
+
+            await _capaRepository.UpdateAsync(entity);
+
+            var full = await _capaRepository.GetCAPAByCapaNoAsync(capaNo);
+            if (full == null)
+                throw new Exception("CAPA bulunamadı");
+
+            return _mapper.Map<CAPADTO>(full);
         }
     }
 }

@@ -93,6 +93,9 @@ public static class ServiceRegistration
 		services.AddScoped<ICAPARepository, CAPARepository>();
 		services.AddScoped<ICAPAServices, CAPAServices>();
 
+		services.AddScoped<ICAPAActionRepository, CAPAActionRepository>();
+		services.AddScoped<ICAPAActionsService, CAPAActionsService>();
+
 		services.AddSingleton<ITokenService, TokenService>();
 
 		services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));

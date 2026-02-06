@@ -12,8 +12,8 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Presentation.Controller
 {
-	[Authorize(Roles = RoleGroups.InternalRead)]
-	[Route("api/[controller]")]
+    [Authorize(Roles = RoleGroups.InternalRead)]
+    [Route("api/[controller]")]
     public class CAPAController : BaseApiController
     {
         private readonly ICAPAServices _capaServices;
@@ -55,16 +55,31 @@ namespace DMSAPI.Presentation.Controller
         public async Task<IActionResult> GetRootCauseMethods()
         {
             var entity = await _capaServices.GetRootCouseMethodAsync();
-            if(entity == null)
-            {  return NotFound(); }
+            if (entity == null)
+            { return NotFound(); }
             return Ok(entity);
         }
-		[Authorize(Roles = DmsRoles.User + "," + DmsRoles.Editor + "," + DmsRoles.Admin + "," + DmsRoles.SUPER_ADMIN + "," + DmsRoles.Approver)]
-		[HttpPost]
+        [Authorize(Roles = DmsRoles.User + "," + DmsRoles.Editor + "," + DmsRoles.Admin + "," + DmsRoles.SUPER_ADMIN + "," + DmsRoles.Approver)]
+        [HttpPost]
         public async Task<IActionResult> CreateCAPA(CreateCAPADTO dto)
         {
             var result = await _capaServices.CreateCapaAsync(dto, UserId, CompanyId);
             return Ok(result);
         }
+        [HttpPatch("{capaNo}")]
+        [Authorize(Roles = RoleGroups.ComplaintWriteRoles)]
+        public async Task<IActionResult> UpdateCapa(string capaNo, [FromBody] UpdateCAPADTO dto)
+        {
+            var updated = await _capaServices.UpdateCapaAsync(capaNo, dto, UserId, CompanyId);
+            return Ok(updated);
+        }
+        [HttpPost("{capaNo}/close")]
+        [Authorize(Roles = RoleGroups.ComplaintWriteRoles)]
+        public async Task<IActionResult> CloseCapa([FromRoute] string capaNo, [FromBody] ClosedCAPADTO dto)
+        {
+            var closed = await _capaServices.ClosedCapaAsync(capaNo, dto, UserId);
+            return Ok(closed);
+        }
+
     }
 }
