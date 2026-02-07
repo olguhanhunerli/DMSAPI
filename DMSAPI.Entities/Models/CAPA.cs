@@ -59,6 +59,6 @@ namespace DMSAPI.Entities.Models
 
         public ICollection<CAPAACTION> Actions { get; set; } = new List<CAPAACTION>();
 
-
-    }
+        public ICollection<CapaEvidenceFiles> EvidenceFiles { get; set; } = new List<CapaEvidenceFiles>();
+	}
 }

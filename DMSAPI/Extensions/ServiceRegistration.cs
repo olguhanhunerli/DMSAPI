@@ -95,6 +95,9 @@ public static class ServiceRegistration
 
 		services.AddScoped<ICAPAActionRepository, CAPAActionRepository>();
 		services.AddScoped<ICAPAActionsService, CAPAActionsService>();
+		
+		services.AddScoped<ICapaEvidenceRepository, CapaEvidenceRepository>();
+		services.AddScoped<ICapaEvidenceService, CapaEvidenceService>();
 
 		services.AddSingleton<ITokenService, TokenService>();
 

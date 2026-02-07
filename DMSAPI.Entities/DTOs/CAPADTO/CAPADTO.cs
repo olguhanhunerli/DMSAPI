@@ -1,4 +1,5 @@
-﻿using DMSAPI.Entities.Models;
+﻿using DMSAPI.Entities.DTOs.CapaEvidenceFiles;
+using DMSAPI.Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,5 +34,6 @@ namespace DMSAPI.Entities.DTOs.CAPADTO
         public string OwnerByName { get; set; }
         public string? EffectivenessCheckedByName { get; set; }
         public List<CAPAActionDTO> Actions { get; set; }
+        public List<CapaEvidenceFilesDTO> Files { get; set; }
     }
 }

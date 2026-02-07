@@ -46,6 +46,7 @@ namespace DMSAPI.Business.Repositories
                 .Include(x => x.Complaints)
                 .Include(x => x.RootCauseMethod)
                 .Include(x => x.Actions)
+                .Include(x => x.EvidenceFiles)
                 .OrderByDescending(x => x.CreatedAt);
 
             var totalRecords = await query.CountAsync();
@@ -75,6 +76,7 @@ namespace DMSAPI.Business.Repositories
                 .Include(x => x.Actions)
                 .ThenInclude(x => x.OwnerByUser)
                 .Include(x => x.Company)
+                .Include(x => x.EvidenceFiles)
                 .FirstOrDefaultAsync();
             return query;
         }
