@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DMSAPI.Entities.DTOs;
 using DMSAPI.Entities.DTOs.AssigneeDTO;
+using DMSAPI.Entities.DTOs.CapaActionFileDTO;
 using DMSAPI.Entities.DTOs.CAPADTO;
 using DMSAPI.Entities.DTOs.CapaEvidenceFiles;
 using DMSAPI.Entities.DTOs.CategoryDTOs;
@@ -436,6 +437,11 @@ namespace DMSAPI.Services.Mapping
 			CreateMap<CreateCAPAActionDTO, CAPAACTION>();
 			CreateMap<UpdateCAPAActionDTO, CAPAACTION>();
 			CreateMap<CapaEvidenceFiles, CapaEvidenceFilesDTO>();
+
+			CreateMap<ActionFile, CapaActionFilesDTO>();
+
+			CreateMap<CAPAACTION, CAPAActionDTO>()
+				.ForMember(d => d.Files, opt => opt.MapFrom(s => s.Files));
 		}
 		private static List<int> SafeParseJson(string? json)
 		{

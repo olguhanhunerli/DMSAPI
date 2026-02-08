@@ -39,5 +39,6 @@ namespace DMSAPI.Entities.Models
 
         public User? OwnerByUser { get; set; }
         public User? CompletedByUser { get; set; }
-    }
+		public ICollection<ActionFile> Files { get; set; } = new List<ActionFile>();
+	}
 }

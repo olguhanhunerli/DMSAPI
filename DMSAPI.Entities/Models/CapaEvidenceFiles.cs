@@ -11,6 +11,7 @@ namespace DMSAPI.Entities.Models
 		public int Id { get; set; }
 
 		public string CapaNo { get; set; }
+		public CAPA CAPA { get; set; }
 		public string FileName { get; set; } = string.Empty;
 
 		public string FilePath { get; set; } = string.Empty;

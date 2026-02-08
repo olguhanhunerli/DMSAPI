@@ -40,8 +40,8 @@ namespace DMSAPI.Business.Context
         public DbSet<ComplaintAssignee> ComplaintAssignees { get; set; }
         public DbSet<CAPAACTION> CapaActions { get; set; }
 		public DbSet<CapaEvidenceFiles> CapaEvidenceFiles { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+		public DbSet<ActionFile> ActionFiles { get; set; }
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			base.OnModelCreating(modelBuilder);
 			modelBuilder.Entity<Company>()
@@ -442,7 +442,7 @@ namespace DMSAPI.Business.Context
 				.HasForeignKey(x => x.RootCauseMethodId)
 				.OnDelete(DeleteBehavior.Restrict);
 				modelBuilder.Entity<CapaEvidenceFiles>()
-			   .HasOne(f => f.Capa)
+			   .HasOne(f => f.CAPA)
 			   .WithMany(c => c.EvidenceFiles)
 			   .HasForeignKey(f => f.CapaNo)
 			   .HasPrincipalKey(c => c.CapaNo);
@@ -487,7 +487,7 @@ namespace DMSAPI.Business.Context
                       .OnDelete(DeleteBehavior.Cascade);
             });
 			modelBuilder.Entity<CapaEvidenceFiles>()
-			  .HasOne(e => e.Capa)
+			  .HasOne(e => e.CAPA)
 			  .WithMany(c => c.EvidenceFiles)
 			  .HasForeignKey(e => e.CapaNo)
 			  .HasPrincipalKey(c => c.CapaNo)
@@ -495,7 +495,11 @@ namespace DMSAPI.Business.Context
 
 			modelBuilder.Entity<CapaEvidenceFiles>()
 				.HasIndex(e => e.CapaNo);
-
+			modelBuilder.Entity<ActionFile>()
+				.HasOne(x => x.Action)
+				.WithMany(x => x.Files)
+				.HasForeignKey(x => x.ActionId)
+				.OnDelete(DeleteBehavior.Cascade);
 		}
 	}
 }

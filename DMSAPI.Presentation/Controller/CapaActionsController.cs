@@ -1,4 +1,5 @@
-﻿using DMSAPI.Entities.DTOs.CAPADTO;
+﻿using DMSAPI.Entities.DTOs.CapaActionFileDTO;
+using DMSAPI.Entities.DTOs.CAPADTO;
 using DMSAPI.Presentation.Authorization;
 using DMSAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
@@ -54,5 +55,26 @@ namespace DMSAPI.Presentation.Controller
             var updated = await _actionsService.UpdateActionAsync(actionId, dto, UserId, CompanyId);
             return Ok(updated);
         }
-    }
+		[HttpPost("actions/{actionId:long}/files")]
+		[Authorize(Roles = RoleGroups.ComplaintWriteRoles)]
+		[Consumes("multipart/form-data")]
+		public async Task<IActionResult> UploadActionFile(long actionId, [FromForm] CreateActionFilesDTO dto)
+		{
+			var created = await _actionsService.UploadActionFileAsync(actionId, dto, UserId);
+			return Ok(created);
+		}
+		[HttpGet("actions/{actionId:long}/files/{fileId:long}/download")]
+		[Authorize(Roles = RoleGroups.InternalRead)]
+		public async Task<IActionResult> DownloadActionFile(long actionId, long fileId)
+		{
+			var result = await _actionsService
+				.DownloadActionFileAsync(actionId, fileId);
+
+			return PhysicalFile(
+				result.FullPath,
+				result.ContentType,
+				result.FileName
+			);
+		}
+	}
 }

@@ -8,10 +8,9 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Business.Repositories.IRepositories
 {
-    public interface ICapaEvidenceRepository: IGenericRepository<CapaEvidenceFiles>
+    public interface IActionFilesRepository: IGenericRepository<ActionFile>
     {
-		Task<List<CapaEvidenceFiles>> GetFilesAsync(string capaNo);
-		Task<CapaEvidenceFiles?> GetByIdLongAsync(long id);
-
-	}
+        Task<bool> AnyByActionIdAsync(long actionId);
+        Task<ActionFile> GetByLongIdAsync(long fileId);
+    }
 }

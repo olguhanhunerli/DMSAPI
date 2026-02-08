@@ -11,5 +11,6 @@ namespace DMSAPI.Services.IServices
     public interface ICapaEvidenceService
     {
         Task<CapaEvidenceFiles> CreateFiles(string capaNo, CreateCapaEvidenceFilesDTO dto, int userId);
-    }
+		Task<(string FullPath, string FileName, string ContentType)> DownloadFileAsync(string capaNo, long fileId);
+	}
 }

@@ -25,5 +25,11 @@ namespace DMSAPI.Presentation.Controller
 			var created = await _capaEvidenceService.CreateFiles(capaNo, dto, UserId);
 			return Ok();
 		}
+		[HttpGet("{capaNo}/files/{fileId:long}/download")]
+		public async Task<IActionResult> Download(string capaNo, long fileId)
+		{
+			var (fullPath, fileName, contentType) = await _capaEvidenceService.DownloadFileAsync(capaNo, fileId);
+			return PhysicalFile(fullPath, contentType, fileName);
+		}
 	}
 }

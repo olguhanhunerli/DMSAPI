@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DMSAPI.Entities.DTOs.CapaActionFileDTO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,5 +19,6 @@ namespace DMSAPI.Entities.DTOs.CAPADTO
         public string Status { get; set; } = null!;
         public bool EvidenceRequired { get; set; }
         public DateTime CreatedAt { get; set; }
-    }
+		public List<CapaActionFilesDTO> Files { get; set; } = new();
+	}
 }

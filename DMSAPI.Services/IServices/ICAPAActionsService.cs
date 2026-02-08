@@ -1,4 +1,5 @@
-﻿using DMSAPI.Entities.DTOs.CAPADTO;
+﻿using DMSAPI.Entities.DTOs.CapaActionFileDTO;
+using DMSAPI.Entities.DTOs.CAPADTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,7 @@ namespace DMSAPI.Services.IServices
         Task<CAPAActionDTO> CreateActionAsync(string capaNo, CreateCAPAActionDTO action, int userId, int companyId);
         Task<CAPAActionDTO> UpdateActionAsync(long actionId,UpdateCAPAActionDTO action, int userId, int companyId);
         Task<List<CAPAActionDTO>> GetByCapaNoAsync(string capaNo, int companyId);
-    }
+		Task<bool> UploadActionFileAsync(long actionId, CreateActionFilesDTO dto, int userId);
+        Task<(string FullPath, string FileName, string ContentType)> DownloadActionFileAsync(long actionId, long fileId);
+	}
 }

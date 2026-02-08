@@ -27,6 +27,8 @@ namespace DMSAPI.Business.Repositories
         {
             return await _dbSet
                 .Where(x => x.CapaNo == capaNo)
+                .Include(x => x.OwnerByUser)
+                .Include(x => x.Files)
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
         }

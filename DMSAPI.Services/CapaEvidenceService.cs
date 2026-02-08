@@ -4,6 +4,7 @@ using DMSAPI.Business.Repositories.IRepositories;
 using DMSAPI.Entities.DTOs.CapaEvidenceFiles;
 using DMSAPI.Entities.Models;
 using DMSAPI.Services.IServices;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace DMSAPI.Services
 {
-    public class CapaEvidenceService: ICapaEvidenceService
+	public class CapaEvidenceService : ICapaEvidenceService
     {
         private readonly ICapaEvidenceRepository _repository;
 		private readonly IMapper _mapper;
@@ -70,6 +71,28 @@ namespace DMSAPI.Services
 			await _repository.AddAsync(entity);
 			return entity;
 
+		}
+
+		public async Task<(string FullPath, string FileName, string ContentType)> DownloadFileAsync(string capaNo, long fileId)
+		{
+			var entity = await _repository.GetByIdLongAsync(fileId);
+			if (entity == null)
+				throw new Exception("Dosya bulunamadı");
+
+			if (!string.Equals(entity.CapaNo, capaNo, StringComparison.OrdinalIgnoreCase))
+				throw new Exception("Dosya bu CAPA'ya ait değil");
+
+			var relative = entity.FilePath.TrimStart('/');
+			var fullPath = Path.Combine(_env.ContentRootPath, relative);
+
+			if (!System.IO.File.Exists(fullPath))
+				throw new Exception("Dosya disk üzerinde bulunamadı");
+
+			var provider = new FileExtensionContentTypeProvider();
+			if (!provider.TryGetContentType(entity.FileName, out var contentType))
+				contentType = "application/octet-stream";
+
+			return (fullPath, entity.FileName, contentType);
 		}
 	}
 }

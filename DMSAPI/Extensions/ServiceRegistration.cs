@@ -99,6 +99,8 @@ public static class ServiceRegistration
 		services.AddScoped<ICapaEvidenceRepository, CapaEvidenceRepository>();
 		services.AddScoped<ICapaEvidenceService, CapaEvidenceService>();
 
+		services.AddScoped<IActionFilesRepository, ActionFilesRepository>();
+
 		services.AddSingleton<ITokenService, TokenService>();
 
 		services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
