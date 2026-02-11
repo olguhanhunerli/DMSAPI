@@ -36,6 +36,7 @@ namespace DMSAPI.Services
 				new Claim("roleId", user.RoleId.ToString()),          
 				new Claim("departmentId", user.DepartmentId.ToString()), 
 				new Claim("companyId", user.CompanyId.ToString()),
+				new Claim("fullName", user.FirstName + " " + user.LastName),
             };
 
 			if (user.PositionId.HasValue)
