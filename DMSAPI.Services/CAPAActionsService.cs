@@ -95,7 +95,7 @@ namespace DMSAPI.Services
 
 		public async Task<List<CAPAActionDTO>> GetByCapaNoAsync(string capaNo, int companyId)
         {
-            var capa = _capaRepository.GetCAPAByCapaNoAsync(capaNo);
+            var capa = await _capaRepository.GetCAPAByCapaNoAsync(capaNo);
             if (capa == null)
                 throw new Exception("CAPA Bulunamadı");
             var actions = await _actionRepository.GetByCapaNoAsync(capaNo);

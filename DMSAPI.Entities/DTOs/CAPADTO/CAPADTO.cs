@@ -26,11 +26,10 @@ namespace DMSAPI.Entities.DTOs.CAPADTO
         public DateTime? DueDate { get; set; } = DateTime.UtcNow;
         public DateTime? EffectivenessCheckedAt { get; set; }
         public DateTime? OpenedAt { get; set; }
-        public DateTime? CloseAt { get; set; }
+        public DateTime? ClosedAt { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public string CompanyName { get; set; }
-        public string ComplaintNumber { get; set; }
         public string OwnerByName { get; set; }
         public string? EffectivenessCheckedByName { get; set; }
         public List<CAPAActionDTO> Actions { get; set; }
