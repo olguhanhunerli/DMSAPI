@@ -40,7 +40,7 @@ namespace DMSAPI.Business.Repositories
             }
             var query = _dbSet
                 .AsNoTracking()
-                .Where(x => x.CompanyId == CompanyId && !x.IsClosed)
+                .Where(x => x.CompanyId == CompanyId )
                 .Include(x => x.OwnerByUser)
                 .Include(x => x.EffectivenessCheckedByUser)
                 .Include(x => x.Complaints)
@@ -68,7 +68,7 @@ namespace DMSAPI.Business.Repositories
         {
             var query = _dbSet
                 .AsNoTracking()
-                .Where(x => x.CompanyId == CompanyId && !x.IsClosed && x.CapaNo == capaNo)
+                .Where(x => x.CompanyId == CompanyId  && x.CapaNo == capaNo)
                 .Include(x => x.OwnerByUser)
                 .Include(x => x.EffectivenessCheckedByUser)
                 .Include(x => x.Complaints)
