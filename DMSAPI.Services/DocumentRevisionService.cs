@@ -85,14 +85,14 @@ namespace DMSAPI.Services
 			document.IsLocked = false;
 			document.LockedByUserId = null;
 			document.LockedAt = null;
-
+			Console.WriteLine($"ActiveRevisionId={revision.Id}, RevDocCode={revision.DocumentCode}");
 			var oldApprovals = await _documentApprovalRepository.GetByDocumentIdAsync(documentId);
 			foreach (var old in oldApprovals)
 			{
 				await _documentApprovalHistoryService.AddAsync(new DocumentApprovalHistory
 				{
 					DocumentId = documentId,
-					ActionType = "APPROVAL_RESET",
+					ActionType = "Onay Akışı İptal Edildi.",
 					ActionByUserId = userId,
 					ActionAt = DateTime.UtcNow,
 					ActionNote = $"Revision Sonrası Approval Resetlendi (Level {old.ApprovalLevel})"
@@ -161,7 +161,7 @@ namespace DMSAPI.Services
 				RevisionNote = revisionNote,
 				IsActive = true,
 				Status = "In Progress",
-
+				DocumentCode = document.DocumentCode,
 
                 OldVersionNumber = document.VersionNumber,
                 NewVersionNumber = document.VersionNumber + 1

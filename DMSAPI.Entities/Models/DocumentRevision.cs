@@ -12,7 +12,7 @@ namespace DMSAPI.Entities.Models
 
 		public int DocumentId { get; set; }
 		public Document Document { get; set; }
-
+		public string? DocumentCode { get; set; }	
 		public int OldVersionNumber { get; set; }
 		public int NewVersionNumber { get; set; }
 		public bool IsActive { get; set; }

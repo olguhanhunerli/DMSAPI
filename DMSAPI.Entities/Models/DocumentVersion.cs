@@ -15,7 +15,6 @@ namespace DMSAPI.Entities.Models
 		public Document Document { get; set; }
 		public string DocumentCode { get; set; }
 		public int VersionNumber { get; set; }
-		public bool IsLatestVersion { get; set; }
 
 		public string FilePath { get; set; }
 		public string? FileName { get; set; }
@@ -28,6 +27,6 @@ namespace DMSAPI.Entities.Models
 		public DateTime CreatedAt { get; set; }
 		public int CreatedByUserId { get; set; }
 
-		public string FileHash { get; set; }
+		public string? FileHash { get; set; }
 	}
 }

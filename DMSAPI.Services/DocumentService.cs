@@ -106,7 +106,6 @@ namespace DMSAPI.Services
 					        AllowedUsers = dto.AllowedUserIds != null
 			        ? JsonSerializer.Serialize(dto.AllowedUserIds)
 			        : null,
-                    IsLatestVersion = true,
                     ExpireDate = dto.ExpireDate,
 				};
               
@@ -122,7 +121,6 @@ namespace DMSAPI.Services
                     FileSize = 1,
                     OriginalFileName = dto.MainFile?.FileName,
                     FileType = dto.DocumentType,
-                    IsLatestVersion = true,
                     FilePath = dto.MainFile != null ? $"uploads/documents/{category.Name}/{document.DocumentCode}/main/{Path.GetFileName(dto.MainFile.FileName)}" : null,
                 };
                 await _documentVersionRepository.AddAsync(documentVersion);
