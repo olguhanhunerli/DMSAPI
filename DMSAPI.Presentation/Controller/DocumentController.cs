@@ -115,6 +115,16 @@ public class DocumentController : BaseApiController
 		});
 		return Ok(document);
 	}
+	[HttpGet("by-code/{documentCode}")]
+	public async Task<IActionResult> GetDocumentsByCode(string documentCode)
+	{
+		var document = await _service.GetDocumentsByCodeAsync(documentCode);
+		if (document == null)
+		{
+			return NotFound(new { message = "Document not found." });
+		}
+		return Ok(document);
+	}
 	[HttpGet("{id}/pdf")]
 	public async Task<IActionResult> GetDocumentPdf(int id)
 	{

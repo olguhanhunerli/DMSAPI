@@ -302,4 +302,26 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
 			Items = items
 		};
 	}
+    public async Task<Document> GetDocumentsByCodeAsync(string documentCode)
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .Include(x => x.Category)
+            .Include(x => x.Company)
+            .Include(x => x.CreatedByUser)
+            .Include(x => x.UpdatedByUser)
+            .Include(x => x.DeletedByUser)
+            .Include(x => x.LockedByUser)
+            .Include(x => x.Approvals)
+                .ThenInclude(a => a.User)
+            .Include(x => x.Files)
+            .Include(x => x.Attachments)
+            .Include(x => x.Versions)
+            .Include(x => x.ApprovalHistories)
+                .ThenInclude(h => h.ActionByUser)
+            .Include(x => x.AccessLogs)
+                .ThenInclude(x => x.User)
+            .Include(x => x.Versions)
+        .FirstOrDefaultAsync(x => x.DocumentCode == documentCode && !x.IsDeleted && x.CompanyId == CompanyId);
+    }
 }

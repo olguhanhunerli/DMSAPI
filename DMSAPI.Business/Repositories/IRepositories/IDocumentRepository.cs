@@ -17,7 +17,7 @@ namespace DMSAPI.Business.Repositories.IRepositories
 		Task<PagedResultDTO<Document>> GetPagedRejectedAsync(int page, int pageSize);
 		Task<Document?> GetDocumentWithFileAsync(int documentId);
 		Task<PagedResultDTO<Document>> GetPagedByCategoryAsync(int page, int pageSize, int? categoryId, int roleId, int userId, int departmentId);
-
+		Task<Document> GetDocumentsByCodeAsync(string documentCode);
 
 	}
 }

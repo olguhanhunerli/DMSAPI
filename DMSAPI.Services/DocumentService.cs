@@ -644,6 +644,10 @@ namespace DMSAPI.Services
 		        .ToList()
 			};
 		}
-
+        public async Task<DocumentDTO> GetDocumentsByCodeAsync(string documentCode)
+        {
+            var document = await _documentRepository.GetDocumentsByCodeAsync(documentCode);
+            return _mapper.Map<DocumentDTO>(document);
+        }
 	}
 }
