@@ -26,7 +26,7 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
 		public string? CategoryName { get; set; }
 		public List<string>? Breadcrumb { get; set; }
 		public string? BreadcrumbPath { get; set; }
-
+		public int? ExpireDate { get; set; } 
 		public int CompanyId { get; set; }
 		public string? CompanyName { get; set; }
 		public string? CompanyCode { get; set; }

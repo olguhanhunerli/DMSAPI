@@ -33,7 +33,7 @@ namespace DMSAPI.Services
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IDocumentApprovalHistoryRepository _documentApprovalHistoryRepository;
         private readonly IDocumentCodeReservationRepository _documentCodeReservationRepository;
-
+        private readonly IDocumentVersionRepository _documentVersionRepository;
 		public DocumentService(
 			IDocumentRepository documentRepository,
 			IMapper mapper,
@@ -46,7 +46,8 @@ namespace DMSAPI.Services
 			IRoleRepository roleRepository,
 			IDepartmentRepository departmentRepository,
 			IDocumentApprovalHistoryRepository documentApprovalHistoryRepository,
-			IDocumentCodeReservationRepository documentCodeReservationRepository)
+			IDocumentCodeReservationRepository documentCodeReservationRepository,
+			IDocumentVersionRepository documentVersionRepository)
 		{
 			_documentRepository = documentRepository;
 			_mapper = mapper;
@@ -60,6 +61,7 @@ namespace DMSAPI.Services
 			_departmentRepository = departmentRepository;
 			_documentApprovalHistoryRepository = documentApprovalHistoryRepository;
 			_documentCodeReservationRepository = documentCodeReservationRepository;
+			_documentVersionRepository = documentVersionRepository;
 		}
 
 		public async Task<DocumentCreateResponseDTO> CreateDocumentAsync(DocumentCreateDTO dto, int userId)
@@ -103,15 +105,32 @@ namespace DMSAPI.Services
 			        : null,
 					        AllowedUsers = dto.AllowedUserIds != null
 			        ? JsonSerializer.Serialize(dto.AllowedUserIds)
-			        : null
+			        : null,
+                    IsLatestVersion = true,
+                    ExpireDate = dto.ExpireDate,
 				};
-
+              
                 await _documentRepository.AddAsync(document);
+                  var documentVersion = new DocumentVersion
+                {
+                    DocumentId = document.Id,
+                    DocumentCode = document.DocumentCode,
+                    VersionNumber = 1,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedByUserId = userId,
+                    VersionNote = dto.VersionNote,
+                    FileSize = 1,
+                    OriginalFileName = dto.MainFile?.FileName,
+                    FileType = dto.DocumentType,
+                    IsLatestVersion = true,
+                    FilePath = dto.MainFile != null ? $"uploads/documents/{category.Name}/{document.DocumentCode}/main/{Path.GetFileName(dto.MainFile.FileName)}" : null,
+                };
+                await _documentVersionRepository.AddAsync(documentVersion);
                 await _documentCodeReservationRepository.MarkAsUsedAsync(reservation.DocumentCode);
 				await _documentApprovalHistoryRepository.AddAsync(new DocumentApprovalHistory
                 {
                     DocumentId = document.Id,
-                    ActionType = "Created",
+                    ActionType = "Oluşturma",
                     ActionByUserId = userId,
                     ActionAt = DateTime.UtcNow,
                     ActionNote = "Doküman Oluşturuldu"
@@ -221,7 +240,7 @@ namespace DMSAPI.Services
                 await _documentApprovalHistoryRepository.AddAsync(new DocumentApprovalHistory
                 {
                     DocumentId = document.Id,
-                    ActionType = "SENT_FOR_APPROVAL",
+                    ActionType = "Onaya Gönderildi.",
                     ActionByUserId = userId,
                     ActionAt = DateTime.UtcNow,
                     ActionNote = "Doküman Onay Sürecine Gönderildi"
@@ -320,6 +339,7 @@ namespace DMSAPI.Services
 				CategoryName = category.Name,
 				CategoryBreadcrumb = breadcrumbPath,
 				VersionNumber = 1,
+                ExpireDate = 60,
 				Status = "Draft",
 				OwnerName = $"{user.FirstName} {user.LastName}",
 				CreatedAt = DateTime.UtcNow,

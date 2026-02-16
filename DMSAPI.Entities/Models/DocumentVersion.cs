@@ -13,7 +13,7 @@ namespace DMSAPI.Entities.Models
 
 		public int DocumentId { get; set; }
 		public Document Document { get; set; }
-
+		public string DocumentCode { get; set; }
 		public int VersionNumber { get; set; }
 		public bool IsLatestVersion { get; set; }
 

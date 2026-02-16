@@ -18,7 +18,7 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
 
         public string? DocumentType { get; set; }
         public string? VersionNote { get; set; }
-
+        public int ExpireDate { get; set; }  // Expire date in days, 0 means no expiration
         public int RevisionNumber { get; set; } = 0;
 
         public bool IsPublic { get; set; }

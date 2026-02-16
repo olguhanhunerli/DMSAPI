@@ -28,7 +28,7 @@ namespace DMSAPI.Entities.Models
 
 		public int VersionNumber { get; set; }
 		public string? VersionNote { get; set; }
-
+		public int? ExpireDate { get; set; }
 		public string? DocumentType { get; set; }
 
 		public bool IsPublic { get; set; }

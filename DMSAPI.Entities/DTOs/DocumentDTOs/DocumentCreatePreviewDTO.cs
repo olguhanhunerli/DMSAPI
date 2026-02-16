@@ -20,7 +20,7 @@ namespace DMSAPI.Entities.DTOs.DocumentDTOs
 
 		public int VersionNumber { get; set; }
 		public string? VersionNote { get; set; }
-		
+		public int ExpireDate{ get; set; }
 		public int StatusId { get; set; }
 		public string Status { get; set; } 
 

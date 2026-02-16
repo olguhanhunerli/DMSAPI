@@ -225,6 +225,7 @@ public class DocumentRepository : GenericRepository<Document>, IDocumentReposito
             .ThenInclude(h => h.ActionByUser)
         .Include(x => x.AccessLogs)
             .ThenInclude(x => x.User)
+        .Include(x => x.Versions)
         .FirstOrDefaultAsync(x => x.Id == documentId && !x.IsDeleted && x.CompanyId == CompanyId);
     }
 

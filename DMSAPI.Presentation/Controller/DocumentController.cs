@@ -98,7 +98,7 @@ public class DocumentController : BaseApiController
 		return Ok(result);
 	}
 	[HttpGet("{id}")]
-	public async Task<IActionResult> GetDocumentDetailById(int id)
+	public async Task<IActionResult> GetDocumentDetailBy(int id)
 	{
 		var document = await _service.GetDetailByIdAsync(id);
 		if (document == null)

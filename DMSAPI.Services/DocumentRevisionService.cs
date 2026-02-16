@@ -107,7 +107,7 @@ namespace DMSAPI.Services
 				await _documentApprovalHistoryService.AddAsync(new DocumentApprovalHistory
 				{
 					DocumentId = documentId,
-					ActionType = "SENT_FOR_APPROVAL",
+					ActionType = "Onaya Gönderildi.",
 					ActionByUserId = userId,
 					ActionAt = DateTime.UtcNow,
 					ActionNote = "Revision Sonrası Yeni Approval Flow Oluşturuldu"
