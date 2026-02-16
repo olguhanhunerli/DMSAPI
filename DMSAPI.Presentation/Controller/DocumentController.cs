@@ -30,7 +30,6 @@ public class DocumentController : BaseApiController
 	[Consumes("multipart/form-data")]
 	public async Task<IActionResult> Create([FromForm] DocumentCreateDTO dto)
 	{
-		Console.WriteLine("🔥 DOCUMENT CREATE API HIT 🔥");
 
 		if (!ModelState.IsValid)
 		{
@@ -125,10 +124,10 @@ public class DocumentController : BaseApiController
 		}
 		return Ok(document);
 	}
-	[HttpGet("{id}/pdf")]
-	public async Task<IActionResult> GetDocumentPdf(int id)
+	[HttpGet("{documentCode}/pdf")]
+	public async Task<IActionResult> GetDocumentPdf(string documentCode)
 	{
-		var document = await _service.GetDetailByIdAsync(id);
+		var document = await _service.GetDocumentsByCodeAsync(documentCode);
 
 		if (document == null || document.MainFile == null)
 			return NotFound();
@@ -137,7 +136,7 @@ public class DocumentController : BaseApiController
 			return NotFound("PDF not found");
 		await _documentAccessLogService.AddAsync(new DocumentAccessLog
 		{
-			DocumentId = id,
+			DocumentId = document.Id,
 			UserId = UserId,
 			AccessType = "PDF DOCUMENT VIEW",
 			AccessAt = DateTime.UtcNow,
